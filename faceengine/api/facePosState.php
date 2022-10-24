@@ -1,0 +1,63 @@
+<?php
+function myguid(){
+	return time();
+}
+
+set_time_limit(0); 
+shell_exec("sudo /sbin/restorecon -v /var/www/html/faceengine/api/st6faceposstate");
+$img1 = $_POST['image_file1'];
+
+$data = array();
+
+if($img1 == '')
+{
+	$data["IsSuccess"]="false";
+	header('Content-Type: application/json');
+	echo (json_encode($data, JSON_PRETTY_PRINT));					
+	exit;				
+}
+//mkdir("./var/", 0777, true);
+$id1 = myguid();//uniqid();
+
+$imagefile1 = $id1;
+
+
+$filename1 = "./tmp/".$id1.".jpg";
+$file1 = fopen($filename1,"w");
+
+fwrite($file1,base64_decode($img1));
+fclose($file1);
+
+
+//error_reporting(E_ALL);
+
+$cmd = "./st6faceposstate ".$filename1;
+//$cmd = "ls";
+//$out = array();
+$ret = "";
+//echo $cmd;
+$out = shell_exec($cmd);//, $val);
+//"yaw:%f, pitch:%f, roll:%f"
+$ret = explode(",", $out);
+
+$yaw = explode(":", trim($ret[0]));//yaw:%f
+$yaw1 = $yaw[1];
+
+$pitch = explode(":", trim($ret[1]));//pitch:%f
+$pitch1 = $pitch[1];
+
+$roll = explode(":", trim($ret[2]));//roll:%f
+$roll1 = $roll[1];
+
+unlink($filename1);
+
+
+$data["IsSuccess"]="true";
+$data["data"]["YAW"]=$yaw1;
+$data["data"]["PITCH"]=$pitch1;
+$data["data"]["ROLL"]=$roll1;
+header('Content-Type: application/json');
+echo (json_encode($data, JSON_PRETTY_PRINT));	
+//socket_close($socket);				
+exit;		
+?>

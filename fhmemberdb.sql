@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2022 年 10 月 24 日 05:58
+-- 產生時間： 2022 年 10 月 24 日 06:42
 -- 伺服器版本： 8.0.26
 -- PHP 版本： 7.4.32
 
@@ -207,7 +207,7 @@ CREATE TABLE `orderinfo` (
   `mobile_no` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `role` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `verification_code` varchar(10) DEFAULT NULL,
-  `order_status` varchar(10) DEFAULT NULL,
+  `order_status` int NOT NULL DEFAULT '0',
   `notificationToken` varchar(255) DEFAULT NULL,
   `order_trash` tinyint(1) NOT NULL DEFAULT '0',
   `inputdttime` datetime DEFAULT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE `orderlog` (
   `person_id` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `mobile_no` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `member_type` tinyint(1) NOT NULL DEFAULT '0',
-  `order_status` varchar(16) DEFAULT NULL,
+  `order_status` int NOT NULL DEFAULT '0',
   `log_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
