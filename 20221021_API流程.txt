@@ -1,0 +1,39 @@
+客戶端																								JTG_Query_Insurance_Status
+Q01.開啟App定位，app不存在顯示導入安裝html頁面, 會檢核三要素										JTG_Create/Update_Insurance_Status, JTG_Update_Country_Code, JTG_SSO_Login.php, JTG_Create_Member/JTG_Update_Member
+Q02.身份證字號輸入，APP檢核保單資料是否屬於該身份證，並檢查Log目前該員步驟 API						JTG_Create/Update_Insurance_Status, JTG_Check_Member
+Q03.身份證正反面-> OCR API -> 內政部API																JTG_Create/Update_Insurance_Status, JTG_Save_IDPhoto, OCR廠商API(APIURL/jotangi/api/uploadAndWait), JTG_Get_IDPIC(取得身分證正反面照片資訊), APIURL/member/api/mpos/JTG_Check_ID(內政部)
+Q04.臉部辨識API frank																				JTG_Create/Update_Insurance_Status, JTG_Face_Compare[JTB_Src_Face]
+Q05.活體辨識API 第三方																				JTG_Create/Update_Insurance_Status, JTG_Live_Check			
+Q06.OTP驗證(第一金API)																				JTG_Create/Update_Insurance_Status, JTG_Verification_Code, JTG_Check_Verification_Code, 第一金API(APIURL/member/api/mpos/JTG_Send_OTP), APIURL/member/api/mpos/JTG_Get_OTP_Status
+Q07.確認要保文件API（一份文件）																		JTG_Create/Update_Insurance_Status, JTG_Get_Signature_PDF, APIURL/member/api/mpos/JTG_Get_Proposal
+Q08.OTP驗證(第一金API)																				JTG_Create/Update_Insurance_Status, JTG_Get_Signature_PDF, 
+Q09.視訊會議推播後台API																				JTG_Create/Update_Insurance_Status, JtgNotify/JtgNotifytoSales, JTG_Get_FrsipInfo, JTG_Get_MeetingInfo
+Q10.檢查會議主機是否存在API、影音伺服器存儲影片API													JTG_Create/Update_Insurance_Status, JTG_Start_Meeting, JTG_Stop_MeetingV2, , 需再查是否有儲存影音API
+Q11.要保資料簽名(jason）和我要取得要保資料PDF API、													JTG_Create/Update_Insurance_Status, APIURL/member/api/mpos/JTG_Get_Proposal（丟取得的json資訊給jason）, JTG_Save_Signature, JTG_Get_Signature_PDF
+	jason要和雲達人確認簽名位置，滑掉全部重簽，檢查換誰的步驟我司API								
+Q12.OTP驗證(第一金API)																				JTG_Create/Update_Insurance_Status, JTG_Verification_Code, JTG_Check_Verification_Code, APIURL/member/api/mpos/JTG_Send_OTP, APIURL/member/api/mpos/JTG_Get_OTP_Status
+Q13.第二次視訊會議，檢查會議主機是否存在API、影音伺服器存儲影片API									JTG_Create/Update_Insurance_Status, JtgNotify/JtgNotifytoSales, JTG_Get_FrsipInfo, JTG_Get_MeetingInfo, JTG_Start_Meeting, JTG_Stop_MeetingV2, 需再查是否有儲存影音API
+Q14.資料拍照上傳，附件資料API，Log誰上傳															JTG_Create/Update_Insurance_Status, 附件資料API
+Q15.業務要簽  要保書簽名，業報書簽名jason透過API回傳給我											
+
+ps.每個步驟都要狀態API
+ps.第二次視訊會議，客戶端收到推播後台API，身份證資料資料加密隱藏
+
+業務端
+Q01.開啟App定位，iOS相互呼叫，可略過客戶端Q001，直接取得所有資訊及進度API							JTG_Create/Update_Insurance_Status, JTG_Update_Country_Code, JTG_SSO_Login.php, JTG_Create_Sales, 
+Q02.客戶進度畫面，API，保戶身份，進度API															JTG_Create/Update_Insurance_Status, APIURL/member/api/mpos/JTG_Get_AgentCase
+Q03.視訊會議推播後台API， 開會議室API(為web)														JTG_Create/Update_Insurance_Status, JtgNotify, JTG_Get_FrsipInfo, JTG_Get_MeetingInfo, JTG_Stop_MeetingV2, 需再查是否有儲存影音API
+	和我要取得要保資料PDF API、jason要和雲達人確認簽名位置，滑掉全部重簽，檢查換誰的步驟我司API		JTG_Create/Update_Insurance_Status, APIURL/member/api/mpos/JTG_Get_Proposal（丟取得的json資訊給jason）, JTG_Save_Signature, JTG_Get_Signature_PDF
+	gavin需確認部分[全球有確認全部的人員都有到，才能開始、結束]，是否存檔會議影片					
+Q04.等簽名＆拍傳完成後，才可發起第二次視訊會議API													JTG_Create/Update_Insurance_Status, JtgNotify/JtgNotifytoSales, JTG_Get_FrsipInfo, JTG_Get_MeetingInfo, JTG_Start_Meeting, JTG_Stop_MeetingV2, 需再查是否有儲存影音API
+Q05.業務要簽  要保書簽名，業報書簽名jason透過API回傳給我											JTG_Create/Update_Insurance_Status, APIURL/member/api/mpos/JTG_Get_Proposal（丟取得的json資訊給jason）, JTG_Save_Signature, JTG_Get_Signature_PDF
+Q06.業務員送件鈕，APP call php API 取得保單號，再傳給jason押上保單號，再把整份文件回傳給雲端達人	JTG_Create/Update_Insurance_Status, 取得保單號API, APIURL/member/api/mpos/JTG_Get_Proposal（丟取得的json資訊給jason）, JTG_Save_Signature, JTG_Get_Signature_PDF
+
+ps.每個步驟都要狀態API
+
+
+工作項目
+-----------------------------------------------------------------
+1、整理全球現有API在第一金需要用到的(V)
+2、擴增的API及Table					(V)
+3、API細部整理						()
