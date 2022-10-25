@@ -3,7 +3,7 @@ Q01.開啟App定位，app不存在顯示導入安裝html頁面, 會檢核三要�
 Q02.身份證字號輸入，APP檢核保單資料是否屬於該身份證，並檢查Log目前該員步驟 API						JTG_Create/Update_Insurance_Status, JTG_Check_Member
 Q03.身份證正反面-> OCR API -> 內政部API																JTG_Create/Update_Insurance_Status, JTG_Save_IDPhoto, OCR廠商API(APIURL/jotangi/api/uploadAndWait), JTG_Get_IDPIC(取得身分證正反面照片資訊), APIURL/member/api/mpos/JTG_Check_ID(內政部)
 Q04.臉部辨識API frank																				JTG_Create/Update_Insurance_Status, JTG_Face_Compare[JTB_Src_Face]
-Q05.活體辨識API 第三方																				JTG_Create/Update_Insurance_Status, JTG_Live_Check			
+Q05.活體辨識API 第三方																				JTG_Create/Update_Insurance_Status, JTG_Live_Check
 Q06.OTP驗證(第一金API)																				JTG_Create/Update_Insurance_Status, JTG_Verification_Code, JTG_Check_Verification_Code, 第一金API(APIURL/member/api/mpos/JTG_Send_OTP), APIURL/member/api/mpos/JTG_Get_OTP_Status
 Q07.確認要保文件API（一份文件）																		JTG_Create/Update_Insurance_Status, JTG_Get_Signature_PDF, APIURL/member/api/mpos/JTG_Get_Proposal
 Q08.OTP驗證(第一金API)																				JTG_Create/Update_Insurance_Status, JTG_Get_Signature_PDF, 
