@@ -1,8 +1,7 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php");
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
@@ -21,7 +20,6 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
 
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
@@ -37,13 +35,12 @@
 	$Mobile_no 				= check_special_char($Mobile_no);
 	$Role_type 				= check_special_char($Role_type);
 
-	if (($Insurance_no != '') &&
-		($Remote_insurance_no != '') &&
-		($Sales_id != '') &&
-		($Person_id != '') &&
-		($Mobile_no != '') )
+	if (($Insurance_no 			!= '') &&
+		($Remote_insurance_no 	!= '') &&
+		($Sales_id 				!= '') &&
+		($Person_id 			!= '') &&
+		($Mobile_no 			!= '') )
 	{
-
 		try {
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
@@ -104,7 +101,7 @@
 		}
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	}else{
+	} else {
 		//echo "need mail and password!";
 		$data["status"]="false";
 		$data["code"]="0x0203";

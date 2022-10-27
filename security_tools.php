@@ -9,7 +9,7 @@
 		}
 		$now = date("Y-m-d H:i:s");
 		$diff = strtotime($now)-strtotime($token);
-		if(abs($diff)<=10800)//3小時內有效
+		if (abs($diff) <= 10800)//3小時內有效
 		  return true;
 		else
 		  return false;		

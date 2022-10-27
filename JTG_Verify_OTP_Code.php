@@ -1,10 +1,9 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php"); 
 	include("security_tools.php");
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
-	/* jacky mark 2022-10-24
+	
 	if(check_header($key, $token)==true)
 	{
 		;//echo "valid token";
@@ -21,7 +20,6 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
 	
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';

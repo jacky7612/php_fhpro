@@ -155,7 +155,6 @@
         }
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		
 	} else {
 		//echo "need mail and password!";
 		$data["status"]="false";

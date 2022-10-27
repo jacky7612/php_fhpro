@@ -2,6 +2,25 @@
 	include "comm.php";
 	include "db_tools.php";
 	
+	$headers =  apache_request_headers();
+	$token = $headers['Authorization'];
+	if(check_header($key, $token)==true)
+	{
+		;//echo "valid token";
+		
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]="false";
+		$data["code"]="0x0209";
+		$data["responseMessage"]="Invalid token!";	
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
+		exit;							
+	}
+	
 	function CallAPI($method, $url, $data = false, $header = null)
 	{
 		$url = trim(stripslashes($url));

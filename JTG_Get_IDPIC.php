@@ -3,26 +3,6 @@
 	include("db_tools.php"); 
 	//include("nas_ip.php");
 	include("security_tools.php");
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
-	/*
-	if(check_header($key, $token)==true)
-	{
-		;//echo "valid token";
-		
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		exit;							
-	}
-	*/
 
 	$Insurance_no = isset($_POST['Insurance_no']) ? $_POST['Insurance_no'] : '';
 	$Insurance_no = isset($_POST['Insurance_no']) ? $_POST['Insurance_no'] : '';
@@ -263,7 +243,26 @@
 
 
 	//-----------------start main process -------------------------
-
+	$headers =  apache_request_headers();
+	$token = $headers['Authorization'];
+	
+	if(check_header($key, $token)==true)
+	{
+		;//echo "valid token";
+		
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]="false";
+		$data["code"]="0x0209";
+		$data["responseMessage"]="Invalid token!";	
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
+		exit;							
+	}
+	
 	if (($Insurance_no != '')) {
 
 		try {

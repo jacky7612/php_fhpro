@@ -1,14 +1,12 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php");
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
 	{
 		;//echo "valid token";
-		
 	}
 	else
 	{
@@ -21,11 +19,11 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
+	
 	$Person_id = isset($_POST['Person_id']) ? $_POST['Person_id'] : '';
 	$Person_id = check_special_char($Person_id);
 
-	if (($Person_id != ''))
+	if ($Person_id != '')
 	{
 		try {
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -42,8 +40,8 @@
 				$sql = $sql." and person_id='".$Person_id."'";
 			}
 
-			if ($result = mysqli_query($link, $sql)){
-				if (mysqli_num_rows($result) > 0){
+			if ($result = mysqli_query($link, $sql)) {
+				if (mysqli_num_rows($result) > 0) {
 					// login ok
 					// user id 取得
 					$mid=0;
@@ -54,12 +52,12 @@
 					$data["status"]="true";
 					$data["code"]="0x0200";
 					$data["responseMessage"]="已經有相同身份證資料!";	
-				}else{
+				} else {
 					$data["status"]="false";
 					$data["code"]="0x0201";
 					$data["responseMessage"]="無相同身份證資料!";						
 				}
-			}else {
+			} else {
 				$data["status"]="false";
 				$data["code"]="0x0204";
 				$data["responseMessage"]="SQL fail!";					

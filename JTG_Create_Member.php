@@ -3,8 +3,8 @@
 	include("db_tools.php");
 	include("resize-class.php"); 
 	include("security_tools.php");
+	include("func.php");
 	
-	/* jacky mark 2022-10-24
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
@@ -22,7 +22,6 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
 
 	function save_decode_image($image, $filename, &$imageFileType)
 	{
@@ -47,12 +46,14 @@
 	}
 
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Person_id 		= isset($_POST['Person_id']) 	? $_POST['Person_id'] 	: '';
-	$Mobile_no 		= isset($_POST['Mobile_no']) 	? $_POST['Mobile_no'] 	: '';
-	$Member_name 	= isset($_POST['Member_name']) 	? $_POST['Member_name'] : '';
-	$FCM_Token 		= isset($_POST['FCM_Token']) 	? $_POST['FCM_Token'] 	: '';
-	$base64image 	= isset($_POST['Pid_Pic']) 		? $_POST['Pid_Pic'] 	: '';
-	$imageFileType 	= "jpg";
+	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
+	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
+	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
+	$Member_name 			= isset($_POST['Member_name']) 			? $_POST['Member_name'] 		: '';
+	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: '';
+	$base64image 			= isset($_POST['Pid_Pic']) 				? $_POST['Pid_Pic'] 			: '';
+	$imageFileType 			= "jpg";
 
 	$Person_id = check_special_char($Person_id);
 	$Mobile_no = check_special_char($Mobile_no);
@@ -187,7 +188,8 @@
 						//echo "user data change ok!";
 						$data["status"]="true";
 						$data["code"]="0x0200";
-						$data["responseMessage"]="身份資料建檔成功!";		
+						$data["responseMessage"]="身份資料建檔成功!";
+						$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Personid, $Sales_id, $Mobileno, "2");
 						
 					} catch (Exception $e) {
 						$data["status"]="false";

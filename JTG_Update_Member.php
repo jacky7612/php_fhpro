@@ -1,15 +1,13 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php");
 	include("resize-class.php"); 
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
 	{
 		;//echo "valid token";
-		
 	}
 	else
 	{
@@ -22,7 +20,7 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
+	
 	date_default_timezone_set("Asia/Taipei");
 	ini_set('memory_limit','-1');
 	$glogfile ="";

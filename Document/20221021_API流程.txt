@@ -37,3 +37,4 @@ ps.每個步驟都要狀態API
 1、整理全球現有API在第一金需要用到的(V)
 2、擴增的API及Table					(V)
 3、API細部整理						()
+4、postman測試API					()

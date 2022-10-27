@@ -1,27 +1,7 @@
 <?php
 	include "db_tools.php";
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
-	if(check_header($key, $token)==true)
-	{
-		;//echo "valid token";
-		
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		exit;							
-	}
-	*/
-
+	
 	function CallAPI($method, $url, $data = false, $header = null)
 	{
 			$url = trim(stripslashes($url));
@@ -40,7 +20,7 @@
 				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 				if($header != null)
 					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-	//echo $url;			
+				//echo $url;			
 				break;
 			case "GET":
 				
@@ -64,7 +44,7 @@
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 		$result = curl_exec($curl);
-	//echo $result;
+		//echo $result;
 		curl_close($curl);
 
 		return $result;
@@ -72,6 +52,25 @@
 
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
+	$headers =  apache_request_headers();
+	$token = $headers['Authorization'];
+	if(check_header($key, $token)==true)
+	{
+		;//echo "valid token";
+		
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]="false";
+		$data["code"]="0x0209";
+		$data["responseMessage"]="Invalid token!";	
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
+		exit;							
+	}
+
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 																											 //0:業務員  1:要保人 2:被保人 3: 法定代理人

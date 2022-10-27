@@ -1,34 +1,32 @@
 <?php
-//include("header_check.php");
-include("db_tools.php");
-include("security_tools.php");
-$headers =  apache_request_headers();
-$token = $headers['Authorization'];
-if(check_header($key, $token)==true)
-{
-	;//echo "valid token";
-	
-}
-else
-{
-	;//echo "error token";
-	$data = array();
-	$data["status"]="false";
-	$data["code"]="0x0209";
-	$data["responseMessage"]="Invalid token!";	
-	header('Content-Type: application/json');
-	echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-	exit;							
-}
+	include("db_tools.php");
+	include("security_tools.php");
+	$headers =  apache_request_headers();
+	$token = $headers['Authorization'];
+	if(check_header($key, $token)==true)
+	{
+		;//echo "valid token";
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]="false";
+		$data["code"]="0x0209";
+		$data["responseMessage"]="Invalid token!";	
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
+		exit;							
+	}
 
 	$Sales_id = isset($_POST['Sales_id']) ? $_POST['Sales_id'] : '';
 	//$Person_id = isset($_POST['Person_id']) ? $_POST['Person_id'] : '';
 	$FCM_title = isset($_POST['FCM_title']) ? $_POST['FCM_title'] : '';
 	$FCM_content = isset($_POST['FCM_content']) ? $_POST['FCM_content'] : '';
 
-$Sales_id = check_special_char($Sales_id);
-$FCM_title = check_special_char($FCM_title);
-$FCM_content = check_special_char($FCM_content);
+	$Sales_id = check_special_char($Sales_id);
+	$FCM_title = check_special_char($FCM_title);
+	$FCM_content = check_special_char($FCM_content);
 
 	if (($Sales_id != '') && ($FCM_title != '') && ($FCM_content != '') ) {
 		//&& ($Person_id != '') 
@@ -115,7 +113,7 @@ $FCM_content = check_special_char($FCM_content);
 				}
 			}		
 			
-		}catch (Exception $e) {
+		} catch (Exception $e) {
 			//$this->_response(null, 401, $e->getMessage());
 			//echo $e->getMessage();
 			$data["status"]="false";
@@ -124,7 +122,7 @@ $FCM_content = check_special_char($FCM_content);
 		}	
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-	}else{
+	} else {
 		//echo "need mail and password!";
 		$data["status"]="false";
 		$data["code"]="0x0203";

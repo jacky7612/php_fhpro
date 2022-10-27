@@ -1,8 +1,8 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php");
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
+	include("func.php");
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
@@ -21,7 +21,10 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
+	
+	$Mobile_no 				= "";
+	$Sales_id 				= "";
+	
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
@@ -32,9 +35,10 @@
 	$Person_id 				= check_special_char($Person_id);
 	$Country_code 			= check_special_char($Country_code);
 
-	if (($Person_id 	!= '') &&
-		($Insurance_no 	!= '') &&
-		($Country_code 	!= ''))
+	if (($Person_id 			!= '') &&
+		($Insurance_no 			!= '') &&
+		($Remote_insurance_no 	!= '') &&
+		($Country_code 			!= ''))
 	{
 		try {
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -52,33 +56,33 @@
 
 			$sql = "SELECT * from countrylog where person_id='$Person_id' and insurance_no= '$Insurance_no' and remote_insurance_no= '$Remote_insurance_no' ";
 			$result = mysqli_query($link, $sql);
-			if (mysqli_num_rows($result) > 0){
-				
+			if (mysqli_num_rows($result) > 0) {
 				$sql = "UPDATE countrylog SET countrycode='$Country_code' where person_id='$Person_id' and insurance_no= '$Insurance_no' and remote_insurance_no= '$Remote_insurance_no' ";
-			}
-			else
-			{
+			} else {
 				$sql = "Insert into countrylog (person_id, insurance_no, remote_insurance_no, countrycode, updatetime ) VALUES ('$Person_id', '$Insurance_no', '$Remote_insurance_no', '$Country_code', NOW() )  ";
 			}
 
 			if ($result = mysqli_query($link, $sql)){
-					$data["status"]="true";
-					$data["code"]="0x0200";
-					$data["responseMessage"]="更新成功!";
-			}else {
+				$data["status"]="true";
+				$data["code"]="0x0200";
+				$data["responseMessage"]="更新成功!";
+				$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, "A1");
+			} else {
 				$data["status"]="false";
 				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";					
+				$data["responseMessage"]="SQL fail!";
+				$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Sales_id, $Person_id, $Mobile_no, "A0");
 			}
 			mysqli_close($link);
 		} catch (Exception $e) {
 			$data["status"]="false";
 			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";				
+			$data["responseMessage"]="Exception error!";
+			$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Sales_id, $Person_id, $Mobile_no, "A0");			
 		}
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-	}else{
+	} else {
 		//echo "參數錯誤 !";
 		$data["status"]="false";
 		$data["code"]="0x0203";

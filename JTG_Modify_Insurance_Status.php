@@ -1,8 +1,7 @@
 <?php
-	//include("header_check.php");
 	include("db_tools.php"); 
 	include("security_tools.php");
-	/* jacky mark 2022-10-24
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
@@ -21,7 +20,7 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
 	}
-	*/
+	
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		:  '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] :  '';
 	$Sales_id 				= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			:  '';
@@ -38,11 +37,11 @@
 	$Member_type 			= check_special_char($Member_type);
 	$Status_code 			= check_special_char($Status_code);
 
-	if (($Insurance_no != '') &&
-		($Remote_insurance_no != '') &&
-		($Sales_id != '') &&
-		($Person_id != '') &&
-		($Mobile_no != '') )
+	if (($Insurance_no 			!= '') &&
+		($Remote_insurance_no 	!= '') &&
+		($Sales_id 				!= '') &&
+		($Person_id 			!= '') &&
+		($Mobile_no 			!= '') )
 	{
 
 		try {
@@ -93,10 +92,10 @@
 					$mid=0;
 					try {
 
-						$sql2 = "INSERT INTO `orderinfo` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `order_trash`, `inputdttime`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno',$Membertype,'$Statuscode', 0,NOW())";
+						$sql2 = "INSERT INTO `orderinfo` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `order_trash`, `inputdttime`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno','$Membertype','$Statuscode', 0,NOW())";
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 
-						$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `log_date`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno',$Membertype,'$Statuscode',NOW())";
+						$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `log_date`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno','$Membertype','$Statuscode',NOW())";
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 						
 						//echo "user data change ok!";
@@ -165,7 +164,7 @@
 				}
 				
 				if ($oldorderstatus < $Statuscode) {
-					$sql2 = "update `orderinfo` set `order_status`='$Statuscode' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insuranceno' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and member_type=$Membertype and order_trash=0";
+					$sql2 = "update `orderinfo` set `order_status`='$Statuscode' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insuranceno' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and member_type='$Membertype' and order_trash=0";
 					mysqli_query($link, $sql2) or die(mysqli_error($link));
 					$flag=1;
 				}
@@ -189,11 +188,11 @@
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 					$flag=1;
 				}
+				*/
 				if ($flag == 1){
-					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `log_date`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno',$Membertype,'$Statuscode',NOW())";
+					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`,`member_type`, `order_status`, `log_date`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno','$Membertype','$Statuscode',NOW())";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 				}
-				*/
 				//echo "user data change ok!";
 				$ret = 0;
 			} catch (Exception $e) {

@@ -2,7 +2,7 @@
 	include "comm.php";
 	include "db_tools.php";
 	$Sso_token = isset($_POST['Sso_token']) ? $_POST['Sso_token'] : '';
-	$App_type = isset($_POST['App_type']) ? $_POST['App_type'] : '';
+	$App_type  = isset($_POST['App_type']) ? $_POST['App_type'] : '';
 	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
 	//$App_type = "0";//業務員
 	
@@ -64,7 +64,7 @@
 	}
 
 	if (($Sso_token  != '') &&
-		($App_type != ''))
+		($App_type 	 != ''))
 	{
 		//check 帳號/密碼
 	
@@ -78,11 +78,11 @@
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
 			
-			$App_type  = mysqli_real_escape_string($link,$App_type);	
+			$App_type   = mysqli_real_escape_string($link,$App_type);	
 			$Sso_token  = mysqli_real_escape_string($link,$Sso_token);
 
 			$Sso_token2 = trim(stripslashes($Sso_token)); 
-			$App_type2 = trim(stripslashes($App_type));
+			$App_type2  = trim(stripslashes($App_type));
 			
 			if($App_type2 == '0')
 				$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
