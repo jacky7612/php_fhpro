@@ -1,6 +1,7 @@
 <?php
 	include("db_tools.php");
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
@@ -26,14 +27,14 @@
 	$Sales_id 				= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
-	$Role_type 				= isset($_POST['Role']) 				? $_POST['Role'] 				: '1';
+	$Role 					= isset($_POST['Role']) 				? $_POST['Role'] 				: '1';
 
 	$Insurance_no 			= check_special_char($Insurance_no);
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
 	$Sales_id 				= check_special_char($Sales_id);
 	$Person_id 				= check_special_char($Person_id);
 	$Mobile_no 				= check_special_char($Mobile_no);
-	$Role_type 				= check_special_char($Role_type);
+	$Role 					= check_special_char($Role);
 
 	if (($Insurance_no 			!= '') &&
 		($Remote_insurance_no 	!= '') &&
@@ -50,18 +51,18 @@
 			$Sales_id  				= mysqli_real_escape_string($link, $Sales_id);
 			$Person_id  			= mysqli_real_escape_string($link, $Person_id);
 			$Mobile_no  			= mysqli_real_escape_string($link, $Mobile_no);
-			$Role_type  			= mysqli_real_escape_string($link, $Role_type);
+			$Role  					= mysqli_real_escape_string($link, $Role);
 
 			$Insuranceno 			= trim(stripslashes($Insurance_no));
 			$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
 			$Salesid 				= trim(stripslashes($Sales_id));
 			$Personid 				= trim(stripslashes($Person_id));
 			$Mobileno 				= trim(stripslashes($Mobile_no));
-			$Role 					= trim(stripslashes($Role_type));
+			$Role 					= trim(stripslashes($Role));
 
 			$Mobileno 				= addslashes(encrypt($key,$Mobileno));
 		
-			$sql = "SELECT * FROM orderinfo where insurance_no='$Insuranceno' and remote_insuranceno='$Remote_insuranceno' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and role='$Role' and order_trash=0 ";
+			$sql = "SELECT * FROM orderinfo where insurance_no='".$Insuranceno."' and remote_insuranceno='".$Remote_insuranceno."' and sales_id='".$Salesid."' and person_id='".$Personid."' and mobile_no='".$Mobileno."' and role='".$Role."' and order_trash=0 ";
 			
 			if ($result = mysqli_query($link, $sql)){
 				if (mysqli_num_rows($result) > 0){

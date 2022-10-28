@@ -3,13 +3,13 @@
 	include("db_tools.php"); 
 	include("resize-class.php");
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	if(check_header($key, $token)==true)
 	{
 		;//echo "valid token";
-		
 	}
 	else
 	{
@@ -21,28 +21,6 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
-	}
-
-	function save_decode_image($image, $filename, &$imageFileType)
-	{
-		$file = fopen($filename, "w");
-		if($file <=0) return 0;
-		$data = base64_decode($image);
-		if(strlen($data) <=0) return 0;
-		fwrite($file, $data);
-		fclose($file);
-		switch(exif_imagetype($filename)) {
-			case IMAGETYPE_GIF: 
-				$imageFileType = "gif";
-				break;
-			case IMAGETYPE_JPEG:
-				$imageFileType = "jpg";
-				break;
-			case IMAGETYPE_PNG:
-				$imageFileType = "png";
-				break;		
-		}
-		return 1;
 	}
 
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -80,7 +58,7 @@
 			
 		//if (move_uploaded_file($_FILES["Pid_Pic"]["tmp_name"], $target_file1)) {
 		
-		if (save_decode_image($base64image, $target_file1, $imageFileType))
+		if (save_decode_image("Face compare", $base64image, $target_file1, $imageFileType))
 		{
 			rename($target_file, $target_file.".".$imageFileType);
 			rename($target_file1, $target_file1.".".$imageFileType);

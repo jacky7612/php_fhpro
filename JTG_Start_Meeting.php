@@ -2,67 +2,8 @@
 	const _ENV = "PROD"; 
 	//const _ENV = "UAT"; 
 	include "db_tools.php";
-	date_default_timezone_set("Asia/Taipei");
-
-	function wh_log($log_msg)
-	{
-		$log_filename = "/var/www/html/member/api/log";
-		if (!file_exists($log_filename)) 
-		{
-			// create directory/folder uploads.
-			mkdir($log_filename, 0777, true);
-		}
-		$log_file_data = $log_filename.'/log_StartingMeeting' . date('d-M-Y') . '.log';
-		// if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-		file_put_contents($log_file_data, date("Y-m-d H:i:s")."  ------  ".$log_msg . "\n", FILE_APPEND);
-	} 
-
-	function CallAPI($method, $url, $data = false, $header = null)
-	{
-		$curl = curl_init();
-
-		switch ($method)
-		{
-			case "POST":
-				curl_setopt($curl, CURLOPT_POST, 1);
-
-				if ($data)
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-				//echo $url;			
-				break;
-			 case "GET":
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));			
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);			
-				break;
-		   case "PUT":
-				curl_setopt($curl, CURLOPT_PUT, 1);
-				break;
-			default:
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));
-		}
-
-		// Optional Authentication:
-		//curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		//curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-		$result = curl_exec($curl);
-		//echo $result;
-		curl_close($curl);
-
-		return $result;
-	}
-	
+	include "func.php";
+		
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	//2022/5/5, 第二階段不同角色, 視訊同框 
 	$postdata = file_get_contents("php://input",'r'); 
@@ -324,7 +265,7 @@
 						$data["username"]	= "administrator";
 						$hash 				= md5("CheFR63r");
 						$data["data"]		= md5($hash."@deltapath");
-						$out 				= CallAPI("POST", $url, $data);
+						$out 				= CallAPI4OptMeeting("POST", $url, $data);
 						$ret 				= json_decode($out, true);
 						if ($ret['success'] == true)
 							$token = $ret['token'];
@@ -338,7 +279,7 @@
 								$data["username"]="administrator";
 								$hash = md5("CheFR63r");
 								$data["data"]=md5($hash."@deltapath");
-								$out = CallAPI("POST", $url, $data);
+								$out = CallAPI4OptMeeting("POST", $url, $data);
 								//echo $out;
 								$ret = json_decode($out, true);
 								if($ret['success'] == true)
@@ -415,7 +356,7 @@
 								$data['start'] = '0';
 								$data['limit'] = '9999';	
 								
-								$out = CallAPI("GET", $url, $data, $header);
+								$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 								//echo $out;
 								//exit;
 								$partdata = json_decode($out, true);

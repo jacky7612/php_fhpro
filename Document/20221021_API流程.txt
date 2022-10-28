@@ -1,5 +1,5 @@
-客戶端																								JTG_Query_Insurance_Status
-Q01.開啟App定位，app不存在顯示導入安裝html頁面, 會檢核三要素										JTG_Create/Update_Insurance_Status, JTG_Update_Country_Code, JTG_SSO_Login.php, JTG_Create_Member/JTG_Update_Member
+客戶端																								JTG_Query_Insurance_Status, JTG_Get_Token
+Q01.開啟App定位，app不存在顯示導入安裝html頁面, 會檢核三要素										JTG_Create/Update_Insurance_Status, JTG_Update_Country_Code, JTG_SSO_Login.php[A0], JTG_Create_Member/JTG_Update_Member
 Q02.身份證字號輸入，APP檢核保單資料是否屬於該身份證，並檢查Log目前該員步驟 API						JTG_Create/Update_Insurance_Status, JTG_Check_Member
 Q03.身份證正反面-> OCR API -> 內政部API																JTG_Create/Update_Insurance_Status, JTG_Save_IDPhoto, OCR廠商API(APIURL/jotangi/api/uploadAndWait), JTG_Get_IDPIC(取得身分證正反面照片資訊), APIURL/member/api/mpos/JTG_Check_ID(內政部)
 Q04.臉部辨識API frank																				JTG_Create/Update_Insurance_Status, JTG_Face_Compare[JTB_Src_Face]
@@ -32,9 +32,84 @@ Q06.業務員送件鈕，APP call php API 取得保單號，再傳給jason押上
 ps.每個步驟都要狀態API
 
 
+01.點選開啟簡訊 -> 01.JTG_Get_Token					呼叫Get security token[log2file] 								log:ok; mysql_data:none
+				-> 02.JTG_SSO_Login					取得 保單json[log2file](取得成功才有行投號碼及遠投號碼) [A0]	log:ok; mysql_data:ok
+													要保日>12H或要保日跨日 [log2file]	失敗：[A1]					log:ok; mysql_data:ok
+																						成功：[A2]					log:ok; mysql_data:ok
+				-> 03.JTG_Modify_Country_Code		紀錄GPS位置 						失敗：[B0]					log:ok; mysql_data:ok
+																						成功：[B1]					log:ok; mysql_data:ok
+				-> 04.JTG_Modify_Insurance_Status	勾選同意事項 						成功：[B2]					log:ok; mysql_data:ok
+				-> 05.JTG_Query_Member				使用者輸入身份證號碼				失敗：[C0]					log:ok; mysql_data:ok
+																						成功：[C1] 儲存資料至資料庫	log:ok; mysql_data:ok
+				-> 06.JTG_Create_Member				儲存資料至資料庫					成功：[C2]
+				-> 06.JTG_Update_Member				儲存資料至資料庫					成功：[C3]
+				-> 07.JTG_Save_IDPhoto				拍身份證正反面						失敗：[C4]
+																						成功：[C5]
+				-> 08.JTG_Get_IDPIC					OCR廠商API 							失敗：[D0]
+																						成功：[D1]
+				-> 09.JTG_Gov_ID					內政部驗證身份證					失敗：[E0]
+																						成功：[E1]
+				-> 10.JTG_Face_Compare				比對人臉與，身份證是否相符			失敗：[F0]
+																						成功：[F1]
+				-> 11.JTG_Live_Check				活體比對							失敗：[G0]
+																						成功：[G1]
+				-> 12.JTG_Send_OTP_Code				發送OTP碼							失敗：[H0]
+																						成功：[H1]
+				-> 13.JTG_Verify_OTP_Code			OTP驗證								失敗：[H2]
+																						成功：[H3]
+				-> 14.JTG_Get_Proposal_PDF			取得PDF文件							失敗：[I0]
+																						成功：[I1]
+				//-> 15.JTG_Send_OTP_Code				發送OTP碼							失敗：[J0]
+																						成功：[J1]
+				//-> 16.JTG_Verify_OTP_Code			OTP驗證								失敗：[J2]
+																						成功：[J3]
+				-> 17.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[K0]
+																						成功：[K1]
+				-> 18.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[K2]
+																						成功：[K3]
+				-> 19.JTG_Start_Meeting				開啟會議室							失敗：[L0]
+																						成功：[L1]
+				-> 20.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]
+																						成功：[L3]
+				-> 21.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]
+																						成功：[M1]
+				-> 21.JTG_Modify_Insurance_Status	要保人簽名(jason）					簽名完成：[M2]
+													被保人簽名(jason）					簽名完成：[M3]
+													法定代理人(jason）					簽名完成：[M4]
+				-> 22.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]
+																						成功：[N1]
+				-> 23.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]
+																						成功：[O1]
+				-> 24.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]
+																						成功：[O3]
+				-> 25.JTG_Upload_Attachement		上傳附件							失敗：[P0]
+																						成功：[P1]
+				-> 26.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]
+																						成功：[Q1]
+				-> 27.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[Q2]
+																						成功：[Q3]
+				-> 28.JTG_Start_Meeting				開啟會議室							失敗：[R0]
+																						成功：[R1]
+				-> 29.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[R2]
+																						成功：[R3]
+				-> 30.JTG_Get_Proposal/JTG_Get_Json	業務-要保書簽名(jason)				失敗：[S0]
+																						成功：[S1]
+				-> 31.JTG_Signature_PDF				回傳業務-要保書簽名(jason）			成功：[S2]
+				-> 32.JTG_Get_Proposal/JTG_Get_Json	業務-業報書簽名(jason)				失敗：[T0]
+																						成功：[T1]
+				-> 33.JTG_Signature_PDF				回傳業務-業報書簽名(jason）			成功：[U0]
+				-> 34.JTG_Get_OrderNum				取得保單編號						失敗：[V0]
+																						成功：[V1]
+				-> 35.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[V2]
+																						成功：[V3]
+				-> 36.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]
+				-> 37.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]
+																						成功：[V6]
 工作項目
 -----------------------------------------------------------------
-1、整理全球現有API在第一金需要用到的(V)
-2、擴增的API及Table					(V)
-3、API細部整理						()
-4、postman測試API					()
+1、整理全球現有API在第一金需要用到的	(V)
+2、擴增的API及Table						(V)
+3、API細部整理							() 2022.10.28
+5、log2file重點每個步驟，才好追查原因 	()
+6、memberinfo需加入行投號及保單號		()
+4、postman測試API						()

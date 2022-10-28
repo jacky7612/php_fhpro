@@ -1,6 +1,7 @@
 <?php
 	include "comm.php";
 	include "db_tools.php";
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
@@ -19,66 +20,6 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
-	}
-	
-	function CallAPI($method, $url, $data = false, $header = null)
-	{
-		$url = trim(stripslashes($url));
-		$method2 = trim(stripslashes($method));
-
-		$curl = curl_init();
-
-		switch ($method2)
-		{
-			case "POST":
-				curl_setopt($curl, CURLOPT_POST, 1);
-
-				if ($data)
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				
-				curl_setopt($curl, CURLOPT_HEADER,0);
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-				if($header != null)
-				{
-					//curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-					curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-						'Content-Type: application/json',
-						'Authorization: Bearer ' . $header
-						));				
-				}
-				else
-					curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-				//echo $url;
-				break;
-			case "GET":
-				//urlencode($header);
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-						'Content-Type: application/json',
-						'Authorization: Bearer ' . $header
-						));			
-
-				//if ($data)
-				$url = sprintf("%s?act=%s&%s", $url, urlencode($header),http_build_query($data));
-				break;
-			case "PUT":
-				curl_setopt($curl, CURLOPT_PUT, 1);
-				break;
-			default:
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));
-		}
-
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-
-		$result = curl_exec($curl);
-		//echo $result;
-		curl_close($curl);
-
-		return $result;
 	}
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -144,9 +85,9 @@
 						$data['appId']				= $appId ;
 					
 						//$jsondata = json_encode($data);
-						//$out = CallAPI("POST", $url, $jsondata, $token);
+						//$out = CallAPI("POST", $url, $jsondata, $token, true);
 						
-						$out = CallAPI("GET", $url, $data, $token2);
+						$out = CallAPI("GET", $url, $data, $token2, true);
 						//echo "PDF:".$out;
 						//$data = array();
 						//$data["status"]="true";

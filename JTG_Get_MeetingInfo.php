@@ -1,6 +1,7 @@
 <?php
 	include "db_tools.php";
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
@@ -18,67 +19,6 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
-	}
-	
-	function wh_log($log_msg)
-	{
-		$log_filename = "./log";
-		if (!file_exists($log_filename)) 
-		{
-			// create directory/folder uploads.
-			mkdir($log_filename, 0777, true);
-		}
-		$log_file_data = $log_filename.'/log_StartingMeeting' . date('d-M-Y') . '.log';
-		// if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-		file_put_contents($log_file_data, date("Y-m-d H:i:s")."  ------  ".$log_msg . "\n", FILE_APPEND);
-	} 
-
-	function CallAPI($method, $url, $data = false, $header = null)
-	{
-			$url = trim(stripslashes($url));
-			$method2 = trim(stripslashes($method));
-
-		$curl = curl_init();
-
-		switch ($method2)
-		{
-			case "POST":
-				curl_setopt($curl, CURLOPT_POST, 1);
-
-				if ($data)
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-	//echo $url;			
-				break;
-			case "GET":
-				
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);			
-				break;
-			case "PUT":
-				curl_setopt($curl, CURLOPT_PUT, 1);
-				break;
-			default:
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));
-		}
-
-		// Optional Authentication:
-		//curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		//curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-		$result = curl_exec($curl);
-	//echo $result;
-		curl_close($curl);
-
-		return $result;
 	}
 
 	// Api ------------------------------------------------------------------------------------------------------------------------

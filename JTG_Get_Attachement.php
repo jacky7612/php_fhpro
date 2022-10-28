@@ -2,6 +2,7 @@
 	//include("header_check.php");
 	include("db_tools.php");
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
@@ -59,15 +60,9 @@
 			$Personid 			= trim(stripslashes($Person_id)			);
 			
 			$sql = "SELECT * FROM attachement where ";
-			if ($Insurance_no != "") {
-				$sql = $sql." and insurance_no='".$Insurance_no."'";
-			}
-			if ($Remote_insuance_no != "") {	
-				$sql = $sql." and remote_insuance_no='".$Remote_insuance_no."'";
-			}
-			if ($Personid != "") {	
-				$sql = $sql." and person_id='".$Personid."'";
-			}
+			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	 );
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no);
+			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			 );
 
 			if ($result = mysqli_query($link, $sql))
 			{

@@ -2,6 +2,7 @@
 	include("db_tools.php");
 	include("resize-class.php"); 
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
@@ -19,30 +20,6 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
 		exit;							
-	}
-
-	function wh_log($log_msg)
-	{
-		$log_filename = "./log";
-		if (!file_exists($log_filename)) 
-		{
-			// create directory/folder uploads.
-			mkdir($log_filename, 0777, true);
-		}
-		$log_file_data = $log_filename.'/log_Live_Check' . date('d-M-Y') . '.log';
-		// if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-		file_put_contents($log_file_data, date("Y-m-d H:i:s")."  ------  ".$log_msg . "\n", FILE_APPEND);
-	} 
-	function save_decode_image($image, $filename)
-	{
-		$file = fopen($filename, "w");
-		if($file <=0) return 0;
-		$data = base64_decode($image);
-		if(strlen($data) <=0) return 0;
-		fwrite($file, $data);
-		fclose($file);
-
-		return 1;
 	}
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -77,7 +54,7 @@
 		$target_file1 = $target_dir . $file_name . "_1";// . $imageFileType;
 		
 		//if (move_uploaded_file($_FILES["Action_Pic"]["tmp_name"], $target_file1)) {
-		if (save_decode_image($base64image, $target_file1))
+		if (save_decode_image("Live compare", $base64image, $target_file1))
 		{
 			//$resizeObj = new resize($target_file1);
 		 

@@ -1,6 +1,8 @@
 <?php
 	include("db_tools.php"); 
 	include("security_tools.php");
+	include("func.php");
+	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];
 	
@@ -122,6 +124,5 @@
 		$data["responseMessage"]="API parameter is required!";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));			
-	}
-	
+	}	
 ?>

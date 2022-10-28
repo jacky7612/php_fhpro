@@ -2,6 +2,7 @@
 	include("db_tools.php");
 	include("resize-class.php");
 	include("security_tools.php");
+	include("func.php");
 	
 	$headers =  apache_request_headers();
 	$token = $headers['Authorization'];

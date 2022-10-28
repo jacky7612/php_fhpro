@@ -1,5 +1,7 @@
 <?php
 	include "db_tools.php";
+	include("func.php");
+	
 	const _ENV = "PROD"; 
 	//const _ENV = "UAT"; 
 	$key = "cLEzfgz5c5hxQwLWauCOdAilwgfn97yj";
@@ -34,74 +36,7 @@
 		exit;
 	}
 	*/
-	function CallAPI($method, $url, $data = false, $header = null)
-	{
-		$curl = curl_init();
-
-		switch ($method)
-		{
-			case "POST":
-				curl_setopt($curl, CURLOPT_POST, 1);
-
-				if ($data)
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-				if ($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-				//echo $url;			
-				break;
-		  case "GET":
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));			
-				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-				if($header != null)
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $header);			
-				break;
-			case "PUT":
-				curl_setopt($curl, CURLOPT_PUT, 1);
-				break;
-			default:
-				if ($data)
-					$url = sprintf("%s?%s", $url, http_build_query($data));
-		}
-
-		// Optional Authentication:
-		//curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		//curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-		$result = curl_exec($curl);
-		//echo $result;
-		curl_close($curl);
-
-		return $result;
-	}
 	
-	function Kick($mainurl, $header,$link, $kickid, $meetingid, $vid,$gateway)
-	{
-		//1.開始踢人
-		//2.並刪除此accesscode by meetingid
-		//3. accesscode 更新deletecode 狀態  (deletecode = 1)
-		//4. 更新vminfo status (relese resouce, status = 0)	
-		//5. delete gomeeting
-		
-		//2. delete virtualmeeting, 並刪除此accesscode by meetingid
-
-		//echo 'delete accesscode'.$out.'\n';		
-		//1.開始踢人
-		$url = $mainurl."delete/skypeforbusiness/skypeforbusinessgatewayparticipant/disconnect";
-		//for($i = 0; $i < count($kickid); $i++)
-		//{
-			$data					= array();
-			$data['gateway'] 		= $gateway;
-			$data['participant_id'] = $kickid;
-			$out = CallAPI("POST", $url, $data, $header);	
-			//echo 'kick people'.$out.'\n';
-		///////}
-	}
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -213,7 +148,7 @@
 							//$hash = md5("sT7m");
 							$data["data"]=md5($hash."@deltapath");
 							//echo md5($hash."@deltapath");
-							$out = CallAPI("POST", $url, $data);
+							$out = CallAPI4OptMeeting("POST", $url, $data);
 							//echo $out;
 							$ret = json_decode($out, true);
 							if($ret['success'] == true)
@@ -233,7 +168,7 @@
 							$data['start'] = '0';
 							$data['limit'] = '9999';
 							
-							$out = CallAPI("GET", $url, $data, $header);
+							$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 							//echo $out;
 							//exit;
 							$partdata = json_decode($out, true);
@@ -245,7 +180,7 @@
 							$data		= array();
 							$data['id']	= $meeting_id;
 							$url 		= $mainurl."delete/virtualmeeting/virtualmeeting/".$meeting_id ;
-							$out 		= CallAPI("POST", $url, $data, $header);							
+							$out 		= CallAPI4OptMeeting("POST", $url, $data, $header);							
 							/*
 							foreach ( $partdata['list'] as $part ) // 
 							{
