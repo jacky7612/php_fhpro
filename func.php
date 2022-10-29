@@ -1,8 +1,8 @@
 <?php
+	include("def.php");
 	include("log.php");
 	include("wjson.php");
 	include("funcCallAPI.php");
-	include("db_tools.php");
 	include("resize-class.php"); 
 	include("security_tools.php");
 	include("accessDB.php");
@@ -36,8 +36,18 @@
 		}
 		return false;
 	}
-	
-	
+	// 取得亂數編碼 public
+	function get_random_keys($length)
+	{
+		//$pattern = "1234567890abcdefghijklmnopqrstuvwxyz";
+		//$pattern = "1234567890";
+		$key = "";
+		$key = random_int(100, 999).random_int(100, 999);
+		//for($i=0;$i<$length;$i++){
+		//	$key .= $pattern{rand(0,9)};
+		//}
+		return $key;
+	}
 	// 警告時間 public
 	function alarm_insurance_duetime($dt_now, $dt_duetime, $min_minutes = 30, $max_minutes = 50)
 	{
@@ -58,11 +68,12 @@
 		$minutes += $since_start->i;
 		return ($minutes > $max_hour * 60);
 	}
+	// 跨天 public[尚需修正]
 	function over_insurance_day($dt_now, $dt_duetime)
 	{
-		$start_date = new DateTime($dt_now);
+		$start_date  = new DateTime($dt_now);
 		$since_start = $start_date->diff(new DateTime($dt_duetime));
-		$diff_day = $since_start->days;
+		$diff_day 	 = $since_start->days;
 		return ($diff_day > 0);
 	}
 	// 取得遠端用戶的ip public
@@ -88,7 +99,6 @@
 		$ip = str_replace('.', '_', $ip);
 		return $ip;
 	}
-	
 	// 儲存臉部照片
 	function save_decode_image($image, $filename, &$imageFileType)
 	{
@@ -118,9 +128,8 @@
 		}
 		return 1;
 	}
-	
-	// 取得臉部照片
-	function get_image_content1($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, $update_member = false)
+	// 取得並儲存臉部照片
+	function get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, $update_member = false)
 	{
 		$image1 = null;
 		if($base64image!='') 
@@ -173,14 +182,14 @@
 		}
 		return $image1;
 	}
-	// 取得臉部照片
-	function get_image_content2($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1)
+	// 取得並儲存臉部照片(含浮水印)
+	function get_image_content_watermark($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1, $target_file2)
 	{
 		if (save_decode_image($base64imageID, $target_file1, $imageFileType))
 		{
 			if($base64imageID != '')
 			{
-				wh_log($Insurance_no, $Remote_insurance_no, "base64image size:".strlen($base64image), $Person_id);
+				wh_log($Insurance_no, $Remote_insurance_no, "base64image size:".strlen($base64imageID), $Person_id);
 			}
 			rename($target_file1, $target_file1.".".$imageFileType);
 			
@@ -196,40 +205,42 @@
 			$resizeObj = new resize($target_file1);
 		 
 			$img_data = getimagesize($target_file1);
-			if ($img_data[0] < $img_data[1]) {
-			// *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
-				$resizeObj -> resizeImage(400, 600, 'auto');
-			} else {
+			if ($img_data[0] < $img_data[1])
+			{
+				$resizeObj -> resizeImage(400, 600, 'auto'); // *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
+			}
+			else
+			{
 				$resizeObj -> resizeImage(600, 400, 'auto');
 			}
-			// *** 3) Save image
-			$resizeObj->saveImage($target_file, 100);
+			$resizeObj->saveImage($target_file, 100); // *** 3) Save image
 			unlink($target_file1);
 
 			//add watermark
-			$watermark_filename = "/var/www/html/member/api/watermark.png";
+			$watermark_filename = $g_watermark_src_url;
 			$ret = add_watermark($target_file, $watermark_filename, $target_file2);
 			if ($ret > 0)
 			{
-				wh_log("watermark ok");
+				wh_log($Insurance_no, $Remote_insurance_no, "watermark ok", $Person_id);
 			}
 				
 			$image2 = (encrypt($key,base64_encode(file_get_contents($target_file2))));
-			$log = "AES encode size:".strlen($image2);
-			wh_log($log);
-			//
-				
+			wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image), $Person_id);
+			
 			unlink($target_file);
 			//echo $target_file2;
 			unlink($target_file2);
-		} else {
+		}
+		else
+		{
 			$image2 = null;
-			if($base64imageID != '') {
+			if ($base64imageID != '')
+			{
 				wh_log($Insurance_no, $Remote_insurance_no, "save_decode_image failed", $Person_id);
 			}
 		}
+		return $image2;
 	}
-	
 	// 先確認是否人臉, 若否回傳非人臉,請重拍
 	function verify_is_face($image1)
 	{
@@ -240,8 +251,7 @@
 		if($image1 != null)
 		{
 			$base64image = base64_encode($image1);
-			$uriBase = 'http://127.0.0.1/faceengine/api/faceDetect.php';
-			//$uriBase = 'http://3.37.63.32/faceengine/api/faceDetect.php';
+			$uriBase = $g_verify_is_face_apiurl;
 			$fields = [
 				'image_file1'         => $base64image,
 			];
@@ -272,7 +282,6 @@
 		}
 		return $data;
 	}
-	
 	// 照片加入浮水印 public
 	function add_watermark($from_filename, $watermark_filename, $save_filename)
 	{
@@ -333,74 +342,6 @@
 		return imagejpeg($image, $save_filename);
 	}
 	
-	// 照片儲入Nas事先工作 public
-	function will_save2nas_prepare($Insurance_no, $Remote_insurance_no, $Person_id)
-	{
-		$data = array();
-		$data["status"]			 = "true";
-		$data["code"]			 = "0x0200";
-		$data["responseMessage"] = "Create NAS Folder Success";
-		$data["filename"] 		 = "";
-		//$date = date("Ymd");
-		$date = date("Y")."/".date("Ym")."/".date("Ymd");
-		//$foldername ="/dis_app/dis_idphoto/".$date; 
-		$foldername = NASDir().$date; 
-		if (create_folder($foldername) == false)
-		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0205";
-			$data["responseMessage"]= "NAS fail!";
-			$filename = "";
-		}
-		if ($data["status"] == "true")
-		{
-			$filename = $foldername."/".$Insurance_no."_".$Personid."_".$front;
-			$data["filename"] = $filename;
-		}
-		wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"], $Person_id);
-		return $data;
-	}
-	// 照片儲入Nas public
-	function save_image2nas($Insurance_no, $Remote_insurance_no, $Person_id, $filename, $image)
-	{
-		try
-		{
-			$fp = fopen($filename, "w");
-			$orgLen = strlen($image);
-			if($orgLen<=0)
-			{
-				fclose($fp);
-				return -1;
-			}
-			
-			$len = fwrite($fp, $image, strlen($image));
-			if($orgLen!=$len)
-			{
-				fclose($fp);
-				return -2;
-			}
-			
-			fclose($fp);
-		/*	
-			//Verify
-			$fp = fopen($filename, "r");
-			$rImg = fread($fp, filesize($filename));
-			if($orgLen!=strlen($rImg))
-			{
-				fclose($fp);
-				return -3;		
-			}
-
-			fclose($fp);
-		*/
-		}
-		catch (Exception $e)
-		{
-			wh_log($Insurance_no, $Remote_insurance_no, "saveImagetoNas failed:".$e->getMessage(), $Person_id);
-			return -4;
-		}
-		return 1;
-	}
 		
 	// get idpic use - start	
 	$saveType = "DB";

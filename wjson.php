@@ -1,8 +1,10 @@
 <?php
+	include("def.php");
+	
 	date_default_timezone_set("Asia/Taipei");
 	ini_set('memory_limit','-1');
 	$glog_json_file ="";
-	$json_filepath = "/var/www/html/fhpro/json/";
+	$json_filepath = $g_json_filename;
 	
 	function create_folder($name)
 	{

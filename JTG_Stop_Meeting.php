@@ -1,5 +1,4 @@
 <?php
-	include "db_tools.php";
 	include("func.php");
 	
 	const _ENV = "PROD"; 

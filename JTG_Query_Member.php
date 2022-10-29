@@ -91,6 +91,11 @@
 			if ($status_code != "")
 				$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
 			
+			// 儲存資料至資料庫
+			if ($status_code != "C1")
+			{
+			}
+			
 			if ($link != null)
 				mysqli_close($link);
 			wh_log($Insurance_no, $Remote_insurance_no, "query memberinfo sop finish :".$data["responseMessage"], $Person_id);

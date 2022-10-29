@@ -1,7 +1,5 @@
 <?php
 	include "comm.php";
-	include "db_tools.php";
-	include("security_tools.php");
 	include("func.php");
 
 	// Api ------------------------------------------------------------------------------------------------------------------------

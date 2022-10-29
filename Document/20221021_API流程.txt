@@ -41,69 +41,69 @@ ps.每個步驟都要狀態API
 				-> 04.JTG_Modify_Insurance_Status	勾選同意事項 						成功：[B2]					log:ok; mysql_data:ok
 				-> 05.JTG_Query_Member				使用者輸入身份證號碼				失敗：[C0]					log:ok; mysql_data:ok
 																						成功：[C1] 儲存資料至資料庫	log:ok; mysql_data:ok
-				-> 06.JTG_Create_Member				儲存資料至資料庫					成功：[C2]
-				-> 06.JTG_Update_Member				儲存資料至資料庫					成功：[C3]
-				-> 07.JTG_Save_IDPhoto				拍身份證正反面						失敗：[C4]
-																						成功：[C5]
-				-> 08.JTG_Get_IDPIC					OCR廠商API 							失敗：[D0]
-																						成功：[D1]
-				-> 09.JTG_Gov_ID					內政部驗證身份證					失敗：[E0]
-																						成功：[E1]
-				-> 10.JTG_Face_Compare				比對人臉與，身份證是否相符			失敗：[F0]
-																						成功：[F1]
-				-> 11.JTG_Live_Check				活體比對							失敗：[G0]
-																						成功：[G1]
-				-> 12.JTG_Send_OTP_Code				發送OTP碼							失敗：[H0]
-																						成功：[H1]
-				-> 13.JTG_Verify_OTP_Code			OTP驗證								失敗：[H2]
-																						成功：[H3]
-				-> 14.JTG_Get_Proposal_PDF			取得PDF文件							失敗：[I0]
-																						成功：[I1]
-				//-> 15.JTG_Send_OTP_Code				發送OTP碼							失敗：[J0]
-																						成功：[J1]
-				//-> 16.JTG_Verify_OTP_Code			OTP驗證								失敗：[J2]
-																						成功：[J3]
-				-> 17.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[K0]
+				-> 06.JTG_Modify_Member				儲存資料至資料庫					失敗：[C2]					log:ok; mysql_data:ok
+				-> 07.JTG_Save_IDPhoto				拍身份證正反面						失敗：[D0]					log:ok; mysql_data:ok
+																						成功：[D1]					log:ok; mysql_data:ok
+				-> 08.JTG_Get_IDPIC					取得身份證							成功：[D2]					log:ok; mysql_data:ok
+				-> 09.缺							OCR廠商API 							失敗：[D3]					
+																						成功：[D4]					
+				-> 10.JTG_Gov_ID					內政部驗證身份證					失敗：[E0]					log:ok; mysql_data:ok
+																						成功：[E1]					log:ok; mysql_data:ok
+				-> 11.JTG_Face_Compare				比對人臉與，身份證是否相符			失敗：[F0]					log:ok; mysql_data:ok
+																						成功：[F1]					log:ok; mysql_data:ok
+				-> 12.JTG_Live_Check				活體比對							失敗：[G0]					log:ok; mysql_data:ok
+																						成功：[G1]					log:ok; mysql_data:ok
+				-> 13.JTG_Send_OTP_Code				發送OTP碼							失敗：[H0]					log:ok; mysql_data:ok
+																						成功：[H1]					log:ok; mysql_data:ok
+				-> 14.JTG_Verify_OTP_Code			OTP驗證								失敗：[H2]					log:ok; mysql_data:ok
+																						成功：[H3]					log:ok; mysql_data:ok
+				-> 15.JTG_Get_Proposal_PDF			取得PDF文件							失敗：[I0]					log:ok; mysql_data:ok
+																						成功：[I1]					log:ok; mysql_data:ok
+				//-> 16.JTG_Send_OTP_Code				發送OTP碼							失敗：[J0]				log:ok; mysql_data:ok
+																						成功：[J1]					log:ok; mysql_data:ok
+				//-> 17.JTG_Verify_OTP_Code			OTP驗證								失敗：[J2]					log:ok; mysql_data:ok
+																						成功：[J3]					log:ok; mysql_data:ok
+				-> 18.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[K0]
 																						成功：[K1]
-				-> 18.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[K2]
+				-> 19.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[K2]
 																						成功：[K3]
-				-> 19.JTG_Start_Meeting				開啟會議室							失敗：[L0]
+				-> 20.JTG_Start_Meeting				開啟會議室							失敗：[L0]
 																						成功：[L1]
-				-> 20.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]
+				-> 21.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]
 																						成功：[L3]
-				-> 21.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]
+				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]
 																						成功：[M1]
-				-> 21.JTG_Modify_Insurance_Status	要保人簽名(jason）					簽名完成：[M2]
+				-> 23.JTG_Modify_Insurance_Status	要保人簽名(jason）					簽名完成：[M2]
 													被保人簽名(jason）					簽名完成：[M3]
 													法定代理人(jason）					簽名完成：[M4]
-				-> 22.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]
+				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]
 																						成功：[N1]
-				-> 23.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]
+				-> 25.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]
 																						成功：[O1]
-				-> 24.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]
+				-> 26.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]
 																						成功：[O3]
-				-> 25.JTG_Upload_Attachement		上傳附件							失敗：[P0]
+				-> 27.JTG_Upload_Attachement		上傳附件							失敗：[P0]
 																						成功：[P1]
-				-> 26.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]
+				-> 28.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]
 																						成功：[Q1]
-				-> 27.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[Q2]
+				-> 29.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[Q2]
 																						成功：[Q3]
-				-> 28.JTG_Start_Meeting				開啟會議室							失敗：[R0]
+				-> 30.JTG_Start_Meeting				開啟會議室							失敗：[R0]
 																						成功：[R1]
-				-> 29.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[R2]
+				-> 31.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[R2]
 																						成功：[R3]
-				-> 30.JTG_Get_Proposal/JTG_Get_Json	業務-要保書簽名(jason)				失敗：[S0]
+				-> 32.JTG_Get_Proposal/JTG_Get_Json	業務-要保書簽名(jason)				失敗：[S0]
 																						成功：[S1]
-				-> 31.JTG_Signature_PDF				回傳業務-要保書簽名(jason）			成功：[S2]
-				-> 32.JTG_Get_Proposal/JTG_Get_Json	業務-業報書簽名(jason)				失敗：[T0]
+				-> 33.JTG_Signature_PDF				回傳業務-要保書簽名(jason）			成功：[S2]
+				-> 34.JTG_Get_Proposal/JTG_Get_Json	業務-業報書簽名(jason)				失敗：[T0]
 																						成功：[T1]
-				-> 33.JTG_Signature_PDF				回傳業務-業報書簽名(jason）			成功：[U0]
-				-> 34.JTG_Get_OrderNum				取得保單編號						失敗：[V0]
+				-> 35.JTG_Signature_PDF				回傳業務-業報書簽名(jason）			成功：[U0]
+				-> 36.JTG_Get_OrderNum				取得保單編號						失敗：[V0]
 																						成功：[V1]
-				-> 35.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[V2]
+				-> 37.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[V2]
 																						成功：[V3]
-				-> 36.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]
-				-> 37.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]
+				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]
+				-> 39.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]
 																						成功：[V6]
 工作項目
 -----------------------------------------------------------------

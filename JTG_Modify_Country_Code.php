@@ -1,6 +1,4 @@
 <?php
-	include("db_tools.php");
-	include("security_tools.php");
 	include("func.php");
 	
 	
@@ -20,8 +18,8 @@
 	wh_log($Insurance_no, $Remote_insurance_no, "Country Code entry <-", $Person_id);
 	
 	// 驗證 security token
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
+	$headers = apache_request_headers();
+	$token 	 = $headers['Authorization'];
 	if(check_header($key, $token)==true)
 	{
 		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
@@ -45,8 +43,8 @@
 		($Remote_insurance_no 	!= '') &&
 		($Country_code 			!= ''))
 	{
+		$link = null;
 		try {
-			$link = null;
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
 
@@ -84,19 +82,33 @@
 			$sql = ($status_code == "B1") ? " :".$sql : "";
 			wh_log($Insurance_no, $Remote_insurance_no, symbol4log."modify countrylog table result :".$data["responseMessage"].$sql, $Person_id);
 			$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link);
-			if ($link != null)
-				mysqli_close($link);
+			
 			wh_log($Insurance_no, $Remote_insurance_no, "modify countrylog sop finish :".$data["responseMessage"], $Person_id);
 		}
 		catch (Exception $e)
 		{
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";
-			wh_log($Insurance_no, $Remote_insurance_no, "(X) modify countrylog sop catch :".$data["responseMessage"]."\r\n"."error detail :".$e.getMessage(), $Person_id);			
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= "Exception error!";
+			wh_log($Insurance_no, $Remote_insurance_no, "(X) modify countrylog sop catch :".$data["responseMessage"]."\r\n"."error detail :".$e->getMessage(), $Person_id);			
 		}
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
+		finally
+		{
+			try
+			{
+				if ($link != null)
+				{
+					mysqli_close($link);
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "Exception error: disconnect!";
+			}
+		}	
 	}
 	else
 	{
@@ -104,9 +116,11 @@
 		$data["status"]="false";
 		$data["code"]="0x0203";
 		$data["responseMessage"]="API parameter is required!";
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(!)".$data["responseMessage"], $Person_id);	
 	}
-	wh_log($Insurance_no, $Remote_insurance_no, "Country Code exit ->", $Person_id);
+	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
+	if ($data["code"] == "0x0200") $symbol_str = "";
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."Country Code exit ->", $Person_id);
+	
+	header('Content-Type: application/json');
+	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

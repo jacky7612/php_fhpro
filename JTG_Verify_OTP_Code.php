@@ -1,43 +1,57 @@
 <?php
-	include("db_tools.php"); 
-	include("security_tools.php");
 	include("func.php");
-	
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
-	
-	if(check_header($key, $token)==true)
-	{
-		;//echo "valid token";
-		
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		exit;							
-	}
 	
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 	$Sales_id 			= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$Mobile_no 			= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
-	//$Member_type 		= isset($_POST['Member_type']) 			? $_POST['Member_type'] 		: '1';
 	$Verification_Code 	= isset($_POST['Verification_Code']) 	? $_POST['Verification_Code'] 	: '1'; //Verification_Code
-
+	
 	$Insurance_no 		= check_special_char($Insurance_no);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
 	$Sales_id 			= check_special_char($Sales_id);
 	$Person_id 			= check_special_char($Person_id);
 	$Mobile_no 			= check_special_char($Mobile_no);
 	$Verification_Code 	= check_special_char($Verification_Code);
+	
+	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 		: '';
+	$OTP_time 			= check_special_char($OTP_time);
 
+	// 驗證 security token
+	$headers = apache_request_headers();
+	$token 	 = $headers['Authorization'];
+	if(check_header($key, $token) == true)
+	{
+		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]			= "false";
+		$data["code"]			= "0x0209";
+		$data["responseMessage"]= "Invalid token!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
+		exit;							
+	}
+	
+	$status_code_succeed = ($OTP_time == 1) ? "H3" : "J3"; // 成功狀態代碼
+	$status_code_failure = ($OTP_time == 1) ? "H2" : "J2"; // 失敗狀態代碼
+	$status_code = "";
+	wh_log($Insurance_no, $Remote_insurance_no, "verify OTP entry <-", $Person_id);
+	
+	// 當資料不齊全時，從資料庫取得
+	if (($Member_name 	== '') ||
+		($Mobile_no 	== '') )
+	{
+		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
+		$Mobile_no 	 = $memb["Mobile_no"];
+		$Member_name = $memb["Member_name"];
+	}
+	$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no);
 	if (($Insurance_no 			!= '') &&
 		($Remote_insuance_no 	!= '') &&
 		($Sales_id 				!= '') &&
@@ -45,7 +59,8 @@
 		($Mobile_no 			!= '') )
 	{
 
-		try {
+		try
+		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
 
@@ -89,40 +104,74 @@
 						$data["code"]="0x0200";
 						$data["responseMessage"]="驗證碼正確!";	
 
-						$sql2 = "update `orderinfo` set `verification_code`='' where order_no='$Insuranceno' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and order_trash=0";
+						$sql2 = "update `orderinfo` set `verification_code`='' where insuance_no='$Insuranceno' and remote_insuance_no='$Remote_insuance_no' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and order_trash=0";
 						//and member_type=$Member_type 
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
+						$status_code = $status_code_succeed;
 						
-					}else{
-						$data["status"]="false";
-						$data["code"]="0x0201";
-						$data["responseMessage"]="驗證碼錯誤!";	
-					
 					}
-				} else {
-					$data["status"]="false";
-					$data["code"]="0x0205";
-					$data["responseMessage"]="流水要保序號錯誤!";						
+					else
+					{
+						$data["status"]			= "false";
+						$data["code"]			= "0x0201";
+						$data["responseMessage"]= "驗證碼錯誤!";
+						$status_code = $status_code_failure;
+					}
 				}
-			} else {
-				$data["status"]="false";
-				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";					
+				else
+				{
+					$data["status"]			= "false";
+					$data["code"]			= "0x0205";
+					$data["responseMessage"]= "流水要保序號錯誤!";
+					$status_code = $status_code_failure;
+				}
 			}
-			mysqli_close($link);
-		} catch (Exception $e) {
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";					
+			else
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0204";
+				$data["responseMessage"]= "SQL fail!";
+				$status_code = $status_code_failure;					
+			}
+		}
+		catch (Exception $e)
+		{
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= "Exception error!";					
         }
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	} else {
+		finally
+		{
+			try
+			{
+				if ($link != null)
+				{
+					if ($status_code != "")
+						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
+	
+					mysqli_close($link);
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "Exception error: disconnect!";
+			}
+		}
+	}
+	else
+	{
 		//echo "need mail and password!";
-		$data["status"]="false";
-		$data["code"]="0x0203";
-		$data["responseMessage"]="API parameter is required!";
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));			
-	}	
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+	}
+	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
+	if ($data["code"] == "0x0200") $symbol_str = "";
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."face compare exit ->", $Person_id);
+	
+	header('Content-Type: application/json');
+	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

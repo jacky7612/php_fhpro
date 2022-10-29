@@ -1,6 +1,4 @@
 <?php
-	include("db_tools.php"); 
-	include("security_tools.php");
 	include("func.php");	
 	
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		:  '';
