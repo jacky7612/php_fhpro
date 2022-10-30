@@ -37,9 +37,19 @@
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
 		exit;							
 	}
-	
-	$status_code_succeed = ($OTP_time == 1) ? "H3" : "J3"; // 成功狀態代碼
-	$status_code_failure = ($OTP_time == 1) ? "H2" : "J2"; // 失敗狀態代碼
+	$status_code_succeed = "H3"; // 成功狀態代碼
+	$status_code_failure = "H2"; // 失敗狀態代碼
+	switch(OTP_time)
+	{
+		case 2:
+			$status_code_succeed = "J3"; // 成功狀態代碼
+			$status_code_failure = "J2"; // 失敗狀態代碼
+			break;
+		case 3:
+			$status_code_succeed = "O3"; // 成功狀態代碼
+			$status_code_failure = "O2"; // 失敗狀態代碼
+			break;
+	}
 	$status_code = "";
 	wh_log($Insurance_no, $Remote_insurance_no, "verify OTP entry <-", $Person_id);
 	

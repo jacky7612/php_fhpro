@@ -63,48 +63,48 @@ ps.每個步驟都要狀態API
 																						成功：[J1]					log:ok; mysql_data:ok
 				//-> 17.JTG_Verify_OTP_Code			OTP驗證								失敗：[J2]					log:ok; mysql_data:ok
 																						成功：[J3]					log:ok; mysql_data:ok
-				-> 18.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[K0]
-																						成功：[K1]
-				-> 19.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[K2]
-																						成功：[K3]
-				-> 20.JTG_Start_Meeting				開啟會議室							失敗：[L0]
-																						成功：[L1]
-				-> 21.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]
-																						成功：[L3]
-				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]
-																						成功：[M1]
-				-> 23.JTG_Modify_Insurance_Status	要保人簽名(jason）					簽名完成：[M2]
-													被保人簽名(jason）					簽名完成：[M3]
-													法定代理人(jason）					簽名完成：[M4]
-				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]
-																						成功：[N1]
-				-> 25.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]
-																						成功：[O1]
-				-> 26.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]
-																						成功：[O3]
-				-> 27.JTG_Upload_Attachement		上傳附件							失敗：[P0]
-																						成功：[P1]
-				-> 28.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]
-																						成功：[Q1]
-				-> 29.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[Q2]
-																						成功：[Q3]
-				-> 30.JTG_Start_Meeting				開啟會議室							失敗：[R0]
-																						成功：[R1]
-				-> 31.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[R2]
-																						成功：[R3]
-				-> 32.JTG_Get_Proposal/JTG_Get_Json	業務-要保書簽名(jason)				失敗：[S0]
-																						成功：[S1]
-				-> 33.JTG_Signature_PDF				回傳業務-要保書簽名(jason）			成功：[S2]
-				-> 34.JTG_Get_Proposal/JTG_Get_Json	業務-業報書簽名(jason)				失敗：[T0]
-																						成功：[T1]
-				-> 35.JTG_Signature_PDF				回傳業務-業報書簽名(jason）			成功：[U0]
-				-> 36.JTG_Get_OrderNum				取得保單編號						失敗：[V0]
-																						成功：[V1]
-				-> 37.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[V2]
-																						成功：[V3]
-				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]
-				-> 39.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]
-																						成功：[V6]
+				-> 18.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[K0]					log:ok; mysql_data:ok
+																						成功：[K1]					log:ok; mysql_data:ok
+				-> 19.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[K2]					log:ok; mysql_data:ok
+																						成功：[K3]					log:ok; mysql_data:ok
+				-> 20.JTG_Start_Meeting				開啟會議室							失敗：[L0]					未用到
+																						成功：[L1]					log:ok; mysql_data:ok
+				-> 21.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]					log:ok; mysql_data:ok
+																						成功：[L3]					log:ok; mysql_data:ok
+				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]					log:ok; mysql_data:ok
+																						成功：[M1]					log:ok; mysql_data:ok
+				-> 23.JTG_Modify_Insurance_Status/	要保人簽名(jason）					簽名完成：[M2]				待建立API
+					  JTG_upload_Proposal			被保人簽名(jason）					簽名完成：[M3]				待建立API
+													法定代理人(jason）					簽名完成：[M4]				待建立API
+				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]					待建立API
+																						成功：[N1]					待建立API
+				-> 25.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]					log:ok; mysql_data:ok
+																						成功：[O1]					log:ok; mysql_data:ok
+				-> 26.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]					log:ok; mysql_data:ok
+																						成功：[O3]					log:ok; mysql_data:ok
+				-> 27.JTG_Upload_Attachement		上傳附件							失敗：[P0]					log:ok; mysql_data:ok
+																						成功：[P1]					log:ok; mysql_data:ok
+				-> 28.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]					log:ok; mysql_data:ok
+																						成功：[Q1]					log:ok; mysql_data:ok
+				-> 29.JTG_Get_MeetingInfo			取得會議室的資訊					失敗：[Q2]					log:ok; mysql_data:ok
+																						成功：[Q3]					log:ok; mysql_data:ok
+				-> 30.JTG_Start_Meeting				開啟會議室							失敗：[R0]					log:ok; mysql_data:ok
+																						成功：[R1]					log:ok; mysql_data:ok
+				-> 31.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[R2]					log:ok; mysql_data:ok
+																						成功：[R3]					log:ok; mysql_data:ok
+				-> 32.JTG_Get_Proposal/JTG_Get_Json	業務-要保書簽名(jason)				失敗：[S0]					log:ok; mysql_data:ok
+																						成功：[S1]					log:ok; mysql_data:ok
+				-> 33.JTG_Signature_PDF				回傳業務-要保書簽名(jason）			成功：[S2]					待建立API
+				-> 34.JTG_Get_Proposal/JTG_Get_Json	業務-業報書簽名(jason)				失敗：[T0]					log:ok; mysql_data:ok
+																						成功：[T1]					log:ok; mysql_data:ok
+				-> 35.JTG_Signature_PDF				回傳業務-業報書簽名(jason）			成功：[U0]					待建立API
+				-> 36.JTG_Get_OrderNum				取得保單編號						失敗：[V0]					待建立API
+																						成功：[V1]					待建立API
+				-> 37.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[W0]					log:ok; mysql_data:ok
+																						成功：[W1]					log:ok; mysql_data:ok
+				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]					待建立API
+				-> 39.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]					待建立API
+																						成功：[V6]					待建立API
 工作項目
 -----------------------------------------------------------------
 1、整理全球現有API在第一金需要用到的	(V)

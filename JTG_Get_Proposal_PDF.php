@@ -18,6 +18,9 @@
 		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
 	
 	
+	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 		: '';
+	$PDF_time 			= check_special_char($PDF_time);
+	
 	// 驗證 security token
 	$headers = apache_request_headers();
 	$token 	 = $headers['Authorization'];
@@ -40,6 +43,27 @@
 	
 	$status_code_succeed = "I1"; // 成功狀態代碼
 	$status_code_failure = "I0"; // 失敗狀態代碼
+	switch($PDF_time)
+	{
+		case 2:
+			$status_code_succeed = "M1"; // 成功狀態代碼
+			$status_code_failure = "M0"; // 失敗狀態代碼
+			break;
+		case 3: // 業務員-要保書
+			$status_code_succeed = "S1"; // 成功狀態代碼
+			$status_code_failure = "S0"; // 失敗狀態代碼
+			break;
+		case 4: // 業務員-業報書
+			$status_code_succeed = "T1"; // 成功狀態代碼
+			$status_code_failure = "T0"; // 失敗狀態代碼
+			break;
+		case 5: // 要保書-押上保單號碼
+			$status_code_succeed = "W1"; // 成功狀態代碼
+			$status_code_failure = "W0"; // 失敗狀態代碼
+			break;
+	}
+	$status_code_succeed = ($PDF_time == 1) ? "I1" : "M1"; // 成功狀態代碼
+	$status_code_failure = ($PDF_time == 1) ? "I0" : "M0"; // 失敗狀態代碼
 	$status_code = "";
 	wh_log($Insurance_no, $Remote_insurance_no, "get pdf entry <-", $Person_id);
 	
@@ -139,6 +163,7 @@
         }
 		finally
 		{
+			wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
 				if ($link != null)

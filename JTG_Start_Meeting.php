@@ -6,7 +6,7 @@
 		
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	//2022/5/5, 第二階段不同角色, 視訊同框 
-	$postdata = file_get_contents("php://input",'r'); 
+	$postdata 				= file_get_contents("php://input",'r'); 
 	//echo $postdata;
 	$out 					= json_decode($postdata, true);
 	
@@ -48,8 +48,49 @@
 		//echo "eee";
 	//var_dump($out);
 	//exit;
-
 	
+	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
+	$MEETING_time 			= check_special_char($MEETING_time);
+	
+	$Person_id = $proposer_id;
+	// 驗證 security token
+	$headers = apache_request_headers();
+	$token 	 = $headers['Authorization'];
+	if(check_header($key, $token) == true)
+	{
+		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
+	}
+	else
+	{
+		;//echo "error token";
+		$data = array();
+		$data["status"]			= "false";
+		$data["code"]			= "0x0209";
+		$data["responseMessage"]= "Invalid token!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
+		exit;							
+	}
+	
+	$status_code_succeed = "L1"; // 成功狀態代碼
+	$status_code_failure = "L0"; // 失敗狀態代碼
+	$status_code_succeed = ($MEETING_time == 1) ? "L1" : "R1"; // 成功狀態代碼
+	$status_code_failure = ($MEETING_time == 1) ? "L0" : "R0"; // 失敗狀態代碼
+	$status_code = "";
+	wh_log($Insurance_no, $Remote_insurance_no, "start meeting entry <-", $Person_id);
+	
+	// 當資料不齊全時，從資料庫取得
+	if (($Member_name 	== '') ||
+		($Mobile_no 	== '') ||
+		($Role 			== ''))
+	{
+		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
+		$Mobile_no 	 = $memb["mobile_no"];
+		$Member_name = $memb["member_name"];
+		$Role 		 = $memb["role"];
+	}
+	$Sales_Id = $agent_id;
 
 	if (($Insurance_no 			!= '') &&
 		($Remote_insuance_no	!= '') &&
@@ -63,7 +104,9 @@
 		//$database = 'tglmemberdb';
 		//echo $sql;
 		//exit;
-		try {
+		$link = null;
+		try
+		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
 
@@ -76,38 +119,36 @@
 			//$addr  = mysqli_real_escape_string($link,$addr);
 			
 			//PROD
-			if(_ENV == "PROD")
+			if (_ENV == "PROD")
 			{
 				$main_url = "https://dis-cn1.transglobe.com.tw";
-				$LB = rand(1,10);
-				if($LB >5 )
-				{
+				$LB = rand(1, 10);
+				if ($LB > 5)
 					$main_url = "https://dis-cn2.transglobe.com.tw";
-				} else {
+				else
 					$main_url = "https://dis-cn1.transglobe.com.tw";
-				}
-			} else {
+			}
+			else
+			{
 				//UAT
 				$main_url = "https://ldi.transglobe.com.tw";
 			}
 			
 			// 取得pin code and maxlicense from vmrule
 			$maxlicense = 250;
-			$pincode = "53758995";
-			$sql = "select * from vmrule where id = 1";
-			$result = mysqli_query($link, $sql);
-			while($row = mysqli_fetch_array($result)){
-				$pincode = $row['pincode'];
+			$pincode 	= "53758995";
+			$sql 		= "select * from vmrule where id = 1";
+			$result 	= mysqli_query($link, $sql);
+			while ($row = mysqli_fetch_array($result))
+			{
+				$pincode 	= $row['pincode'];
 				$maxlicense = $row['maxlicense'];
-			}			
-
+			}
+			
 			$sql = "SELECT * FROM orderinfo where order_trash=0 ";
-			if ($Insurance_no != "") {	
-				$sql = $sql." and insurance_no='".$Insurance_no."'";
-			}
-			if ($Remote_insuance_no != "") {
-				$sql = $sql." and remote_insuance_no='".$Remote_insuance_no."' LIMIT 1";
-			}
+			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+			$sql = $sql." LIMIT 1";
 
 			if ($result = mysqli_query($link, $sql))
 			{
@@ -141,14 +182,17 @@
 						//$sql = "select * from gomeeting where stoptime > NOW() and Insurance_no='".$Insurance_no."' LIMIT 1";
 						//新版, 不需要檢查stoptime過期與否, 因為會有定期檢查會議室是否還在使用的程式來處理
 						$sql = "select * from gomeeting where Insurance_no='".$Insurance_no."'";
-						if ($Remote_insuance_no != "") {
-							$sql = $sql." and remote_insuance_no='".$Remote_insuance_no."' LIMIT 1";
-						}
+						$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+						$sql = $sql." LIMIT 1";
+						
+						wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 						$ret = mysqli_query($link, $sql);
 						if (mysqli_num_rows($ret) > 0)
 						{
+							wh_log($Insurance_no, $Remote_insurance_no, "meeting exists that you can join meeting...", $Person_id);
 							//有此會議室
-							while($row = mysqli_fetch_array($ret)){
+							while ($row = mysqli_fetch_array($ret))
+							{
 								$meeting_id = trim(stripslashes($row['meetingid']));
 								$access_code = trim(stripslashes($row['accesscode']));
 								
@@ -192,12 +236,13 @@
 									$meetingurl = $main_url."/webapp/#/?callType=Video&conference=".$access_code."&".$showName."&join=1&media=1&pin=".$pincode;
 								else
 									$meetingurl = $main_url."/webapp/#/?callType=Video&conference=".$access_code."&".$showName."&join=1&media=1&role=guest";
+								
 								//update 線上 人數 DB
 								$sql = "update gomeeting SET count=count+$countp  where Insurance_no='".$Insurance_no."'";
-								if ($Remote_insuance_no != "") {
-									$sql = $sql." and remote_insuance_no='".$Remote_insuance_no."'";
-								}
+								$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
 								$ret = mysqli_query($link, $sql);
+								wh_log($Insurance_no, $Remote_insurance_no, "update meeting person count = ".countp, $Person_id);
+							
 								
 								//update GPS
 								//if($Role != "0") //業務是新增的
@@ -210,6 +255,7 @@
 										else
 											$sql = "update meetinglog SET proposer_id = '$proposer_id', proposer_gps = '$gps' where meetingid='".$meeting_id."'";
 										$ret = mysqli_query($link, $sql);
+										wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table proposer info", $Person_id);
 									}
 									if ($insured_id != '')
 									{			
@@ -218,6 +264,7 @@
 										else
 											$sql = "update meetinglog SET insured_id = '$insured_id', insured_gps = '$gps' where meetingid='".$meeting_id."'";
 										$ret = mysqli_query($link, $sql);
+										wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table insured info", $Person_id);
 									}
 									if ($legalRep_id != '')
 									{			
@@ -226,19 +273,24 @@
 										else
 											$sql = "update meetinglog SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps' where meetingid='".$meeting_id."'";
 										$ret = mysqli_query($link, $sql);
+										wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table legalRep info", $Person_id);
 									}
 								}
-								$data=array();
-								$data["status"]="true";
-								$data["code"]="0x0200";
-								$data["responseMessage"]="OK";	
-								$data["meetingurl"]=$meetingurl;	
-								$data["meetingid"]=$meeting_id;	
+								$data					= array();
+								$data["status"]			= "true";
+								$data["code"]			= "0x0200";
+								$data["responseMessage"]= "OK";	
+								$data["meetingurl"]		= $meetingurl;	
+								$data["meetingid"]		= $meeting_id;
+								$status_code = $status_code_succeed;
 								header('Content-Type: application/json');
-								echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01", $Person_id);								
 								exit;
 							}
-						} else {
+						}
+						else
+						{
 							//還未有會議室,需要新開會議室
 							if ($agent_id == '')//只有業務能開啟新會議室,此次呼叫沒有業務，而且沒有ongoing meeting
 							{
@@ -246,13 +298,18 @@
 								$data["status"]			 = "false";
 								$data["code"]			 = "0x0205";
 								$data["responseMessage"] = "尚未到視訊會議室時間!";
+								$status_code = $status_code_failure;
 								header('Content-Type: application/json');
-								echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01", $Person_id);
 								exit;
 							}
 						}
 					}
-					try {
+					
+					
+					try
+					{
 						if(_ENV == "PROD")
 							$mainurl = "http://10.67.65.180/RESTful/index.php/v1/";//內網 //PROD
 						else
@@ -273,38 +330,40 @@
 						{
 							if (_ENV == "PROD")
 							{
-								$mainurl = "http://10.67.65.174/RESTful/index.php/v1/";
-								$url = $mainurl."post/api/token/request";
-								$data = array();
-								$data["username"]="administrator";
-								$hash = md5("CheFR63r");
-								$data["data"]=md5($hash."@deltapath");
-								$out = CallAPI4OptMeeting("POST", $url, $data);
+								$mainurl 			= "http://10.67.65.174/RESTful/index.php/v1/";
+								$url 				= $mainurl."post/api/token/request";
+								$data 				= array();
+								$data["username"]	= "administrator";
+								$hash 				= md5("CheFR63r");
+								$data["data"]		= md5($hash."@deltapath");
+								$out 				= CallAPI4OptMeeting("POST", $url, $data);
 								//echo $out;
 								$ret = json_decode($out, true);
-								if($ret['success'] == true)
+								if ($ret['success'] == true)
 									$token = $ret['token'];
 								else
 								{			
 									//update status vmrinfo
-									$sql = "update vmrinfo SET status=0 where vid=$vid";
-									$ret = mysqli_query($link, $sql);									
-									$data["status"]="false";
-									$data["code"]="0x0205";
-									$data["responseMessage"]="Get Token Failed!";
+									$sql 					= "update vmrinfo SET status=0 where vid=$vid";
+									$ret 					= mysqli_query($link, $sql);									
+									$data["status"]			= "false";
+									$data["code"]			= "0x0205";
+									$data["responseMessage"]= "Get Token Failed!";
 									header('Content-Type: application/json');
-									echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+									wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 02.1", $Person_id);	
 									exit;
 								}
 							} else {			
 								//update status vmrinfo
-								$sql = "update vmrinfo SET status=0 where vid=$vid";
-								$ret = mysqli_query($link, $sql);									
-								$data["status"]="false";
-								$data["code"]="0x0205";
-								$data["responseMessage"]="Get Token Failed!";
+								$sql 					= "update vmrinfo SET status=0 where vid=$vid";
+								$ret 					= mysqli_query($link, $sql);									
+								$data["status"]			= "false";
+								$data["code"]			= "0x0205";
+								$data["responseMessage"]= "Get Token Failed!";
 								header('Content-Type: application/json');
-								echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 02.2", $Person_id);	
 								exit;
 							}
 						}
@@ -321,12 +380,13 @@
 						}
 						if (intval($max) >intval($maxlicense))
 						{
-							$data=array();
-							$data["status"]="false";
-							$data["code"]="0x0207";
-							$data["responseMessage"]="超過會議室人數上限,請稍後再開啟視訊會議";
+							$data					= array();
+							$data["status"]			= "false";
+							$data["code"]			= "0x0207";
+							$data["responseMessage"]= "超過會議室人數上限,請稍後再開啟視訊會議";
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 03", $Person_id);
 							exit;//超過會議室的上限了
 						}
 						//$log = "max people:".$max;
@@ -337,6 +397,7 @@
 						$sql = "begin";
 						mysqli_query($link, $sql);
 						$sql = "select * from vmrinfo where status = 0 and TIMESTAMPDIFF(MINUTE, updatetime, NOW())>10 order by RAND()";
+						wh_log($Insurance_no, $Remote_insurance_no, "vmrinfo sql prepare", $Person_id);
 						$result = mysqli_query($link, $sql);
 						if (mysqli_num_rows($result) > 0)
 						{
@@ -349,13 +410,14 @@
 								$ret = mysqli_query($link, $sql);									
 								//check $vid 是否還有人在線上
 								// 先得到目前線上的所有參與者
-								$url = $mainurl."get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list";
-								$data= array();
-								$data['gateway'] = '12';
-								$data['service_type'] = 'conference';	
-								$data['start'] = '0';
-								$data['limit'] = '9999';	
+								$url 					= $mainurl."get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list";
+								$data					= array();
+								$data['gateway'] 		= '12';
+								$data['service_type'] 	= 'conference';	
+								$data['start'] 			= '0';
+								$data['limit'] 			= '9999';
 								
+								wh_log($Insurance_no, $Remote_insurance_no, "try call OptMeeting api ", $Person_id);
 								$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 								//echo $out;
 								//exit;
@@ -373,6 +435,7 @@
 										//此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api
 										//重新取用新的
 										$bnext = 1;
+										wh_log($Insurance_no, $Remote_insurance_no, "此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api", $Person_id);
 										break;
 									}
 								}
@@ -385,22 +448,24 @@
 								}
 								
 								//update status vmrinfo
+								wh_log($Insurance_no, $Remote_insurance_no, "update status vmrinfo", $Person_id);
 								$sql = "update vmrinfo SET status=1, updatetime=NOW() where vid=$vid";
 								$ret = mysqli_query($link, $sql);		
 								$vmrenough = 1;
 								break;
 							}
-						} else {
-							$data=array();
-							$data["status"]="false";
-							$data["code"]="0x0206";
-							$data["responseMessage"]="超過會議室上限,請稍後再開啟視訊會議";
+						}
+						else
+						{
+							$data					= array();
+							$data["status"]			= "false";
+							$data["code"]			= "0x0206";
+							$data["responseMessage"]= "超過會議室上限,請稍後再開啟視訊會議";
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-							$log = "max room";
-						    wh_log($log);				
 							$sql = "commit";
-							mysqli_query($link, $sql);							
+							mysqli_query($link, $sql);
+							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 04", $Person_id);
 							exit;//超過會議室的上限了
 						}
 						$sql = "commit";
@@ -408,13 +473,12 @@
 						if($vmrenough == 0)
 						{
 							$data=array();
-							$data["status"]="false";
-							$data["code"]="0x0206";
-							$data["responseMessage"]="超過會議室上限,請稍後再開啟視訊會議";
+							$data["status"]			= "false";
+							$data["code"]			= "0x0206";
+							$data["responseMessage"]= "超過會議室上限,請稍後再開啟視訊會議";
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-							$log = "max room";
-						    wh_log($log);				
+							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 05", $Person_id);
 							exit;//超過會議室的上限了							
 						}
 						
@@ -425,11 +489,12 @@
 								//$sql = "update vmrinfo SET status=0, updatetime=NOW() where vid=$vid";
 								//$ret = mysqli_query($link, $sql);					
 							$data=array();
-							$data["status"]="false";
-							$data["code"]="0x0205";
-							$data["responseMessage"]="客戶無權限發起會議!";
+							$data["status"]			= "false";
+							$data["code"]			= "0x0205";
+							$data["responseMessage"]= "客戶無權限發起會議!";
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 06", $Person_id);
 							exit;
 						}
 						
@@ -438,9 +503,12 @@
 						//從accesscode取得access_code
 						$access_code  = 0;
 						$sql = "select * from accesscode where deletecode = 0 and vid=$vid ORDER BY updatetime ASC;";
+						wh_log($Insurance_no, $Remote_insurance_no, "query accesscode table prepare", $Person_id);
 						$result = mysqli_query($link, $sql);
-						if (mysqli_num_rows($result) > 0){
-							while($row = mysqli_fetch_array($result)){
+						if (mysqli_num_rows($result) > 0)
+						{
+							while ($row = mysqli_fetch_array($result))
+							{
 								$access_code = $row['code'];
 								$meeting_id = $row['meetingid'];
 								break;
@@ -454,11 +522,10 @@
 							$data 					 = array();
 							$data["status"]			 = "false";
 							$data["code"]			 = "0x0206";
-							$data["responseMessage"] ="系統忙碌,請稍後再開啟視訊會議";
+							$data["responseMessage"] = "系統忙碌,請稍後再開啟視訊會議";
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-							$log = "max room";
-						    wh_log($log);				
+							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 07", $Person_id);
 							exit;//超過會議室的上限了							
 						}
 
@@ -513,33 +580,32 @@
 							
 						$showName .= $gps;
 							
-						$meetingurl="https://ldi.transglobe.com.tw/webapp/#/?callType=Video&conference=".$access_code."&".$showName."&join=1&media=1&pin=".$pincode;
+						$meetingurl = "https://ldi.transglobe.com.tw/webapp/#/?callType=Video&conference=".$access_code."&".$showName."&join=1&media=1&pin=".$pincode;
 						
 						//Insert Meeting id to gomeeting
 						$sql1 = "INSERT INTO gomeeting (insurance_no, remote_insuance_no, meetingid, accesscode, vmr, starttime, stoptime, count, updatetime) VALUES ('$Insurance_no', '$Remote_insuance_no', '$meeting_id', '$access_code', '$vid', '$stime', '$etime', $countp, NOW())";
 						$ret = mysqli_query($link, $sql1);
+						wh_log($Insurance_no, $Remote_insurance_no, "Insert Meeting id to gomeeting", $Person_id);
 						
 						//$log = $sql;
 						//wh_log($log);
 						//LOG Meeting id for VRMS
+						// 存在與不存在都insert 感覺不正常，或許要修正 - jacky
 						$gps = $lat.",".$lon;
-						if(strlen($agent_addr)>0)
+						if (strlen($agent_addr) > 0)
 						{
 							if($agent_id != '')
 							{
 								$sql = "INSERT INTO meetinglog (insurance_no, remote_insuance_no, vid, meetingid, agent_id, agent_gps, agent_addr, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insuance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$agent_addr', '$stime', '$etime', NOW())";
 								$ret = mysqli_query($link, $sql);
-								//echo $sql;
 							}
-						
 						}
 						else
 						{
-							{
-								$sql = "INSERT INTO meetinglog (insurance_no, remote_insuance_no, vid, meetingid, agent_id, agent_gps, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insuance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$stime', '$etime', NOW())";
-								$ret = mysqli_query($link, $sql);
-							}
-						}	
+							$sql = "INSERT INTO meetinglog (insurance_no, remote_insuance_no, vid, meetingid, agent_id, agent_gps, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insuance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$stime', '$etime', NOW())";
+							$ret = mysqli_query($link, $sql);
+						}
+						wh_log($Insurance_no, $Remote_insurance_no, "LOG Meeting id for VRMS", $Person_id);
 						
 						if ($proposer_id != '')
 						{		
@@ -569,47 +635,74 @@
 						//wh_log($log);
 						
 						//$meetingurl="https://meet.deltapath.com/webapp/#/?conference=884378136732@deltapath.com&name=錢總&join=1&media";
-						$data=array();
-						$data["status"]="true";
-						$data["code"]="0x0200";
-						$data["responseMessage"]="OK";	
-						$data["meetingurl"]=$meetingurl;	
-						$data["meetingid"]=$meeting_id;	
-						//$data["sql"]=$sql1;	
-						
-					} catch (Exception $e) {
+						$data					= array();
+						$data["status"]			= "true";
+						$data["code"]			= "0x0200";
+						$data["responseMessage"]= "OK";
+						$data["meetingurl"]		= $meetingurl;
+						$data["meetingid"]		= $meeting_id;
+					}
+					catch (Exception $e)
+					{
 						//$this->_response(null, 401, $e->getMessage());
 						//echo $e->getMessage();
-						$data["status"]="false";
-						$data["code"]="0x0202";
-						$data["responseMessage"]=$e->getMessage();							
+						$data["status"]			= "false";
+						$data["code"]			= "0x0202";
+						$data["responseMessage"]= $e->getMessage();							
 					}
 				} else {
-					$data["status"]="false";
-					$data["code"]="0x0201";
-					$data["responseMessage"]="不存在此要保流水序號的資料!";						
+					$data["status"]			= "false";
+					$data["code"]			= "0x0201";
+					$data["responseMessage"]= "不存在此要保流水序號的資料!";						
 				}
 			} else {
-				$data["status"]="false";
-				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";					
+				$data["status"]			= "false";
+				$data["code"]			= "0x0204";
+				$data["responseMessage"]= "SQL fail!";					
 			}
 			mysqli_close($link);
-		} catch (Exception $e) {
+		}
+		catch (Exception $e)
+		{
             //$this->_response(null, 401, $e->getMessage());
 			//echo $e->getMessage();
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]=$e->getMessage();					
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= $e->getMessage();					
         }
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	}else{
-		//echo "need mail and password!";
-		$data["status"]="false";
-		$data["code"]="0x0203";
-		$data["responseMessage"]="API parameter is required!";
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));			
+		finally
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
+			try
+			{
+				if ($link != null)
+				{
+					if ($status_code != "")
+						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
+	
+					mysqli_close($link);
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "Exception error: disconnect!";
+			}
+		}
 	}
+	else
+	{
+		//echo "need mail and password!";
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+	}
+	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
+	if ($data["code"] == "0x0200") $symbol_str = "";
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
+	
+	header('Content-Type: application/json');
+	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

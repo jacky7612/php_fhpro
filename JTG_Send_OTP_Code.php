@@ -36,8 +36,19 @@
 		exit;							
 	}
 	
-	$status_code_succeed = ($OTP_time == 1) ? "G1" : "J1"; // 成功狀態代碼
-	$status_code_failure = ($OTP_time == 1) ? "G0" : "J0"; // 失敗狀態代碼
+	$status_code_succeed = "G1"; // 成功狀態代碼
+	$status_code_failure = "G0"; // 失敗狀態代碼
+	switch(OTP_time)
+	{
+		case 2:
+			$status_code_succeed = "J1"; // 成功狀態代碼
+			$status_code_failure = "J0"; // 失敗狀態代碼
+			break;
+		case 3:
+			$status_code_succeed = "O1"; // 成功狀態代碼
+			$status_code_failure = "O0"; // 失敗狀態代碼
+			break;
+	}
 	$status_code = "";
 	wh_log($Insurance_no, $Remote_insurance_no, "face compare entry <-", $Person_id);
 	
