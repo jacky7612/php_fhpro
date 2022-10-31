@@ -344,10 +344,10 @@
 				if ($flag == 1) {
 					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`member_type`, `order_status`, `log_date`";
 					if ($Mobile_no  != "") $sql2 = $sql2.",`mobile_no`";
-					if ($Membertype != "") $sql2 = $sql2.",`member_type`";
+					if ($Membertype != "") $sql2 = $sql2.",`role`";
 					$sql2 = $sql2.") VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Statuscode',NOW())";
 					if ($Mobile_no  != "") $sql2 = $sql2.",'$Mobileno'";
-					if ($Membertype != "") $sql2 = $sql2.",'$Membertype'";
+					if ($Membertype != "") $sql2 = $sql2.",'$Role'";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 				}
 				//echo "user data change ok!";

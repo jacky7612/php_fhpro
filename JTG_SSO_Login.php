@@ -4,7 +4,7 @@
 	$status_code = "A0";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$jsondata 			 = '{"acceptId":"Ins1996","dueTime":"2022/10/31 23:00:00","applToken":"appl","prodID":"A","partnerCode":"tonlu","insuredToken":"ins2022","repreToken":"rep2022","applyNo":"appl1998","numbering":"phone2022","polSummary":[{"applyNo":"appl2022","numbering":"num123","applyVersion":"1.0","productName":"主約險種名稱","productCode":"B","policyCode":"","rolesInfo":[{"name":"張三","idcard":"A123456789","tel":"0912-345-777","roleName":"要保人","roleKey":"proposer"},{"name":"李四","idcard":"B123456789","tel":"0912-345-888","roleName":"要保人","roleKey":"insured"},{"name":"王五","idcard":"C123456789","tel":"0912-345-999","roleName":"法定代理人","roleKey":"legalRepresentative"},{"name":"業務","idcard":"E123456789","tel":"0912-345-111","roleName":"業務員","roleKey":"agentOne"}]}],"applicationData":[{"attacheCode":"pdf001","attacheName":"要保書","attacheContent":"base64","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y","agentFlag":"Y","signTagSetting":"tag01","policyTagSetting":"tag02","applDateTagSetting":"tag03"}],"uploadData":[{"attacheCode":"attache001","attacheName":"附件一","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y"}]}';
+	$jsondataSample		 = '{"acceptId":"Ins1996","dueTime":"2022/10/31 23:00:00","applToken":"appl","prodID":"A","partnerCode":"tonlu","insuredToken":"ins2022","repreToken":"rep2022","applyNo":"appl1998","numbering":"phone2022","polSummary":[{"applyNo":"appl2022","numbering":"num123","applyVersion":"1.0","productName":"主約險種名稱","productCode":"B","policyCode":"","rolesInfo":[{"name":"張三","idcard":"A123456789","tel":"0912-345-777","roleName":"要保人","roleKey":"proposer"},{"name":"李四","idcard":"B123456789","tel":"0912-345-888","roleName":"要保人","roleKey":"insured"},{"name":"王五","idcard":"C123456789","tel":"0912-345-999","roleName":"法定代理人","roleKey":"legalRepresentative"},{"name":"業務","idcard":"E123456789","tel":"0912-345-111","roleName":"業務員","roleKey":"agentOne"}]}],"applicationData":[{"attacheCode":"pdf001","attacheName":"要保書","attacheContent":"base64","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y","agentFlag":"Y","signTagSetting":"tag01","policyTagSetting":"tag02","applDateTagSetting":"tag03"}],"uploadData":[{"attacheCode":"attache001","attacheName":"附件一","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y"}]}';
 	$Insurance_no		 = "";
 	$Remote_insurance_no = "";
 	$Person_id			 = "";
@@ -18,8 +18,8 @@
 	$remote_ip4filename = get_remote_ip_underline();
 	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json entry <-");
 	$data = array();
-	//if (($Sso_token  != '') &&
-	//	($App_type 	 != ''))
+	if (($Sso_token  != '') &&
+		($App_type 	 != '') || true)
 	{
 		/*
 		echo "host :".$host.'<br>';
@@ -34,33 +34,34 @@
 			mysqli_query($link,"SET NAMES 'utf8'");
 			wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
 			
-			//$App_type   = mysqli_real_escape_string($link,$App_type);	
-			//$Sso_token  = mysqli_real_escape_string($link,$Sso_token);
-			//
-			//$Sso_token2 = trim(stripslashes($Sso_token)); 
-			//$App_type2  = trim(stripslashes($App_type));
+			$App_type   = mysqli_real_escape_string($link,$App_type);	
+			$Sso_token  = mysqli_real_escape_string($link,$Sso_token);
+
+			$Sso_token2 = trim(stripslashes($Sso_token)); 
+			$App_type2  = trim(stripslashes($App_type));
 			
 			wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
-			//if($App_type2 == '0')
-			//	$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-			//if($App_type2 == '1')
-			//	$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫, ios
-			//if($App_type2 == '2')
-			//	$appId = "8jy4wqtrCPMF1Jml"; //此 API 為客戶呼叫, android		
+			$appId = "";
+			if($App_type2 == '0')
+				$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
+			if($App_type2 == '1')
+				$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫, ios
+			if($App_type2 == '2')
+				$appId = "8jy4wqtrCPMF1Jml"; //此 API 為客戶呼叫, android		
 			
 			$data['token'] 	= $Sso_token2;  							// 雲端達人給予的Token
 			$data['appId'] 	= $appId ;									// 此為全球規格，要視雲端達人的規格再調整
 			$url 			= $g_insurance_sso_api_url."ldi/sso/check"; // 此為全球規格，要視雲端達人的規格再調整
 			$jsondata 		= json_encode($data);
-			$out 			= CallAPI("POST", $url, $jsondata, null, false); // 呼叫 API
+			//$out 			= CallAPI("POST", $url, $jsondata, null, false); // 呼叫 API
 			wh_log("SSO_Login", $remote_ip4filename, "sso api get response json succeed");
 			//echo $out;
+			$out = $jsondataSample;
 			$ret = json_decode($out, true);
-			
 			$cxInsurance = json_decode($out);
-			print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+			$retOk = print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
 			
-			//if ($ret['success'] == true)
+			if ($retOk)//($ret['success'] == true)
 			{
 				// 讀取的規格需調整
 				/*
@@ -75,9 +76,9 @@
 				wh_log("SSO_Login", $remote_ip4filename, "dueTime = ".$dueTime);
 				
 				//判斷 要保日 > 12H 或 要保日跨日 失敗：[A1] 成功：[A2]
-				$over_12Hr = over_insurance_duetime(Now(), $dueTime, 12);
-				$over_day  = over_insurance_day(Now()	 , $dueTime	   );
-				if (over_12Hr || $over_day)
+				$over_12Hr = over_insurance_duetime(date("Y-m-d H:i:s"), $dueTime, 12);
+				$over_day  = false;// over_insurance_day(	date("Y-m-d H:i:s"), $dueTime	 );
+				if ($over_12Hr || $over_day)
 				{
 					$status_code 	= "A1";
 					$data["status"]	= "false";

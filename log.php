@@ -37,6 +37,7 @@
 	}
 	function print_json_data($cxInsurance, &$Insurance_no, &$Remote_insurance_no, &$Person_id, &$Mobile_no, &$Sales_id)
 	{
+		$ret = true;
 		try
 		{
 			echo "cxPolSummary count = ".count($cxInsurance->polSummary)."<br>"."<br>";
@@ -116,6 +117,9 @@
 			}
 		}
 		catch (Exception $e)
-		{ }
+		{
+			$ret = false;
+		}
+		return $ret;
 	}
 ?>
