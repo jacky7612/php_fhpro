@@ -17,7 +17,7 @@
 		$data["responseMessage"]="Invalid token!";	
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		exit;							
+		return;							
 	}
 
 	// Api ------------------------------------------------------------------------------------------------------------------------

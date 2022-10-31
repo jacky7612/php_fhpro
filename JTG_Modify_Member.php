@@ -51,7 +51,7 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure"."\r\n"."create member exit ->", $Person_id);
-		exit;							
+		return;							
 	}
 	
 	// 當資料不齊全時，從資料庫取得
@@ -91,7 +91,7 @@
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 				wh_log($Insurance_no, $Remote_insurance_no, "create member exit ->", $Person_id);
-				exit;
+				return;
 			}
 			
 			// connect mysql
@@ -143,7 +143,7 @@
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
-							exit;
+							return;
 						}
 						
 						// update mysql

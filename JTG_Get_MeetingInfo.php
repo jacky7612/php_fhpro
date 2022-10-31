@@ -33,7 +33,7 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		exit;							
+		return;							
 	}
 	
 	$status_code_succeed = "K3"; // 成功狀態代碼
@@ -69,7 +69,7 @@
 		//$passwd = 'tglmember210718';
 		//$database = 'tglmemberdb';
 		//echo $sql;
-		//exit;
+		//return;
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -89,7 +89,7 @@
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 				wh_log($Insurance_no, $Remote_insurance_no, "(!) query result :".$data["responseMessage"]."\r\n"."meeting info exit ->", $Person_id);
-				exit;
+				return;
 			}
 			
 			$sql = "SELECT * FROM memberinfo where role='agentOne' and member_trash=0 "; // get sales $sql = "SELECT * FROM salesinfo where sales_trash=0 ";

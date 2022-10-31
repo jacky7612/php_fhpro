@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2022 年 10 月 25 日 07:44
+-- 產生時間： 2022 年 10 月 31 日 13:23
 -- 伺服器版本： 8.0.26
 -- PHP 版本： 7.4.32
 
@@ -43,12 +43,12 @@ CREATE TABLE `accesscode` (
 
 CREATE TABLE `attachement` (
   `id` int NOT NULL,
-  `insurance_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `remote_insurance_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `person_id` varchar(32) NOT NULL,
-  `attache_title` varchar(500) NOT NULL,
+  `insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `remote_insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `person_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `attache_title` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `attache_graph` longblob,
-  `attache_path` varchar(256) DEFAULT NULL,
+  `attache_path` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -131,10 +131,10 @@ CREATE TABLE `idphoto` (
 
 CREATE TABLE `jsonlog` (
   `id` int NOT NULL,
-  `insurance_no` varchar(32) NOT NULL,
-  `remote_insurance_no` varchar(32) NOT NULL,
-  `json_log` json NOT NULL,
-  `order_status` varchar(5) NOT NULL,
+  `insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `remote_insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `json_data` json NOT NULL,
+  `order_status` varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -184,6 +184,8 @@ CREATE TABLE `meetinglog` (
 
 CREATE TABLE `memberinfo` (
   `mid` int NOT NULL,
+  `insurance_no` varchar(32) NOT NULL,
+  `remote_Insurance_no` varchar(32) NOT NULL,
   `person_id` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `role` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `mobile_no` varchar(255) DEFAULT NULL,
@@ -220,8 +222,8 @@ CREATE TABLE `notificationlog` (
 CREATE TABLE `orderinfo` (
   `rid` int NOT NULL,
   `policy_number` varchar(100) DEFAULT NULL,
-  `insurance_no ` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `remote_Insurance_no` varchar(32) NOT NULL,
+  `insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `remote_insurance_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `sales_id` varchar(32) NOT NULL DEFAULT '',
   `person_id` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `mobile_no` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
@@ -376,7 +378,7 @@ ALTER TABLE `notificationlog`
 --
 ALTER TABLE `orderinfo`
   ADD PRIMARY KEY (`rid`),
-  ADD KEY `order_no` (`insurance_no `,`sales_id`,`person_id`);
+  ADD KEY `order_no` (`insurance_no`,`sales_id`,`person_id`);
 
 --
 -- 資料表索引 `orderlog`

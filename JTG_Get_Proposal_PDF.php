@@ -38,7 +38,7 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		exit;							
+		return;							
 	}
 	
 	$status_code_succeed = "I1"; // 成功狀態代碼
@@ -106,7 +106,7 @@
 				$data = array();
 				if ($token2 != '')
 				{
-					//exit;
+					//return;
 					//LDI-005
 					//$url = $g_mpost_url. "ldi/proposal/pdf";
 					//LDI-020
@@ -134,7 +134,7 @@
 					$data["status"]			= "true";
 					$data["code"]			= "0x0200";
 					$data["responseMessage"]= "";
-					exit;
+					return;
 				}
 				else
 				{

@@ -102,7 +102,7 @@
 				$data = array();
 				if ($token2 != '')
 				{
-					//exit;
+					//return;
 					//LDI-016
 					$url = $g_mpost_url. "ldi/check-idno";
 					
@@ -125,7 +125,7 @@
 						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
 	
 					wh_log($Insurance_no, $Remote_insurance_no, "gov exit ->", $Person_id);
-					exit;
+					return;
 				}
 				else
 				{

@@ -35,7 +35,7 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		exit;							
+		return;							
 	}
 	$status_code_succeed = "H3"; // 成功狀態代碼
 	$status_code_failure = "H2"; // 失敗狀態代碼

@@ -8,7 +8,7 @@
 	
 	function getHost()
 	{
-		$hostname="15.164.44.222";//PROD
+		$hostname="127.0.0.1";//"15.164.44.222";//PROD
 		$hostname2 = trim(stripslashes($hostname));
 		return str_replace(",", "", $hostname2);
 	}
@@ -24,7 +24,7 @@
 	function getPassword()
 	{
 		//$dbpwd="Tglmember,@210718";
-		$dbpwd="JTG@1qaz@WSX";
+		$dbpwd="";//"JTG@1qaz@WSX";
 		$dbpwd2 = trim(stripslashes($dbpwd));
 		return str_replace(",", "", $dbpwd2);
 	}

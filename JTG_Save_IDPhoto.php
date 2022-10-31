@@ -33,7 +33,7 @@
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure"."\r\n"."save idphoto exit ->", $Person_id);
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		exit;							
+		return;							
 	}
 	
 	if (($Insurance_no 			!= '' &&

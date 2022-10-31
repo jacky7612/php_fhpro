@@ -16,7 +16,7 @@
 
 	if (array_key_exists('Authorization', $headers ) == false) {
 		echo "The 'Authorization' element is not in the headers";
-		exit;
+		return;
 	}
 
 	try {
@@ -32,7 +32,7 @@
 	}
 	if ($Auth != true) {
 		echo "The 'Authorization' key is not match!";
-		exit;
+		return;
 	}
 	*/
 	
@@ -86,7 +86,7 @@
 		//$database = 'tglmemberdb';
 		
 		//echo $sql;
-		//exit;
+		//return;
 		$link = null;
 		try
 		{
@@ -129,7 +129,7 @@
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-							exit;
+							return;
 						}
 					}
 					try {
@@ -182,7 +182,7 @@
 							{
 									echo "error";//error;
 									wh_log($Insurance_no, $Remote_insurance_no, "先踢人 error", $Person_id);
-									exit;
+									return;
 							}
 
 							$header = array('X-frSIP-API-Token:'.$token);
@@ -196,7 +196,7 @@
 							
 							$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 							//echo $out;
-							//exit;
+							//return;
 							$partdata = json_decode($out, true);
 							//$part = $partdata['list'];
 							*/								

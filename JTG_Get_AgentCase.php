@@ -55,7 +55,7 @@
 					$data = array();
 					if($token2 != '')
 					{
-						//exit;
+						//return;
 						//LDI-003
 						$url = $g_mpost_url. "ldi/agent-case";
 						
@@ -65,7 +65,7 @@
 						$out = CallAPI("POST", $url, $jsondata, $token2, false);
 						//echo "PDF:".$out;
 						echo $out;
-						exit;
+						return;
 					} else {
 						$data["status"]			= "false";
 						$data["code"]			= "0x0204";

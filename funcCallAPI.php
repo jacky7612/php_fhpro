@@ -1,6 +1,4 @@
 <?php
-	include("log.php");
-	
 	// Start_Meeting這個API需另獨立，Stop_Meeting相同	
 	function Kick($mainurl, $header,$link, $kickid, $meetingid, $vid,$gateway)
 	{

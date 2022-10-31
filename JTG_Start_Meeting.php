@@ -47,7 +47,7 @@
 	//if($legalRep_id == '')//沒有傳入參數
 		//echo "eee";
 	//var_dump($out);
-	//exit;
+	//return;
 	
 	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
 	$MEETING_time 			= check_special_char($MEETING_time);
@@ -70,7 +70,7 @@
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		exit;							
+		return;							
 	}
 	
 	$status_code_succeed = "L1"; // 成功狀態代碼
@@ -103,7 +103,7 @@
 		//$passwd = 'tglmember210718';
 		//$database = 'tglmemberdb';
 		//echo $sql;
-		//exit;
+		//return;
 		$link = null;
 		try
 		{
@@ -286,7 +286,7 @@
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01", $Person_id);								
-								exit;
+								return;
 							}
 						}
 						else
@@ -302,7 +302,7 @@
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01", $Person_id);
-								exit;
+								return;
 							}
 						}
 					}
@@ -352,7 +352,7 @@
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 									wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 02.1", $Person_id);	
-									exit;
+									return;
 								}
 							} else {			
 								//update status vmrinfo
@@ -364,7 +364,7 @@
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 02.2", $Person_id);	
-								exit;
+								return;
 							}
 						}
 						
@@ -387,7 +387,7 @@
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 03", $Person_id);
-							exit;//超過會議室的上限了
+							return;//超過會議室的上限了
 						}
 						//$log = "max people:".$max;
 						//wh_log($log);
@@ -420,7 +420,7 @@
 								wh_log($Insurance_no, $Remote_insurance_no, "try call OptMeeting api ", $Person_id);
 								$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 								//echo $out;
-								//exit;
+								//return;
 								$partdata = json_decode($out, true);
 								//$part = $partdata['list'];
 								$bnext = 0;
@@ -466,7 +466,7 @@
 							$sql = "commit";
 							mysqli_query($link, $sql);
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 04", $Person_id);
-							exit;//超過會議室的上限了
+							return;//超過會議室的上限了
 						}
 						$sql = "commit";
 						mysqli_query($link, $sql);
@@ -479,7 +479,7 @@
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 05", $Person_id);
-							exit;//超過會議室的上限了							
+							return;//超過會議室的上限了							
 						}
 						
 						//Double check
@@ -495,7 +495,7 @@
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 06", $Person_id);
-							exit;
+							return;
 						}
 						
 						$header = array('X-frSIP-API-Token:'.$token);
@@ -526,7 +526,7 @@
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 07", $Person_id);
-							exit;//超過會議室的上限了							
+							return;//超過會議室的上限了							
 						}
 
 						/*$access_code="1234";

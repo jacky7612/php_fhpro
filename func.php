@@ -1,15 +1,17 @@
 <?php
 	include("def.php");
+	include("insuranceclass.php");
 	include("log.php");
 	include("wjson.php");
 	include("funcCallAPI.php");
-	include("resize-class.php"); 
+	include("resize-class.php");
 	include("security_tools.php");
+	include("db_tools.php");
+	include("funcCore.php");
 	include("accessDB.php");
 	
-	const $INT_NULL = 999999;
 	// 取得status ASCII編碼 private
-	function getChar4Step($val, $char)
+	function getChar4Step($val)
 	{
 		$ArrChar = str_split($val);
 		$ret["char"]  = ord($ArrChar[0]);
@@ -18,11 +20,15 @@
 		{
 			return $ret;
 		}
-		return $INT_NULL;
+		$ret["char"]  = -1;
+		$ret["value"] = -1;
+		return $ret;
 	}
 	// 判斷是否允許更新遠投保單狀態 private
 	function allowUpdateStep($ori_status, $cur_status)
 	{
+		global $INT_NULL;
+		
 		if (!(strlen($ori_status) >= 2 && strlen($cur_status) >= 2)) return $INT_NULL;
 		
 		$ret_ori = getChar4Step($ori_status);
@@ -95,8 +101,9 @@
 	}
 	function get_remote_ip_underline()
 	{
-		$ip = get_remote_ip_with_dot();
+		$ip = get_remote_ip();
 		$ip = str_replace('.', '_', $ip);
+		$ip = str_replace(':', '_', $ip);
 		return $ip;
 	}
 	// 儲存臉部照片

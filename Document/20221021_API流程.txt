@@ -45,7 +45,7 @@ ps.每個步驟都要狀態API
 				-> 07.JTG_Save_IDPhoto				拍身份證正反面						失敗：[D0]					log:ok; mysql_data:ok
 																						成功：[D1]					log:ok; mysql_data:ok
 				-> 08.JTG_Get_IDPIC					取得身份證							成功：[D2]					log:ok; mysql_data:ok
-				-> 09.缺							OCR廠商API 							失敗：[D3]					
+				-> 09.缺JTG_Parse_OCR				OCR廠商API 							失敗：[D3]					
 																						成功：[D4]					
 				-> 10.JTG_Gov_ID					內政部驗證身份證					失敗：[E0]					log:ok; mysql_data:ok
 																						成功：[E1]					log:ok; mysql_data:ok
@@ -74,7 +74,7 @@ ps.每個步驟都要狀態API
 				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]					log:ok; mysql_data:ok
 																						成功：[M1]					log:ok; mysql_data:ok
 				-> 23.JTG_Modify_Insurance_Status/	要保人簽名(jason）					簽名完成：[M2]				待建立API
-					  JTG_upload_Proposal			被保人簽名(jason）					簽名完成：[M3]				待建立API
+					  JTG_upload_Signature_PDF		被保人簽名(jason）					簽名完成：[M3]				待建立API
 													法定代理人(jason）					簽名完成：[M4]				待建立API
 				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]					待建立API
 																						成功：[N1]					待建立API
@@ -102,14 +102,17 @@ ps.每個步驟都要狀態API
 																						成功：[V1]					待建立API
 				-> 37.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[W0]					log:ok; mysql_data:ok
 																						成功：[W1]					log:ok; mysql_data:ok
-				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[V4]					待建立API
-				-> 39.雲端達人API回傳保單資料		雲端達人API回傳保單資料				失敗：[V5]					待建立API
-																						成功：[V6]					待建立API
+				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[X0]					待建立API
+				-> 39.JTG_Get_PolicyNo													失敗：[X1]
+																						成功：[X2]
+					  JTG_Send_Policy				雲端達人API回傳保單資料				失敗：[Y0]					待建立API
+																						成功：[Y1]					待建立API
 工作項目
 -----------------------------------------------------------------
-1、整理全球現有API在第一金需要用到的	(V)
-2、擴增的API及Table						(V)
-3、API細部整理							() 2022.10.28
-5、log2file重點每個步驟，才好追查原因 	()
-6、memberinfo需加入行投號及保單號		()
-4、postman測試API						()
+1、整理全球現有API在第一金需要用到的	(V) 2022.10.21	complete :2022.10.23
+2、擴增的API及Table						(V) 2022.10.24  complete :2022.10.27
+3、API細部整理							(V) 2022.10.28  complete :2022.10.30
+4、log2file重點每個步驟，才好追查原因 	(V) 2022.10.29  complete :2022.10.30
+5、memberinfo需加入行投號及保單號		(V) 2022.10.28  complete :2022.10.30
+6、建立範例json並讀取測試				(V) 2022.10.31  complete :
+7、postman測試API						()
