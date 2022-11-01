@@ -116,3 +116,4 @@ ps.每個步驟都要狀態API
 5、memberinfo需加入行投號及保單號		(V) 2022.10.28  complete :2022.10.30
 6、建立範例json並讀取測試				(V) 2022.10.31  complete :
 7、postman測試API						()
+8、PDFlog紀錄PDF路徑

@@ -59,10 +59,11 @@
 			$out = $jsondataSample;
 			$ret = json_decode($out, true);
 			$cxInsurance = json_decode($out);
-			$retOk = print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+			$retRoleInfo = parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
 			
-			if ($retOk)//($ret['success'] == true)
+			if ($retRoleInfo != null)//($ret['success'] == true)
 			{
+				//print_role_info($retRoleInfo);
 				// 讀取的規格需調整
 				/*
 				$token 			= $ret['data']['accessToken'];
@@ -98,8 +99,18 @@
 				// TODO: insert status into DB
 				// 儲存json
 				$data = write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, $link, false); 	// 紀錄json到資料庫
+				for ($i = 0; $i < count($retRoleInfo); $i++)
+				{
+					$roleInfo = $retRoleInfo[$i];
+					for ($j = 0; $j < count($roleInfo); $j++)
+					{
+						$Tmp_Person_id = $roleInfo[$j]["idcard"];
+						$Tmp_role = $roleInfo[$j]["roleKey"];
+						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Tmp_role);
+						//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Role);
+					}
+				}
 				//wh_json($Insurance_no, $Remote_insurance_no, $out); 						  						// 紀錄json到檔案
-				$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Role);
 				//echo $out;
 				
 				if ($data["status"]	== "true")
@@ -111,7 +122,7 @@
 				}
 				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]."\r\nSSO Login for get insurance json exit ->", $Person_id);
 				return;
-			}	
+			}
 			else
 			{
 				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :"."\r\nSSO Login for get insurance json exit ->");
