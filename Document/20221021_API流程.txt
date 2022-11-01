@@ -74,15 +74,15 @@ ps.每個步驟都要狀態API
 				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]					log:ok; mysql_data:ok
 																						成功：[M1]					log:ok; mysql_data:ok
 				-> 23.JTG_Modify_Insurance_Status/	要保人簽名(jason）					簽名完成：[M2]				待建立API
-					  JTG_upload_Signature_PDF		被保人簽名(jason）					簽名完成：[M3]				待建立API
-													法定代理人(jason）					簽名完成：[M4]				待建立API
+					  JTG_Set_Signature_PDF			被保人簽名(jason）					簽名完成：[M3]				待建立API
+					[JTG_upload_Signature_PDF]		法定代理人(jason）					簽名完成：[M4]				待建立API
 				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]					待建立API
 																						成功：[N1]					待建立API
 				-> 25.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]					log:ok; mysql_data:ok
 																						成功：[O1]					log:ok; mysql_data:ok
 				-> 26.JTG_Verify_OTP_Code			OTP驗證								失敗：[O2]					log:ok; mysql_data:ok
 																						成功：[O3]					log:ok; mysql_data:ok
-				-> 27.JTG_Upload_Attachement		上傳附件							失敗：[P0]					log:ok; mysql_data:ok
+				-> 27.JTG_Upload_Attachment			上傳附件							失敗：[P0]					log:ok; mysql_data:ok
 																						成功：[P1]					log:ok; mysql_data:ok
 				-> 28.JTG_Get_FrsipInfo				取得FRSIP主機目前狀態				失敗：[Q0]					log:ok; mysql_data:ok
 																						成功：[Q1]					log:ok; mysql_data:ok
@@ -102,18 +102,66 @@ ps.每個步驟都要狀態API
 																						成功：[V1]					待建立API
 				-> 37.JTG_Get_Proposal/JTG_Get_Json	要保書-押上保單號碼(jason)			失敗：[W0]					log:ok; mysql_data:ok
 																						成功：[W1]					log:ok; mysql_data:ok
-				-> 38.JTG_Signature_PDF				回傳 要保書-押上保單號碼(jason）	成功：[X0]					待建立API
+					  JTG_Save_Proposal_PDF			
+				-> 38.JTG_Save_Proposal_PDF			回傳 要保書-押上保單號碼(jason）	成功：[X0]					待建立API
 				-> 39.JTG_Get_PolicyNo													失敗：[X1]
 																						成功：[X2]
 					  JTG_Send_Policy				雲端達人API回傳保單資料				失敗：[Y0]					待建立API
 																						成功：[Y1]					待建立API
 工作項目
 -----------------------------------------------------------------
-1、整理全球現有API在第一金需要用到的	(V) 2022.10.21	complete :2022.10.23
-2、擴增的API及Table						(V) 2022.10.24  complete :2022.10.27
-3、API細部整理							(V) 2022.10.28  complete :2022.10.30
-4、log2file重點每個步驟，才好追查原因 	(V) 2022.10.29  complete :2022.10.30
-5、memberinfo需加入行投號及保單號		(V) 2022.10.28  complete :2022.10.30
-6、建立範例json並讀取測試				(V) 2022.10.31  complete :
-7、postman測試API						()
-8、PDFlog紀錄PDF路徑
+1、整理全球現有API在第一金需要用到的		(V) 2022.10.21	complete :2022.10.23
+2、擴增的API及Table							(V) 2022.10.24  complete :2022.10.27
+3、API細部整理								(V) 2022.10.28  complete :2022.10.30
+4、log2file重點每個步驟，才好追查原因 		(V) 2022.10.29  complete :2022.10.30
+5、memberinfo需加入行投號及保單號			(V) 2022.10.28  complete :2022.10.30
+6、建立範例json並讀取測試						2022.10.31
+	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php]
+	JTG_Modify_Country_Code  				() 2022.11.01  complete :
+	JTG_Modify_Insurance_Status				() 2022.11.01  complete :
+	JTG_Query_Member		  				() 2022.11.01  complete :
+	JTG_Modify_Member		  				() 2022.11.01  complete :
+	JTG_Save_IDPhoto		  				() 2022.11.01  complete :
+	JTG_Get_IDPIC			  				() 2022.11.01  complete :
+	JTG_Parse_OCR  							() 2022.11.01  complete :
+	JTG_Gov_ID				  				() 2022.11.01  complete :
+	
+	JTG_Face_Compare		  				() 2022.11.01  complete :
+	JTG_Live_Check			  				() 2022.11.01  complete :
+	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
+	JTG_Verify_OTP_Code		  				() 2022.11.01  complete :
+	
+	JTG_Get_Proposal_PDF  					() 2022.11.01  complete :
+	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
+	JTG_Verify_OTP_Code		  				() 2022.11.01  complete :
+	
+	第一次JTG_Get_FrsipInfo		  			() 2022.11.01  complete :
+	第一次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :
+	第一次JTG_Start_Meeting		  			() 2022.11.01  complete :
+	第一次JTG_Stop_Meeting		  			() 2022.11.01  complete :
+	
+	JTG_Get_Proposal_PDF	  				() 2022.11.01  complete :
+	JTG_Signature_PDF		  				() 2022.11.01  complete :
+	JTG_Get_Json				  			() 2022.11.01  complete :
+	JTG_Verify_OTP_Code			  			() 2022.11.01  complete :
+	
+	JTG_Get_AttachementInfo					() 2022.11.01  complete :		需建立
+	JTG_Upload_Attachment		  			() 2022.11.01  complete :
+	
+	第二次JTG_Get_FrsipInfo		  			() 2022.11.01  complete :
+	第二次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :
+	第二次JTG_Start_Meeting		  			() 2022.11.01  complete :
+	第二次JTG_Stop_Meeting		  			() 2022.11.01  complete :
+	
+	業務-要保書簽名JTG_Get_Proposal_PDF		() 2022.11.01  complete :
+	回傳業務-要保書簽名JTG_Signature_PDF	() 2022.11.01  complete :
+	業務-業報書簽名JTG_Get_Proposal_PDF		() 2022.11.01  complete :
+	回傳業務-業報書簽名JTG_Signature_PDF	() 2022.11.01  complete :
+	
+	要保書-押上保單號碼JTG_Get_Proposal_PDF	() 2022.11.01  complete :
+	要保書-押上保單號碼JTG_Signature_PDF	() 2022.11.01  complete :
+	JTG_Get_PolicyNo		  				() 2022.11.01  complete :
+	JTG_Send_Policy			  				() 2022.11.01  complete :
+	
+8、PDFlog紀錄PDF路徑						()
+7、postman測試API							()

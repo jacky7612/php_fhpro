@@ -25,9 +25,9 @@
 		//$passwd = 'tglmember210718';
 		//$database = 'tglmemberdb';
 		echo "host :".$host.'<br>';
-		echo "user :".$user.'<br>';
-		echo "passwd :".$passwd.'<br>';
-		echo "database :".$database.'<br>';
+		//echo "user :".$user.'<br>';
+		//echo "passwd :".$passwd.'<br>';
+		//echo "database :".$database.'<br>';
 		$link = null;
 		try
 		{
@@ -42,7 +42,7 @@
 				wh_log("SSO_Login", $remote_ip4filename, "sso api get response json succeed");
 				//echo $out
 				$cxInsurance = json_decode($out);
-				print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+				parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
 			}
 			catch (Exception $e)
 			{
