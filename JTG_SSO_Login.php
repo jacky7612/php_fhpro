@@ -11,7 +11,8 @@
 	$Sales_id 			 = "";
 	$Mobile_no 			 = "";
 	$Role 				 = "";
-	
+	$base64pdf			 = "";
+	$Title				 = "";
 	$Sso_token = isset($_POST['Sso_token']) ? $_POST['Sso_token'] : ''; //$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
 	$App_type  = isset($_POST['App_type'])  ? $_POST['App_type']  : ''; //$App_type = "0";//業務員
 
@@ -84,11 +85,11 @@
 					$status_code 	= "A1";
 					$data["status"]	= "false";
 					$data["code"]	= "0x0204";
-					if (over_12Hr)
+					if ($over_12Hr)
 						$data["responseMessage"] = "要保日 > 12H";
-					if (over_day)
+					if ($over_day)
 						$data["responseMessage"] = "要保日跨日";
-					wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["responseMessage"], $Person_id);
+					wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"], $Person_id);
 				}
 				else
 				{
@@ -98,7 +99,7 @@
 				
 				// TODO: insert status into DB
 				// 儲存json
-				$data = write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, $link, false); 	// 紀錄json到資料庫
+				$data = write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, $link, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
 				for ($i = 0; $i < count($retRoleInfo); $i++)
 				{
 					$roleInfo = $retRoleInfo[$i];
@@ -106,12 +107,20 @@
 					{
 						$Tmp_Person_id = $roleInfo[$j]["idcard"];
 						$Tmp_role = $roleInfo[$j]["roleKey"];
-						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Tmp_role);
+						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
 						//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Role);
 					}
 				}
+				// 紀錄json到檔案
 				if ($g_wjson2file_flag)
-					wh_json($Insurance_no, $Remote_insurance_no, $out); 						  						// 紀錄json到檔案
+					wh_json($Insurance_no, $Remote_insurance_no, $out);
+				
+				// 儲存pdf到檔案
+				$pdf_path = "";
+				if ($g_wpdf2file_flag)
+					$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $out);
+				// 紀錄至 pdf_log table
+				$data = modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $status_code, $link, false, "SSO_Login", $remote_ip4filename);
 				//echo $out;
 				
 				if ($data["status"]	== "true")
@@ -142,6 +151,7 @@
         }
 		finally
 		{
+			wh_log("SSO_Login", $remote_ip4filename, "finally procedure");
 			try
 			{
 				if ($link != null)

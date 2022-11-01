@@ -6,9 +6,80 @@
 	agentOne:業務
 	*/
 	
-	// 將資料寫入資料表 :jsonlog
-	function write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $status_code, $remote_ip4filename = "", $link = null, $close_mysql = true)
+	// 取得json資料，讀取資料表 :jsonlog
+	function get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, &$json_data, $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data			= array();
+		$data["status"]	= "false";
+		$mid 			= "";
+		try
+		{
+			if ($link == null)
+			{
+				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+			}
+			
+			$sql = "SELECT * FROM jsonlog where 1=1 ";
+			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
+			if ($result = mysqli_query($link, $sql))
+			{
+				if (mysqli_num_rows($result) > 0)
+				{
+					while ($row = mysqli_fetch_array($result))
+					{
+						$mid 		= $row['id'];
+						$json_data 	= $row['json_data'];
+					}
+					$data["status"]			="true";
+					$data["code"]			="0x0200";
+					$data["responseMessage"]="資料庫操作-query json資料成功!";
+				}
+				else
+				{
+					$data["status"]			= "false";
+					$data["code"]			= "0x0200";
+					$data["responseMessage"]= "資料庫操作-找不到資料!";
+					wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data not found", $Person_id);
+				}
+			}
+			else
+			{
+				wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data not found", $Person_id);
+			}
+		}
+		catch (Exception $e)
+		{
+			$data["status"]="false";
+			$data["code"]="0x0202";
+			$data["responseMessage"]="資料庫操作-Exception error!";
+			wh_log($dst_title, $dst_subtitle, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+		}
+		finally
+		{
+			try
+			{
+				if ($link != null && $close_mysql)
+				{
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			}
+		}
+		return $data;
+	}
+	// 將資料寫入資料表 :jsonlog
+	function write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $status_code, $remote_ip4filename = "", $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		try
 		{
 			if ($remote_ip4filename == "")
@@ -30,11 +101,11 @@
 				{
 					$sql2 = "INSERT INTO `jsonlog` (`insurance_no`,`remote_insurance_no`,`json_data`,`order_status`,`createtime`,`updatetime`) VALUES ('$Insurance_no','$Remote_insurance_no','$json_data','$status_code',NOW(),NOW())";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
-					wh_log($Insurance_no, $Remote_insurance_no, "write json data to mysql jsonlog table succeed", $Person_id);
+					wh_log($dst_title, $dst_subtitle, "write json data to mysql jsonlog table succeed", $Person_id);
 				}
 				else
 				{
-					wh_log($Insurance_no, $Remote_insurance_no, "(!) mysql jsonlog table that json data had exists", $Person_id);
+					wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data had exists", $Person_id);
 				}
 				$data["status"]="true";
 				$data["code"]="0x0200";
@@ -52,24 +123,26 @@
 			$data["status"]="false";
 			$data["code"]="0x0202";
 			$data["responseMessage"]="資料庫操作-Exception error!";
-			wh_log($Insurance_no, $Remote_insurance_no, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			wh_log($dst_title, $dst_subtitle, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 		}
 		finally
 		{
 			try
 			{
-				if ($close_mysql == true &&
-					$link 		 != null)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
-				wh_log($Insurance_no, $Remote_insurance_no, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 			}
 		}
 	}
 	// 取得 Sales_id
-	function get_sales_id($Insurance_no, $Remote_insurance_no, $link = null)
+	function get_sales_id($Insurance_no, $Remote_insurance_no, $link = null, $close_mysql = true)
 	{
 		$Sales_id = "";
 		try
@@ -110,8 +183,11 @@
 		{
 			try
 			{
-				if ($link != null)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
@@ -121,9 +197,10 @@
 		return $Sales_id;
 	}
 	// 取得 member info
-	function get_member_info($Insurance_no, $Remote_insurance_no, $link = null)
+	function get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link = null, $close_mysql = true)
 	{
 		$data = array();
+		$data["status"] = "false";
 		try
 		{
 			if ($link == null)
@@ -142,17 +219,18 @@
 					$mid=0;
 					while($row = mysqli_fetch_array($result)){
 						$mid = $row['mid'];
+						$data["status"] 		= "true";
 						$data["person_id"] 		= $row['person_id'];
 						$data["member_name"] 	= $row['member_name'];
 						$data["mobile_no"] 		= $row['mobile_no'];
 						$data["role"] 			= $row['role'];
 						$data["pid_pic"] 		= $row['pid_pic'];
 					}
-					wh_log($Insurance_no, $Remote_insurance_no, symbol4log."get memberinfo table result :found", $Person_id);
+					wh_log($Insurance_no, $Remote_insurance_no, "get memberinfo table result :found", $Person_id);
 				}
 				else
 				{
-					wh_log($Insurance_no, $Remote_insurance_no, symbol4log."get memberinfo table result : not found", $Person_id);
+					wh_log($Insurance_no, $Remote_insurance_no, "get memberinfo table result : not found", $Person_id);
 				}
 			}
 		}
@@ -165,8 +243,11 @@
 		{
 			try
 			{
-				if ($link != null)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
@@ -176,10 +257,12 @@
 		return $data;
 	}
 	// 變更(Insert/Update)遠投保單狀態 public
-	function modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link = null, $close_mysql = true, $Role = "")
+	function modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link = null, $close_mysql = true, $Role = "", $log_title = "", $log_subtitle = "")
 	{
 		global $key;
 		
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		$data = array();
 		if (($Insurance_no 			!= '') &&
 			($Remote_insurance_no 	!= '') &&
@@ -298,15 +381,15 @@
 			{
 				try
 				{
-					if ($close_mysql)
+					if ($link != null && $close_mysql)
 					{
-						if ($link != null)
-							mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+						mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+						$link = null;
 					}
 				}
 				catch(Exception $e)
 				{
-					wh_log($Insurance_no, $Remote_insurance_no, "(X) 操作：更新狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
+					wh_log($dst_title, $dst_subtitle, "(X) 操作：更新狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
 				}
 				return $data;
 			}
@@ -365,7 +448,7 @@
 	}
 	
 	// 變更(Insert/Update)member public
-	function modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, &$status_code, $link = null, $when_end_close_connect = true)
+	function modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, &$status_code, $link = null, $close_mysql = true)
 	{
 		wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 		try
@@ -449,8 +532,11 @@
 		{
 			try
 			{
-				if ($link != null && $when_end_close_connect == true)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
@@ -461,7 +547,7 @@
 		return $data;
 	}
 	// Update idphoto public
-	function update_idphoto($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $when_end_close_connect = true)
+	function update_idphoto($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $close_mysql = true)
 	{
 		try
 		{
@@ -576,8 +662,11 @@
 		{
 			try
 			{
-				if ($link != null && $when_end_close_connect == true)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
@@ -587,7 +676,7 @@
 		return $data;
 	}
 	// Update member public
-	function update_member($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $when_end_close_connect = true)
+	function update_member($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $close_mysql = true)
 	{
 		try
 		{
@@ -682,13 +771,147 @@
 		{
 			try
 			{
-				if ($link != null && $when_end_close_connect == true)
+				if ($link != null && $close_mysql)
+				{
 					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
 			}
 			catch(Exception $e)
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "(X) disconnect mysql memberinfo table failure :".$e->getMessage(), $Person_id);
 			}
+		}
+		return $data;
+	}
+	
+	// 變更(Insert/Update)pdflog public
+	function modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $Status_code, $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		global $key;
+		
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data = array();
+		if (($Insurance_no 			!= '') &&
+			($Remote_insurance_no 	!= '') &&
+			!($base64pdf == '' && $pdf_path == '') &&
+			($Status_code 			!= ''))
+		{
+			try
+			{
+				if ($link == null)
+				{
+					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				}
+				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
+				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
+				$Sales_id  				= mysqli_real_escape_string($link, $Sales_id			);
+				$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
+				$Mobile_no  			= mysqli_real_escape_string($link, $Mobile_no			);
+				$Role  					= mysqli_real_escape_string($link, $Role			);
+				$Status_code  			= mysqli_real_escape_string($link, $Status_code			);
+
+				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
+				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
+				$Salesid 			 	= trim(stripslashes($Sales_id));
+				$Personid 			 	= trim(stripslashes($Person_id));
+				$Mobileno 			 	= trim(stripslashes($Mobile_no));
+				$Role 		 			= trim(stripslashes($Role));
+				$Statuscode 		 	= trim(stripslashes($Status_code));
+
+				//$Personid = encrypt($key,($Personid));
+				$Mobileno = addslashes(encrypt($key, ($Mobileno)));
+				
+				$sql = "SELECT * FROM pdflog where 1=1 ";
+				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
+				$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
+				$sql = $sql.merge_sql_string_if_not_empty("title"				, $Title				);
+				$sql = $sql.merge_sql_string_if_not_empty("order_status"		, $Statuscode			);
+				if ($result = mysqli_query($link, $sql))
+				{
+					if (mysqli_num_rows($result) == 0)
+					{
+						$mid = 0;
+						if ($Mobile_no == '')
+						{
+							$data["status"]			= "false";
+							$data["code"]			= "0x0203";
+							$data["responseMessage"]= "操作：儲存pdf-手機號碼不可為空白!";
+						}
+						else
+						{
+							if ($Statuscode == "") $Statuscode = "00";
+							try
+							{
+								$sql2 = "INSERT INTO `pdflog` (`insurance_no`,`remote_insurance_no`,`title`";
+								$sql2 = $sql2.($base64pdf != "") ? ",`pdf_data`" : "";
+								$sql2 = $sql2.($pdf_path  != "") ? ",`pdf_path`" : "";
+								$sql2 = $sql2.",`order_status`, `updatetime`) VALUES ('$Insuranceno','$Remote_insuranceno','$Title'";
+								
+								$sql2 = $sql2.($base64pdf != "") ? ",'$base64pdf'" : "";
+								$sql2 = $sql2.($pdf_path  != "") ? ",'$pdf_path'" : "";
+								$sql2 = $sql2.",'$Statuscode', NOW())";
+								
+								mysqli_query($link, $sql2) or die(mysqli_error($link));
+								
+								//echo "user data change ok!";
+								$data["status"]="true";
+								$data["code"]="0x0200";
+								$data["responseMessage"]="操作：儲存pdf-新增資料完成!";
+							}
+							catch (Exception $e)
+							{
+								$data["status"]="false";
+								$data["code"]="0x0202";
+								$data["responseMessage"]="操作：儲存pdf-Exception error!";
+							}
+						}
+					}
+					else
+					{
+						$data["status"]			="false";
+						$data["code"]			="0x0201";
+						$data["responseMessage"]="操作：儲存pdf-已經有相同要保流水序號的資料!";	
+						$ret = 0;
+					}
+				}
+				else
+				{
+					$data["status"]			= "false";
+					$data["code"]			= "0x0204";
+					$data["responseMessage"]= "操作：儲存pdf-SQL fail!";					
+				}
+			}
+			catch (Exception $e)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "操作：儲存pdf-Exception error!";
+			}
+			finally
+			{
+				try
+				{
+					if ($link != null && $close_mysql)
+					{
+						mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+						$link = null;
+					}
+				}
+				catch(Exception $e)
+				{
+					wh_log($dst_title, $dst_subtitle, "(X) 操作：儲存pdf - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
+				}
+				return $data;
+			}
+		}
+		else
+		{
+			$data["status"]			= "false";
+			$data["code"]			= "0x0203";
+			$data["responseMessage"]= "操作：access status-API parameter is required!";
 		}
 		return $data;
 	}

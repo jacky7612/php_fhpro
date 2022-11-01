@@ -15,25 +15,21 @@
 	$Person_id 				= check_special_char($Person_id);
 	$Country_code 			= check_special_char($Country_code);
 
-	wh_log($Insurance_no, $Remote_insurance_no, "Country Code entry <-", $Person_id);
-	
-	// 驗證 security token
-	$headers = apache_request_headers();
-	$token 	 = $headers['Authorization'];
-	if(check_header($key, $token)==true)
+	if ($g_test_mode)
 	{
-		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
+		$Country_code 		 = "tw";
 	}
-	else
+	
+	wh_log($Insurance_no, $Remote_insurance_no, "Country Code entry <-", $Person_id);
+	$token 			= isset($_POST['Authorization']) 		? $_POST['Authorization'] 		: '';
+	$ret = protect_api("JTG_Modify_Country_Code", "Country Code exit ->", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
 	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";
 		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
@@ -44,10 +40,22 @@
 		($Country_code 			!= ''))
 	{
 		$link = null;
-		try {
+		try
+		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
 
+			// 當資料不齊全時，從資料庫取得
+			$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Member_name, false);
+			if (!$ret_code)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0203";
+				$data["responseMessage"]= "API parameter is required!";
+				header('Content-Type: application/json');
+				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+				return;
+			}
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);
 			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no);
 			$Person_id  			= mysqli_real_escape_string($link, $Person_id);
@@ -60,19 +68,25 @@
 
 			$sql = "SELECT * from countrylog where person_id='$Person_id' and insurance_no= '$Insurance_no' and remote_insurance_no= '$Remote_insurance_no' ";
 			$result = mysqli_query($link, $sql);
-			if (mysqli_num_rows($result) > 0) {
+			if (mysqli_num_rows($result) > 0)
+			{
 				$sql = "UPDATE countrylog SET countrycode='$Country_code' WHERE person_id='$Person_id' and insurance_no= '$Insurance_no' and remote_insurance_no= '$Remote_insurance_no' ";
-			} else {
+			}
+			else
+			{
 				$sql = "INSERT INTO countrylog (person_id, insurance_no, remote_insurance_no, countrycode, updatetime ) VALUES ('$Person_id', '$Insurance_no', '$Remote_insurance_no', '$Country_code', NOW() )  ";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "modify countrylog table prepare", $Person_id);
 
-			if ($result = mysqli_query($link, $sql)){
+			if ($result = mysqli_query($link, $sql))
+			{
 				$data["status"]			= "true";
 				$data["code"]			= "0x0200";
 				$data["responseMessage"]= "更新成功!";
 				$status_code 			= "B0";
-			} else {
+			}
+			else
+			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
 				$data["responseMessage"]= "SQL fail!";
@@ -80,9 +94,14 @@
 			}
 			$symbol4log = ($status_code == "B1") ? "(X) ": "";
 			$sql = ($status_code == "B1") ? " :".$sql : "";
-			wh_log($Insurance_no, $Remote_insurance_no, symbol4log."modify countrylog table result :".$data["responseMessage"].$sql, $Person_id);
-			$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link);
+			wh_log($Insurance_no, $Remote_insurance_no, $symbol4log."modify countrylog table result :".$data["responseMessage"].$sql, $Person_id);
+			$data_Status = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false);
 			
+			if ($data["status"] 	   == "true" &&
+				$data_Status["status"] == "false")
+			{
+				$data = $data_Status;
+			}
 			wh_log($Insurance_no, $Remote_insurance_no, "modify countrylog sop finish :".$data["responseMessage"], $Person_id);
 		}
 		catch (Exception $e)
@@ -119,7 +138,7 @@
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."Country Code exit ->", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."Country Code exit ->", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

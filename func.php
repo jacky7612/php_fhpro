@@ -3,6 +3,7 @@
 	include("insuranceclass.php");
 	include("log.php");
 	include("wjson.php");
+	include("wpdf.php");
 	include("funcCallAPI.php");
 	include("resize-class.php");
 	include("security_tools.php");
@@ -41,6 +42,93 @@
 			return true;
 		}
 		return false;
+	}
+	// 驗證 security token - 看門狗 public
+	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
+	{
+		global $key;
+		global $g_test_mode;
+		
+		$data = array();
+		if ($g_test_mode)
+		{
+			$data["status"] ="true";
+			return $data;
+		}
+		//$headers = apache_request_headers();
+		//$token 	 = $headers['Authorization'];
+		if (check_header($key, $token) == true)
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token succeed", $Person_id);
+			$data["status"]			="true";
+		}
+		else
+		{
+			$data["status"]			="false";
+			$data["code"]			="0x0209";
+			$data["responseMessage"]="Invalid token!";
+			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token failure", $Person_id);
+			wh_log($Insurance_no, $Remote_insurance_no, $g_exit_symbol.$out_str, $Person_id);
+		}
+		return $data;
+	}
+	/*
+	// 當資料不齊全時，從資料庫取得
+		$ret = get_sales_person_id_if_not_exists($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Member_name
+		if (ret == false)
+		{
+			//echo "參數錯誤 !";
+			$data["status"]="false";
+			$data["code"]="0x0203";
+			$data["responseMessage"]="API parameter is required!";
+			return;
+		}
+	*/
+	// 當資料不齊全時，從資料庫取得 public
+	function get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id,
+												&$Sales_id, &$Mobile_no, &$Member_name, $close_mysql = true)
+	{
+		$ret = true;
+		if ($Insurance_no 			== '' ||
+			$Remote_insurance_no 	== '' ||
+			$Person_id 				== '')
+		{
+			return false;
+		}
+		wh_log($Insurance_no, $Remote_insurance_no, "do function - get_member_info", $Person_id);
+		if ($Mobile_no == "" || $Member_name == "")
+		{
+			$memb = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link, $close_mysql);
+			if ($memb["status"] == "true")
+			{
+				if ($Mobile_no 	 == "") $Mobile_no 	 = $memb["Mobile_no"];
+				if ($Member_name == "") $Member_name = $memb["Member_name"];
+			}
+			else
+				$ret = false;
+		}
+		if ($ret && $Sales_id == "")
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_sales_id", $Person_id);
+			$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no, $link, $close_mysql);
+		}
+		
+		if ($ret == false)
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_jsondata_from_jsonlog_table", $Person_id);
+			$data = get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $link, $close_mysql);
+			if ($data["status"] == "true")
+			{
+				$cxInsurance = json_decode($json_data);
+				parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+				$ret = true;
+			}
+			else
+			{
+				wh_log($Insurance_no, $Remote_insurance_no, "do function - "."get_jsondata_from_jsonlog_table result :".$data["responseMessage"], $Person_id);
+			}
+		}
+		return $ret;
 	}
 	// 取得亂數編碼 public
 	function get_random_keys($length)

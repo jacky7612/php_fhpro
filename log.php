@@ -2,7 +2,7 @@
 	date_default_timezone_set("Asia/Taipei");
 	ini_set('memory_limit','-1');
 	$glogfile = "";
-	$log_path = $g_log_filename;
+	$log_path = $g_log_path;
 	
 	function create_folder($name)
 	{
@@ -60,10 +60,11 @@
 				echo "被保人Token :".$cxInsurance->insuredToken."<br>";
 				echo "法定代理人Token :".$cxInsurance->repreToken."<br>"."<br>";
 			}
+			$Insurance_no = $cxInsurance->acceptId;
 			for ($i = 0; $i < count($cxInsurance->polSummary); $i++)
 			{
-				$Insurance_no 		 = $cxInsurance->polSummary[$i]->applyNo;
-				$Remote_insurance_no = $cxInsurance->polSummary[$i]->numbering;
+				//$Insurance_no 		 = $cxInsurance->polSummary[$i]->numbering;
+				$Remote_insurance_no = $cxInsurance->polSummary[$i]->applyNo;
 				if ($with_print)
 				{
 					echo "------------------------------------------------------------<br>";

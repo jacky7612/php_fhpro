@@ -1,8 +1,6 @@
 <?php
-	date_default_timezone_set("Asia/Taipei");
-	ini_set('memory_limit','-1');
 	$glog_json_file = "";
-	$json_path  = $g_json_filename;
+	$json_path  = $g_json_path;
 	
 	/*
 	function create_folder($name)

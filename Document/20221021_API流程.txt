@@ -41,7 +41,7 @@ ps.每個步驟都要狀態API
 				-> 04.JTG_Modify_Insurance_Status	勾選同意事項 						成功：[B2]					log:ok; mysql_data:ok
 				-> 05.JTG_Query_Member				使用者輸入身份證號碼				失敗：[C0]					log:ok; mysql_data:ok
 																						成功：[C1] 儲存資料至資料庫	log:ok; mysql_data:ok
-				-> 06.JTG_Modify_Member				儲存資料至資料庫					失敗：[C2]					log:ok; mysql_data:ok
+				-> 06.JTG_Modify_Member				儲存資料至資料庫					成功：[C2]					log:ok; mysql_data:ok
 				-> 07.JTG_Save_IDPhoto				拍身份證正反面						失敗：[D0]					log:ok; mysql_data:ok
 																						成功：[D1]					log:ok; mysql_data:ok
 				-> 08.JTG_Get_IDPIC					取得身份證							成功：[D2]					log:ok; mysql_data:ok
@@ -72,10 +72,10 @@ ps.每個步驟都要狀態API
 				-> 21.JTG_Stop_Meeting/儲存影音API	關閉會議室/儲存影音					失敗：[L2]					log:ok; mysql_data:ok
 																						成功：[L3]					log:ok; mysql_data:ok
 				-> 22.JTG_Get_Proposal/JTG_Get_Json	要保資料簽名(jason）				失敗：[M0]					log:ok; mysql_data:ok
-																						成功：[M1]					log:ok; mysql_data:ok
-				-> 23.JTG_Modify_Insurance_Status/	要保人簽名(jason）					簽名完成：[M2]				待建立API
-					  JTG_Set_Signature_PDF			被保人簽名(jason）					簽名完成：[M3]				待建立API
-					[JTG_upload_Signature_PDF]		法定代理人(jason）					簽名完成：[M4]				待建立API
+																						成功：[M4]					log:ok; mysql_data:ok
+				-> 23.JTG_Modify_Insurance_Status/	要保人簽名(jason）					簽名完成：[M1]				待建立API
+					  JTG_Set_Signature_PDF			被保人簽名(jason）					簽名完成：[M2]				待建立API
+					[JTG_upload_Signature_PDF]		法定代理人(jason）					簽名完成：[M3]				待建立API
 				-> 24.JTG_Signature_PDF				回傳要保資料簽名(jason）			失敗：[N0]					待建立API
 																						成功：[N1]					待建立API
 				-> 25.JTG_Send_OTP_Code				發送OTP碼							失敗：[O0]					log:ok; mysql_data:ok
@@ -116,7 +116,7 @@ ps.每個步驟都要狀態API
 4、log2file重點每個步驟，才好追查原因 		(V) 2022.10.29  complete :2022.10.30
 5、memberinfo需加入行投號及保單號			(V) 2022.10.28  complete :2022.10.30
 6、建立範例json並讀取測試						2022.10.31
-	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php]
+	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
 	JTG_Modify_Country_Code  				() 2022.11.01  complete :
 	JTG_Modify_Insurance_Status				() 2022.11.01  complete :
 	JTG_Query_Member		  				() 2022.11.01  complete :
