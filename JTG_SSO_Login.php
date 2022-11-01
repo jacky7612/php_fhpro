@@ -110,7 +110,8 @@
 						//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Role);
 					}
 				}
-				//wh_json($Insurance_no, $Remote_insurance_no, $out); 						  						// 紀錄json到檔案
+				if ($g_wjson2file_flag)
+					wh_json($Insurance_no, $Remote_insurance_no, $out); 						  						// 紀錄json到檔案
 				//echo $out;
 				
 				if ($data["status"]	== "true")

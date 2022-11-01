@@ -1,6 +1,7 @@
 <?php
 	$g_mpost_url 						= "https://localhost/test_fhpro/";//PROD不明，可能需去除
 	
+	$g_wjson2file_flag					= true;
 	$g_insurance_sso_api_url 			= "https://localhost/test_fhpro/"					; // 取得保險公司相關資料 API url
 	
 	$g_root_url			 				= $_SERVER['DOCUMENT_ROOT']."/test_fhpro"			; // 網站根目錄	"/var/www/html/fhpro/"

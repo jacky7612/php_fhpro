@@ -21,13 +21,16 @@
 	function wh_json($Insurance_no, $Remote_insurance_no, $json_data)
 	{
 		global $json_path;
-		global $glogfile;
+		global $glog_json_file;
 		
 		set_json_file_name($json_path, $Insurance_no, $Remote_insurance_no);
 		create_folder($json_path);
-		$file = fopen($glog_json_file, "w"); 
-		fwrite($file,json_data); 
-		fclose($file);
+		if (!file_exists($glog_json_file))
+		{
+			$file = fopen($glog_json_file, "w"); 
+			fwrite($file, $json_data); 
+			fclose($file);
+		}
 	}
 	function set_json_file_name($json_path, $Insurance_no, $Remote_insurance_no)
 	{
