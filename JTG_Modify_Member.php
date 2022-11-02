@@ -1,7 +1,25 @@
 <?php
 	include("func.php");
 	
-	$status_code = "C2"
+	// initial
+	$status_code_succeed 	= "C2"; // 成功狀態代碼
+	$status_code_failure 	= ""; // 失敗狀態代碼
+	$data 					= array();
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Role 					= "";
+	$Member_name			= "";
+	$FCM_Token 				= "";
+	$base64image			= "";
+	$Role 					= "";
+	$imageFileType 			= "jpg";
+	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
@@ -10,7 +28,6 @@
 	$Member_name 			= isset($_POST['Member_name']) 			? $_POST['Member_name'] 		: '';
 	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: ''; //大頭照
 	$base64image 			= isset($_POST['Pid_Pic']) 				? $_POST['Pid_Pic'] 			: '';
-	$imageFileType 			= "jpg";
 	
 	$Insurance_no 			= check_special_char($Insurance_no		 );
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
@@ -25,44 +42,37 @@
 	$front 			= trim(stripslashes($front)); // update section
 	$front 			= check_special_char($front); // update section
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "create member entry <-", $Person_id);
-	//$Person_id = "{$_REQUEST["Person_id"]}";
-	//$Mobile_no = "{$_REQUEST["Mobile_no"]}";
-	//$Member_name = "{$_REQUEST["Member_name"]}";
-	//$FCM_Token = "{$_REQUEST["FCM_Token"]}";
-
-	//$image_name = addslashes($_FILES['image']['name']);
-	//$sql = "INSERT INTO `product_images` (`id`, `image`, `image_name`) VALUES ('1', '{$image}', '{$image_name}')";
-	//if (!mysql_query($sql)) { // Error handling
-	//    echo "Something went wrong! :("; 
-	//}
-
-	// 驗證 security token
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
-	if(check_header($key, $token) == true) {
-		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
-	} else {
-		//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure"."\r\n"."create member exit ->", $Person_id);
-		return;							
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
-	if (($Member_name 	== '') ||
-		($Mobile_no 	== '') )
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
 	{
-		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
-		$Mobile_no 	 = $memb["Mobile_no"];
-		$Member_name = $memb["Member_name"];
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		return;
 	}
-	$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no);
+	
+	wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
+
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Modify_Member_Code", "modify member exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
+	{
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
 	
 	try
 	{
@@ -101,10 +111,10 @@
 			// update mysql
 			$data = modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $link, false);
 			
-			// 已經有相同身份證資料
+			// 操作：更新
 			if ($data["status"]				== "false" &&
 				$data["code"]				== "0x0201" &&
-				$data["responseMessage"]	== "已經有相同身份證資料!")
+				$data["responseMessage"]	== "身份資料建檔-無法重複建立，已經有相同身份證資料!")
 			{
 				if (($Person_id 			!= '') &&
 					($front 				!= '') &&
@@ -191,7 +201,7 @@
 			if ($link != null)
 			{
 				if ($status_code != "")
-					$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
+					$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link, false);
 	
 				mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				$link = null;

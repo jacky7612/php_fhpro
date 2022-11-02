@@ -1,24 +1,31 @@
 <?php
 	include "func.php";
 	
-	$status_code = "A0";
-	
-	// Api ------------------------------------------------------------------------------------------------------------------------
-	$jsondataSample		 = '{"acceptId":"Ins1996","dueTime":"2022/10/31 23:00:00","applToken":"appl","prodID":"A","partnerCode":"tonlu","insuredToken":"ins2022","repreToken":"rep2022","applyNo":"appl1998","numbering":"phone2022","polSummary":[{"applyNo":"appl2022","numbering":"num123","applyVersion":"1.0","productName":"主約險種名稱","productCode":"B","policyCode":"","rolesInfo":[{"name":"張三","idcard":"A123456789","tel":"0912-345-777","roleName":"要保人","roleKey":"proposer"},{"name":"李四","idcard":"B123456789","tel":"0912-345-888","roleName":"要保人","roleKey":"insured"},{"name":"王五","idcard":"C123456789","tel":"0912-345-999","roleName":"法定代理人","roleKey":"legalRepresentative"},{"name":"業務","idcard":"E123456789","tel":"0912-345-111","roleName":"業務員","roleKey":"agentOne"}]}],"applicationData":[{"attacheCode":"pdf001","attacheName":"要保書","attacheContent":"base64","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y","agentFlag":"Y","signTagSetting":"tag01","policyTagSetting":"tag02","applDateTagSetting":"tag03"}],"uploadData":[{"attacheCode":"attache001","attacheName":"附件一","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y"}]}';
+	// initial
+	$status_code 		 = "A0"; // 取得 SSO json data 成功
+	$status_code_succeed = "A2"; // 成功狀態代碼
+	$status_code_failure = "A1"; // 失敗狀態代碼
+	$data 				 = array();
+	$link				 = null;
 	$Insurance_no		 = "";
 	$Remote_insurance_no = "";
 	$Person_id			 = "";
 	$Sales_id 			 = "";
 	$Mobile_no 			 = "";
-	$Role 				 = "";
 	$base64pdf			 = "";
 	$Title				 = "";
+	$Role 				 = "";
+	
+	// Api ------------------------------------------------------------------------------------------------------------------------
+	
+	// 模擬資料
+	$jsondataSample		 = '{"acceptId":"Ins1996","dueTime":"2022/10/31 23:00:00","applToken":"appl","prodID":"A","partnerCode":"tonlu","insuredToken":"ins2022","repreToken":"rep2022","applyNo":"appl1998","numbering":"phone2022","polSummary":[{"applyNo":"appl2022","numbering":"num123","applyVersion":"1.0","productName":"主約險種名稱","productCode":"B","policyCode":"","rolesInfo":[{"name":"張三","idcard":"A123456789","tel":"0912-345-777","roleName":"要保人","roleKey":"proposer"},{"name":"李四","idcard":"B123456789","tel":"0912-345-888","roleName":"要保人","roleKey":"insured"},{"name":"王五","idcard":"C123456789","tel":"0912-345-999","roleName":"法定代理人","roleKey":"legalRepresentative"},{"name":"業務","idcard":"E123456789","tel":"0912-345-111","roleName":"業務員","roleKey":"agentOne"}]}],"applicationData":[{"attacheCode":"pdf001","attacheName":"要保書","attacheContent":"base64","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y","agentFlag":"Y","signTagSetting":"tag01","policyTagSetting":"tag02","applDateTagSetting":"tag03"}],"uploadData":[{"attacheCode":"attache001","attacheName":"附件一","policyOwnerFlag":"Y","insuredFlag":"Y","representFlag":"Y"}]}';
+	
 	$Sso_token = isset($_POST['Sso_token']) ? $_POST['Sso_token'] : ''; //$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
 	$App_type  = isset($_POST['App_type'])  ? $_POST['App_type']  : ''; //$App_type = "0";//業務員
 
 	$remote_ip4filename = get_remote_ip_underline();
 	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json entry <-");
-	$data = array();
 	if (($Sso_token  != '') &&
 		($App_type 	 != '') || true)
 	{
@@ -28,7 +35,6 @@
 		echo "passwd :".$passwd.'<br>';
 		echo "database :".$database.'<br>';
 		*/
-		$link = null;
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -54,14 +60,17 @@
 			$data['appId'] 	= $appId ;									// 此為全球規格，要視雲端達人的規格再調整
 			$url 			= $g_insurance_sso_api_url."ldi/sso/check"; // 此為全球規格，要視雲端達人的規格再調整
 			$jsondata 		= json_encode($data);
-			//$out 			= CallAPI("POST", $url, $jsondata, null, false); // 呼叫 API
+			
+			if ($g_test_mode)
+				$out = $jsondataSample; // 模擬資料
+			else
+				$out = CallAPI("POST", $url, $jsondata, null, false); // 呼叫 API
+			
 			wh_log("SSO_Login", $remote_ip4filename, "sso api get response json succeed");
 			//echo $out;
-			$out = $jsondataSample;
 			$ret = json_decode($out, true);
 			$cxInsurance = json_decode($out);
 			$retRoleInfo = parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
-			
 			if ($retRoleInfo != null)//($ret['success'] == true)
 			{
 				//print_role_info($retRoleInfo);
@@ -82,33 +91,38 @@
 				$over_day  = false;// over_insurance_day(	date("Y-m-d H:i:s"), $dueTime	 );
 				if ($over_12Hr || $over_day)
 				{
-					$status_code 	= "A1";
+					$status_code 	= $status_code_failure;
 					$data["status"]	= "false";
 					$data["code"]	= "0x0204";
 					if ($over_12Hr)
 						$data["responseMessage"] = "要保日 > 12H";
 					if ($over_day)
 						$data["responseMessage"] = "要保日跨日";
-					wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"], $Person_id);
+					wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
 				}
 				else
 				{
-					$status_code = "A2";
+					$status_code = $status_code_succeed;
 				}
 				wh_log("SSO_Login", $remote_ip4filename, "pass time");
 				
 				// TODO: insert status into DB
 				// 儲存json
 				$data = write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, $link, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
-				for ($i = 0; $i < count($retRoleInfo); $i++)
+				if ($data["status"] == "true")
 				{
-					$roleInfo = $retRoleInfo[$i];
-					for ($j = 0; $j < count($roleInfo); $j++)
+					// 更新狀態
+					for ($i = 0; $i < count($retRoleInfo); $i++)
 					{
-						$Tmp_Person_id = $roleInfo[$j]["idcard"];
-						$Tmp_role = $roleInfo[$j]["roleKey"];
-						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
-						//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, $Role);
+						$roleInfo = $retRoleInfo[$i];
+						for ($j = 0; $j < count($roleInfo); $j++)
+						{
+							$Tmp_Person_id 	= $roleInfo[$j]["idcard"];
+							$Tmp_role 		= $roleInfo[$j]["roleKey"];
+							$Tmp_Mobile_no 	= $roleInfo[$j]["tel"];
+							$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Tmp_Mobile_no, $status_code, $link, false, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
+							//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, false, $Role);
+						}
 					}
 				}
 				// 紀錄json到檔案
@@ -120,8 +134,11 @@
 				if ($g_wpdf2file_flag)
 					$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $out);
 				// 紀錄至 pdf_log table
-				$data = modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $status_code, $link, false, "SSO_Login", $remote_ip4filename);
+				$data_pdf = array();
+				$data_pdf = modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $status_code, $link, false, "SSO_Login", $remote_ip4filename);
+				wh_log("SSO_Login", $remote_ip4filename, "pdf operator result :". $data_pdf["responseMessage"]);
 				//echo $out;
+				// 儲存pdf到檔案 - 成功
 				
 				if ($data["status"]	== "true")
 				{
@@ -130,14 +147,15 @@
 					$data["responseMessage"] = "json資料解析成功";
 					$data["json"]			 = $out;
 				}
-				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]."\r\nSSO Login for get insurance json exit ->", $Person_id);
-				return;
+				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]);
 			}
 			else
 			{
-				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :"."\r\nSSO Login for get insurance json exit ->");
-				echo $out;
-				return;
+				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :");
+				$data["status"]			 = "false";
+				$data["code"]			 = "0x0201";
+				$data["responseMessage"] = "json資料解析異常";
+				$data["json"]			 = $out;
 			}
 		}
 		catch (Exception $e)
@@ -166,6 +184,7 @@
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
 			}
+			wh_log("SSO_Login", $remote_ip4filename, "finally complete - status:".$status_code);//."\r\n".$g_exit_symbol."SSO Login for get insurance json exit ->");
 		}
 	}
 	else
@@ -178,5 +197,5 @@
 	}
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->");
+	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
 ?>

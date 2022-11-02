@@ -1,4 +1,26 @@
 <?php
+	// encrypt-加密  public
+	function encrypt_string_if_not_empty($flag, $val)
+	{
+		global $key;
+		
+		$ret = $val;
+		if ($val == "") return $ret;
+		if ($flag)
+			$ret = encrypt($key, $val);
+		return $ret;
+	}
+	// decrypt-解密  public
+	function decrypt_string_if_not_empty($flag, $val)
+	{
+		global $key;
+		
+		$ret = $val;
+		if ($val == "") return $ret;
+		if ($flag)
+			$ret = decrypt($key, $val);
+		return $ret;
+	}
 	// 組裝sql語法-非空白字  public
 	function merge_sql_string_if_not_empty($column_name, $val)
 	{

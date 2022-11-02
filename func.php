@@ -10,6 +10,12 @@
 	include("db_tools.php");
 	include("funcCore.php");
 	include("accessDB.php");
+	/*
+	proposer：要保人
+	insured：被保人  
+	legalRepresentative：法定代理人
+	agentOne:業務
+	*/
 	
 	// 取得status ASCII編碼 private
 	function getChar4Step($val)
@@ -85,8 +91,8 @@
 		}
 	*/
 	// 當資料不齊全時，從資料庫取得 public
-	function get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id,
-												&$Sales_id, &$Mobile_no, &$Member_name, $close_mysql = true)
+	function get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, &$Person_id, &$Role,
+												  &$Sales_id, &$Mobile_no, &$Member_name, $close_mysql = true)
 	{
 		$ret = true;
 		if ($Insurance_no 			== '' ||
@@ -101,8 +107,9 @@
 			$memb = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link, $close_mysql);
 			if ($memb["status"] == "true")
 			{
-				if ($Mobile_no 	 == "") $Mobile_no 	 = $memb["Mobile_no"];
-				if ($Member_name == "") $Member_name = $memb["Member_name"];
+				if ($Member_name == "") $Member_name = $memb["member_name"];
+				if ($Mobile_no 	 == "") $Mobile_no 	 = $memb["mobile_no"];
+				if ($Role 		 == "") $Role 		 = $memb["role"];
 			}
 			else
 				$ret = false;
@@ -110,7 +117,7 @@
 		if ($ret && $Sales_id == "")
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_sales_id", $Person_id);
-			$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no, $link, $close_mysql);
+			$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no, $Person_id, $link, $close_mysql);
 		}
 		
 		if ($ret == false)
@@ -119,9 +126,28 @@
 			$data = get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $link, $close_mysql);
 			if ($data["status"] == "true")
 			{
+				wh_log($Insurance_no, $Remote_insurance_no, "getjson data from jsonlog table succeed", $Person_id);
 				$cxInsurance = json_decode($json_data);
-				parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+				// 取得 json data 中的 RoleInfo 及 其他資訊
+				$retJsonMemb = parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+				if ($retJsonMemb != null)
+				{
+					for ($i = 0; $i < count($retJsonMemb); $i++)
+					{
+						$roleInfo = $retJsonMemb[$i];
+						for ($j = 0; $j < count($roleInfo); $j++)
+						{
+							if ($roleInfo[$j]["idcard"] == $Person_id)
+							{
+								$Member_name = $roleInfo[$j]["name"];
+								$Mobile_no 	 = $roleInfo[$j]["tel"];
+								$Role 		 = $roleInfo[$j]["roleKey"];
+							}
+						}
+					}
+				}
 				$ret = true;
+				wh_log($Insurance_no, $Remote_insurance_no, "parse json data succeed", $Person_id);
 			}
 			else
 			{

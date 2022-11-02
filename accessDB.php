@@ -9,6 +9,11 @@
 	// 取得json資料，讀取資料表 :jsonlog
 	function get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, &$json_data, $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		global $host;
+		global $user;
+		global $passwd;
+		global $database;
+	
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		$data			= array();
@@ -80,6 +85,8 @@
 	{
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data 			= array();
+		$data["status"]	= "true";
 		try
 		{
 			if ($remote_ip4filename == "")
@@ -107,22 +114,22 @@
 				{
 					wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data had exists", $Person_id);
 				}
-				$data["status"]="true";
-				$data["code"]="0x0200";
-				$data["responseMessage"]="資料庫操作-新增json資料成功!";
+				$data["status"]			= "true";
+				$data["code"]			= "0x0200";
+				$data["responseMessage"]= "資料庫操作-新增json資料成功!";
 			}
 			else
 			{
-				$data["status"]="false";
-				$data["code"]="0x0200";
-				$data["responseMessage"]="資料庫操作-資料已存在!";
+				$data["status"]			= "false";
+				$data["code"]			= "0x0200";
+				$data["responseMessage"]= "資料庫操作-資料已存在!";
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]="資料庫操作-Exception error!";
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= "資料庫操作-Exception error!";
 			wh_log($dst_title, $dst_subtitle, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 		}
 		finally
@@ -140,10 +147,16 @@
 				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 			}
 		}
+		return $data;
 	}
 	// 取得 Sales_id
-	function get_sales_id($Insurance_no, $Remote_insurance_no, $link = null, $close_mysql = true)
+	function get_sales_id($Insurance_no, $Remote_insurance_no, $Person_id, $link = null, $close_mysql = true)
 	{
+		global $host;
+		global $user;
+		global $passwd;
+		global $database;
+		
 		$Sales_id = "";
 		try
 		{
@@ -155,15 +168,16 @@
 			
 			$sql = "SELECT * FROM memberinfo where member_trash=0 and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."'";
 			$sql = $sql.merge_sql_string_if_not_empty("role", "agentOne");
-			if ($result = mysqli_query($link, $sql_person))
+			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
 					// login ok
 					// user id 取得
-					$mid=0;
-					while($row = mysqli_fetch_array($result)){
-						$mid = $row['mid'];
+					$mid = 0;
+					while ($row = mysqli_fetch_array($result))
+					{
+						$mid 	  = $row['mid'];
 						$Sales_id = $row['person_id'];
 					}
 					wh_log($Insurance_no, $Remote_insurance_no, "get sales_id memberinfo table result :found", $Person_id);
@@ -199,6 +213,11 @@
 	// 取得 member info
 	function get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link = null, $close_mysql = true)
 	{
+		global $host;
+		global $user;
+		global $passwd;
+		global $database;
+	
 		$data = array();
 		$data["status"] = "false";
 		try
@@ -217,7 +236,8 @@
 					// login ok
 					// user id 取得
 					$mid=0;
-					while($row = mysqli_fetch_array($result)){
+					while ($row = mysqli_fetch_array($result))
+					{
 						$mid = $row['mid'];
 						$data["status"] 		= "true";
 						$data["person_id"] 		= $row['person_id'];
@@ -257,13 +277,19 @@
 		return $data;
 	}
 	// 變更(Insert/Update)遠投保單狀態 public
-	function modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link = null, $close_mysql = true, $Role = "", $log_title = "", $log_subtitle = "")
+	function modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link = null, $close_mysql = true, $ChangeStatusAnyway = false, $Role = "", $log_title = "", $log_subtitle = "")
 	{
-		global $key;
-		
+		global $g_encrypt_id;
+		global $g_encrypt_mobile;
+		global $host;
+		global $user;
+		global $passwd;
+		global $database;
+			
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		$data = array();
+		//echo $Insurance_no."\r\n".$Remote_insurance_no."\r\n".$Sales_id."\r\n".$Person_id."\r\n".$Mobile_no."\r\n";
 		if (($Insurance_no 			!= '') &&
 			($Remote_insurance_no 	!= '') &&
 			($Sales_id 				!= '') &&
@@ -292,9 +318,9 @@
 				$Mobileno 			 	= trim(stripslashes($Mobile_no));
 				$Role 		 			= trim(stripslashes($Role));
 				$Statuscode 		 	= trim(stripslashes($Status_code));
-
-				//$Personid = encrypt($key,($Personid));
-				$Mobileno = addslashes(encrypt($key, ($Mobileno)));
+				
+				$Personid = encrypt_string_if_not_empty($g_encrypt_id	 , $Personid);
+				$Mobileno = encrypt_string_if_not_empty($g_encrypt_mobile, $Mobileno);
 				
 				$sql = "SELECT * FROM orderinfo where order_trash=0 ";
 				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
@@ -303,6 +329,7 @@
 				$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id 			);
 				$sql = $sql.merge_sql_string_if_not_empty("mobile_no"			, $Mobileno 			);
 				$sql = $sql.merge_sql_string_if_not_empty("role"				, $Role					);
+				$sql2 = "";
 				if ($result = mysqli_query($link, $sql))
 				{
 					if (mysqli_num_rows($result) == 0)
@@ -372,7 +399,9 @@
 					$data["code"]			= "0x0204";
 					$data["responseMessage"]= "操作：更新狀態-SQL fail!";					
 				}
-			} catch (Exception $e) {
+			}
+			catch (Exception $e)
+			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "操作：新增狀態-Exception error!";
@@ -403,20 +432,22 @@
 		return $data;
 	}
 	// Update遠投保單狀態 private
-	function updateOrderState($link, $result, $Insuranceno, $Remote_insuranceno, $Salesid, $Personid, $Mobileno, $Role, $Statuscode)
+	function updateOrderState($link, $result, $Insuranceno, $Remote_insuranceno, $Salesid, $Personid, $Mobileno, $Role, $Statuscode, $ChangeStatusAnyway = false)
 	{
 		$ret = 0;
-		if (mysqli_num_rows($result) > 0) {
+		if (mysqli_num_rows($result) > 0)
+		{
 			$flag = 0;
 			try
 			{
-				while($row = mysqli_fetch_array($result)){
+				while ($row = mysqli_fetch_array($result))
+				{
 					$oldorder_status = $row['order_status'];
 					$oldorderstatus = str_replace(",", "", $oldorder_status);
 					//$membername = $row['member_name'];
 				}
 				
-				if (allowUpdateStep($oldorderstatus, $Statuscode))
+				if (allowUpdateStep($oldorderstatus, $Statuscode) || $ChangeStatusAnyway)
 				{
 					$sql2 = "update `orderinfo` set `order_status`='$Statuscode' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insuranceno' and sales_id='$Salesid' and person_id='$Personid' and order_trash=0";
 					$sql2 = $sql2.merge_sql_string_if_not_empty("mobile_no"	, $Mobileno		);
@@ -424,13 +455,14 @@
 					mysqli_query($link, $sql2) or die(mysqli_error($link));
 					$flag = 1;
 				}
-				if ($flag == 1) {
+				if ($flag == 1)
+				{
 					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`member_type`, `order_status`, `log_date`";
-					if ($Mobile_no  != "") $sql2 = $sql2.",`mobile_no`";
-					if ($Membertype != "") $sql2 = $sql2.",`role`";
+					if ($Mobileno  != "") $sql2 = $sql2.",`mobile_no`";
+					if ($Role != "") $sql2 = $sql2.",`role`";
 					$sql2 = $sql2.") VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Statuscode',NOW())";
-					if ($Mobile_no  != "") $sql2 = $sql2.",'$Mobileno'";
-					if ($Membertype != "") $sql2 = $sql2.",'$Role'";
+					if ($Mobileno  != "") $sql2 = $sql2.",'$Mobileno'";
+					if ($Role != "") $sql2 = $sql2.",'$Role'";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 				}
 				//echo "user data change ok!";
@@ -448,8 +480,16 @@
 	}
 	
 	// 變更(Insert/Update)member public
-	function modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, &$status_code, $link = null, $close_mysql = true)
+	function modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, &$status_code, $link = null, $close_mysql = true)
 	{
+		global $g_encrypt_id;
+		global $g_encrypt_mobile;
+		global $g_encrypt_Membername;
+		global $host;
+		global $user;
+		global $passwd;
+		global $database;
+		
 		wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 		try
 		{
@@ -470,9 +510,9 @@
 			$Membername 	= trim(stripslashes($Member_name));
 			$FCMToken 		= trim(stripslashes($FCM_Token));
 			
-			//$Personid 	= encrypt($key,($Personid));
-			$Mobileno 		= addslashes(encrypt($key,($Mobileno)));
-			$Membername 	= addslashes(encrypt($key,($Membername)));
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
+			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt_mobile		, $Mobileno);
+			$Membername = encrypt_string_if_not_empty($g_encrypt_Membername	, $Membername);
 			
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -506,7 +546,7 @@
 				{
 					$data["status"]			= "false";
 					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "已經有相同身份證資料!";	
+					$data["responseMessage"]= "身份資料建檔-無法重複建立，已經有相同身份證資料!";	
 					$status_code 			= "";
 				}
 			}
@@ -519,8 +559,6 @@
 			}
 			if ($status_code != "")
 				$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Personid, $Sales_id, $Mobileno, "C2");
-			
-			wh_log($Insurance_no, $Remote_insurance_no, symbol4log."create memberinfo table result :".$data["responseMessage"].$sql2, $Person_id);
 		}
 		catch (Exception $e)
 		{
@@ -559,6 +597,8 @@
 			$Person_id  = mysqli_real_escape_string($link,$Person_id);
 			$front  	= mysqli_real_escape_string($link,$front	 );
 			$Personid 	= trim(stripslashes($Person_id));
+			
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
 			
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -688,16 +728,18 @@
 
 			$Person_id  	= mysqli_real_escape_string($link, $Person_id);
 			$Mobile_no  	= mysqli_real_escape_string($link, $Mobile_no);
-			$Member_name  	= mysqli_real_escape_string($link, $Member_name);
-			//FCM_Token
+			$Member_name	= mysqli_real_escape_string($link, $Member_name);
 			$FCM_Token  	= mysqli_real_escape_string($link, $FCM_Token);
-
-			$Personid 	= trim(stripslashes($Person_id));
-			$Mobileno 	= trim(stripslashes($Mobile_no));
-			$Membername = trim(stripslashes($Member_name));
-			$FCMToken 	= trim(stripslashes($FCM_Token));
-			$Mobileno 	= addslashes(encrypt($key,$Mobileno));
-			$Membername = addslashes(encrypt($key,$Membername));
+	
+			$Personid 		= trim(stripslashes($Person_id));
+			$Mobileno 		= trim(stripslashes($Mobile_no));
+			$Membername 	= trim(stripslashes($Member_name));
+			$FCMToken 		= trim(stripslashes($FCM_Token));
+			
+			// 加密處理
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
+			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt_mobile		, $Mobileno);
+			$Membername = encrypt_string_if_not_empty($g_encrypt_Membername	, $Membername);
 		
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -793,6 +835,7 @@
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		$data = array();
+		// echo $Insurance_no."\r\n".$Remote_insurance_no."\r\n".$base64pdf."\r\n".$pdf_path."\r\n".$Status_code."\r\n";
 		if (($Insurance_no 			!= '') &&
 			($Remote_insurance_no 	!= '') &&
 			!($base64pdf == '' && $pdf_path == '') &&
@@ -807,22 +850,15 @@
 				}
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
-				$Sales_id  				= mysqli_real_escape_string($link, $Sales_id			);
-				$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
-				$Mobile_no  			= mysqli_real_escape_string($link, $Mobile_no			);
-				$Role  					= mysqli_real_escape_string($link, $Role			);
+				$Title  				= mysqli_real_escape_string($link, $Title				);
+				$pdf_path  				= mysqli_real_escape_string($link, $pdf_path			);
 				$Status_code  			= mysqli_real_escape_string($link, $Status_code			);
 
 				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
 				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
-				$Salesid 			 	= trim(stripslashes($Sales_id));
-				$Personid 			 	= trim(stripslashes($Person_id));
-				$Mobileno 			 	= trim(stripslashes($Mobile_no));
-				$Role 		 			= trim(stripslashes($Role));
+				$Title 			 		= trim(stripslashes($Title));
+				$pdf_path 			 	= trim(stripslashes($pdf_path));
 				$Statuscode 		 	= trim(stripslashes($Status_code));
-
-				//$Personid = encrypt($key,($Personid));
-				$Mobileno = addslashes(encrypt($key, ($Mobileno)));
 				
 				$sql = "SELECT * FROM pdflog where 1=1 ";
 				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
@@ -845,11 +881,13 @@
 							if ($Statuscode == "") $Statuscode = "00";
 							try
 							{
-								$sql2 = "INSERT INTO `pdflog` (`insurance_no`,`remote_insurance_no`,`title`";
+								$sql2 = "INSERT INTO `pdflog` (`insurance_no`,`remote_insurance_no`";
+								$sql2 = $sql2.($Title 	  != "") ? ",`title`" 	 : "";
 								$sql2 = $sql2.($base64pdf != "") ? ",`pdf_data`" : "";
 								$sql2 = $sql2.($pdf_path  != "") ? ",`pdf_path`" : "";
-								$sql2 = $sql2.",`order_status`, `updatetime`) VALUES ('$Insuranceno','$Remote_insuranceno','$Title'";
+								$sql2 = $sql2.",`order_status`, `updatetime`) VALUES ('$Insuranceno','$Remote_insuranceno'";
 								
+								$sql2 = $sql2.($Title 	  != "") ? ",'$Title'" 	 : "";
 								$sql2 = $sql2.($base64pdf != "") ? ",'$base64pdf'" : "";
 								$sql2 = $sql2.($pdf_path  != "") ? ",'$pdf_path'" : "";
 								$sql2 = $sql2.",'$Statuscode', NOW())";

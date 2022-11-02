@@ -117,10 +117,10 @@ ps.每個步驟都要狀態API
 5、memberinfo需加入行投號及保單號			(V) 2022.10.28  complete :2022.10.30
 6、建立範例json並讀取測試						2022.10.31
 	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
-	JTG_Modify_Country_Code  				() 2022.11.01  complete :
-	JTG_Modify_Insurance_Status				() 2022.11.01  complete :
-	JTG_Query_Member		  				() 2022.11.01  complete :
-	JTG_Modify_Member		  				() 2022.11.01  complete :
+	JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
+	JTG_Modify_Insurance_Status				(V) 2022.11.01  complete :2022.11.02
+	JTG_Query_Member		  				(V) 2022.11.01  complete :2022.11.02
+	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.02
 	JTG_Save_IDPhoto		  				() 2022.11.01  complete :
 	JTG_Get_IDPIC			  				() 2022.11.01  complete :
 	JTG_Parse_OCR  							() 2022.11.01  complete :

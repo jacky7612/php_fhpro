@@ -19,21 +19,22 @@
 		create_folder($log_filename);
 		file_put_contents($glogfile, date("Y-m-d H:i:s")."  ------  ".$log_msg."\n", FILE_APPEND);
 	}
-	function wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Personal_id = "")
+	function wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
 	{
 		global $log_path;
 		global $glogfile;
 		
-		if (strlen($Personal_id) > 0) $Personal_id = "_".$Personal_id;
-		set_log_name($log_path, $Insurance_no, $Remote_insurance_no, $Personal_id);
+		if ($Insurance_no == "SSO_Login") $Person_id = "";
+		if (strlen($Person_id) > 0) $Person_id = "_".$Person_id;
+		set_log_name($log_path, $Insurance_no, $Remote_insurance_no, $Person_id);
 		create_folder($log_path);
 		file_put_contents($glogfile, date("Y-m-d H:i:s")."  ------  ".$log_msg."\n", FILE_APPEND);
 	}
-	function set_log_name($dir, $Insurance_no, $Remote_insurance_no, $Personal_id)
+	function set_log_name($dir, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{
 		global $glogfile;
 		
-		$glogfile = $dir.'log_'.date('Y_m_d').'_'.$Insurance_no.'_'.$Remote_insurance_no.$Personal_id.'.log';
+		$glogfile = $dir.'log_'.date('Y_m_d').'_'.$Insurance_no.'_'.$Remote_insurance_no.$Person_id.'.log';
 	}
 	function parse_or_print_json_data($cxInsurance, &$Insurance_no, &$Remote_insurance_no, &$Person_id, &$Mobile_no, &$Sales_id, $with_print = false)
 	{
@@ -98,12 +99,20 @@
 						$cxInsurance->polSummary[$i]->rolesInfo[$j]->roleKey == "proposer")
 					{
 						$Person_id = $cxInsurance->polSummary[$i]->rolesInfo[$j]->idcard;
+						$Mobile_no = $cxInsurance->polSummary[$i]->rolesInfo[$j]->tel;
 					}
+					/*
 					if ($Mobile_no == "" &&
-						$cxInsurance->polSummary[$i]->rolesInfo[$j]->roleKey == "proposer")
+						$cxInsurance->polSummary[$i]->rolesInfo[$j]->roleKey == "insured")
 					{
 						$Mobile_no = $cxInsurance->polSummary[$i]->rolesInfo[$j]->tel;
 					}
+					if ($Mobile_no == "" &&
+						$cxInsurance->polSummary[$i]->rolesInfo[$j]->roleKey == "legalRepresentative")
+					{
+						$Mobile_no = $cxInsurance->polSummary[$i]->rolesInfo[$j]->tel;
+					}
+					*/
 					if ($Sales_id == "" &&
 						$cxInsurance->polSummary[$i]->rolesInfo[$j]->roleKey == "agentOne")
 					{

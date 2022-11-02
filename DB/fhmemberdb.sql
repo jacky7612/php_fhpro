@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-01 05:46:14
+-- 產生時間： 2022-11-02 09:39:55
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -139,13 +139,6 @@ CREATE TABLE `jsonlog` (
   `updatetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- 傾印資料表的資料 `jsonlog`
---
-
-INSERT INTO `jsonlog` (`id`, `insurance_no`, `remote_insurance_no`, `json_data`, `order_status`, `createtime`, `updatetime`) VALUES
-(1, 'appl2022', 'num123', '{\"acceptId\":\"Ins1996\",\"dueTime\":\"2022/10/31 23:00:00\",\"applToken\":\"appl\",\"prodID\":\"A\",\"partnerCode\":\"tonlu\",\"insuredToken\":\"ins2022\",\"repreToken\":\"rep2022\",\"applyNo\":\"appl1998\",\"numbering\":\"phone2022\",\"polSummary\":[{\"applyNo\":\"appl2022\",\"numbering\":\"num123\",\"applyVersion\":\"1.0\",\"productName\":\"主約險種名稱\",\"productCode\":\"B\",\"policyCode\":\"\",\"rolesInfo\":[{\"name\":\"張三\",\"idcard\":\"A123456789\",\"tel\":\"0912-345-777\",\"roleName\":\"要保人\",\"roleKey\":\"proposer\"},{\"name\":\"李四\",\"idcard\":\"B123456789\",\"tel\":\"0912-345-888\",\"roleName\":\"要保人\",\"roleKey\":\"insured\"},{\"name\":\"王五\",\"idcard\":\"C123456789\",\"tel\":\"0912-345-999\",\"roleName\":\"法定代理人\",\"roleKey\":\"legalRepresentative\"},{\"name\":\"業務\",\"idcard\":\"E123456789\",\"tel\":\"0912-345-111\",\"roleName\":\"業務員\",\"roleKey\":\"agentOne\"}]}],\"applicationData\":[{\"attacheCode\":\"pdf001\",\"attacheName\":\"要保書\",\"attacheContent\":\"base64\",\"policyOwnerFlag\":\"Y\",\"insuredFlag\":\"Y\",\"representFlag\":\"Y\",\"agentFlag\":\"Y\",\"signTagSetting\":\"tag01\",\"policyTagSetting\":\"tag02\",\"applDateTagSetting\":\"tag03\"}],\"uploadData\":[{\"attacheCode\":\"attache001\",\"attacheName\":\"附件一\",\"policyOwnerFlag\":\"Y\",\"insuredFlag\":\"Y\",\"representFlag\":\"Y\"}]}', 'A2', '2022-11-01 09:58:01', '2022-11-01 09:58:01');
-
 -- --------------------------------------------------------
 
 --
@@ -245,16 +238,6 @@ CREATE TABLE `orderinfo` (
   `updatedttime` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- 傾印資料表的資料 `orderinfo`
---
-
-INSERT INTO `orderinfo` (`rid`, `policy_number`, `insurance_no`, `remote_insurance_no`, `sales_id`, `person_id`, `mobile_no`, `role`, `verification_code`, `order_status`, `notificationToken`, `order_trash`, `inputdttime`, `updatedttime`) VALUES
-(1, NULL, 'appl2022', 'num123', 'E123456789', 'A123456789', '03N9pmvXQXx28oJRMT+/yQ==', 'proposer', NULL, 'A2', NULL, 0, '2022-11-01 09:59:46', NULL),
-(2, NULL, 'appl2022', 'num123', 'E123456789', 'B123456789', '03N9pmvXQXx28oJRMT+/yQ==', 'insured', NULL, 'A2', NULL, 0, '2022-11-01 09:59:46', NULL),
-(3, NULL, 'appl2022', 'num123', 'E123456789', 'C123456789', '03N9pmvXQXx28oJRMT+/yQ==', 'legalRepresentative', NULL, 'A2', NULL, 0, '2022-11-01 09:59:46', NULL),
-(4, NULL, 'appl2022', 'num123', 'E123456789', 'E123456789', '03N9pmvXQXx28oJRMT+/yQ==', 'agentOne', NULL, 'A2', NULL, 0, '2022-11-01 09:59:46', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -273,16 +256,6 @@ CREATE TABLE `orderlog` (
   `log_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- 傾印資料表的資料 `orderlog`
---
-
-INSERT INTO `orderlog` (`oid`, `insurance_no`, `remote_insurance_no`, `sales_id`, `person_id`, `mobile_no`, `member_type`, `order_status`, `log_date`) VALUES
-(1, 'appl2022', 'num123', 'E123456789', 'A123456789', '03N9pmvXQXx28oJRMT+/yQ==', 0, 'A2', '2022-11-01 09:59:46'),
-(2, 'appl2022', 'num123', 'E123456789', 'B123456789', '03N9pmvXQXx28oJRMT+/yQ==', 0, 'A2', '2022-11-01 09:59:46'),
-(3, 'appl2022', 'num123', 'E123456789', 'C123456789', '03N9pmvXQXx28oJRMT+/yQ==', 0, 'A2', '2022-11-01 09:59:46'),
-(4, 'appl2022', 'num123', 'E123456789', 'E123456789', '03N9pmvXQXx28oJRMT+/yQ==', 0, 'A2', '2022-11-01 09:59:46');
-
 -- --------------------------------------------------------
 
 --
@@ -293,7 +266,7 @@ CREATE TABLE `pdflog` (
   `id` int(20) NOT NULL,
   `insurance_no` varchar(32) NOT NULL,
   `remote_insurance_no` varchar(32) NOT NULL,
-  `title` varchar(100) NOT NULL,
+  `title` varchar(100) DEFAULT NULL,
   `pdf_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`pdf_data`)),
   `pdf_path` varchar(256) DEFAULT NULL,
   `order_status` varchar(5) NOT NULL,
@@ -502,7 +475,7 @@ ALTER TABLE `idphoto`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `jsonlog`
 --
 ALTER TABLE `jsonlog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `meetinglog`
@@ -526,13 +499,13 @@ ALTER TABLE `notificationlog`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `orderinfo`
 --
 ALTER TABLE `orderinfo`
-  MODIFY `rid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `rid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `orderlog`
 --
 ALTER TABLE `orderlog`
-  MODIFY `oid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `oid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `pdflog`

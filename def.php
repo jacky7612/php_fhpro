@@ -5,6 +5,11 @@
 	$g_test_mode						= true;
 	$g_wjson2file_flag					= true;
 	$g_wpdf2file_flag					= false;
+	
+	$g_encrypt_id						= false;
+	$g_encrypt_mobile					= false;
+	$g_encrypt_Membername				= false;
+	
 	$g_insurance_sso_api_url 			= "https://localhost/test_fhpro/"					; // 取得保險公司相關資料 API url
 	
 	$g_root_url			 				= $_SERVER['DOCUMENT_ROOT']."/test_fhpro"			; // 網站根目錄	"/var/www/html/fhpro/"

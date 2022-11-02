@@ -97,7 +97,7 @@
 					$data["responseMessage"] = "json資料解析成功";
 					$data["json"]			 = $out;
 				}
-				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]."\r\nSSO Login for get insurance json exit ->", $Person_id);
+				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]."\r\nSSO Login for get insurance json exit ->");
 				return;
 			}
 			else
