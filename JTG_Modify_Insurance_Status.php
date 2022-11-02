@@ -67,7 +67,7 @@
 	if ($Status_code != "")
 	{
 		// 更新狀態
-		$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link, true, true);
+		$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, true, true);
 	}
 	else
 	{

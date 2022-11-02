@@ -108,7 +108,7 @@
 				
 				// TODO: insert status into DB
 				// 儲存json
-				$data = write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, $link, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
+				$data = write_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
 				if ($data["status"] == "true")
 				{
 					// 更新狀態
@@ -120,7 +120,7 @@
 							$Tmp_Person_id 	= $roleInfo[$j]["idcard"];
 							$Tmp_role 		= $roleInfo[$j]["roleKey"];
 							$Tmp_Mobile_no 	= $roleInfo[$j]["tel"];
-							$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Tmp_Mobile_no, $status_code, $link, false, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
+							$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Tmp_Mobile_no, $status_code, false, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
 							//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, false, $Role);
 						}
 					}
@@ -135,7 +135,7 @@
 					$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $out);
 				// 紀錄至 pdf_log table
 				$data_pdf = array();
-				$data_pdf = modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $status_code, $link, false, "SSO_Login", $remote_ip4filename);
+				$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $status_code, false, "SSO_Login", $remote_ip4filename);
 				wh_log("SSO_Login", $remote_ip4filename, "pdf operator result :". $data_pdf["responseMessage"]);
 				//echo $out;
 				// 儲存pdf到檔案 - 成功

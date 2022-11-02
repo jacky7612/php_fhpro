@@ -15,6 +15,8 @@
 	$Sales_id 				= "";
 	$status_code 			= "";
 	$Role 					= "";
+	$Image_pid_pic 			= "";
+	$FCM_Token				= "";
 	$DoCreateMember_Flag 	= "false";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -139,12 +141,12 @@
 			wh_log($Insurance_no, $Remote_insurance_no, $symbol4log."query memberinfo table result :".$data["responseMessage"].$sql, $Person_id);
 			
 			if ($status_code != "")
-				$data_Status = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $status_code, $link, false);
+				$data_Status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $status_code, false);
 			
 			// 儲存資料至資料庫
 			if ($status_code == $status_code_succeed && $DoCreateMember_Flag == "true")
 			{
-				$data_create = modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $status_code, $link, false);
+				$data_create = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, $status_code, false);
 				if ($data["status"] 	   == "true" &&
 					$data_create["status"] == "false")
 				{

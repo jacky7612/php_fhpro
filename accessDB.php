@@ -7,7 +7,7 @@
 	*/
 	
 	// 取得json資料，讀取資料表 :jsonlog
-	function get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, &$json_data, $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	function get_jsondata_from_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, &$json_data, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
 		global $host;
 		global $user;
@@ -75,13 +75,16 @@
 			}
 			catch(Exception $e)
 			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "資料庫操作disconnect mysql-Exception error!";
 				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 			}
 		}
 		return $data;
 	}
 	// 將資料寫入資料表 :jsonlog
-	function write_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $status_code, $remote_ip4filename = "", $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	function write_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $status_code, $remote_ip4filename = "", $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -150,7 +153,7 @@
 		return $data;
 	}
 	// 取得 Sales_id
-	function get_sales_id($Insurance_no, $Remote_insurance_no, $Person_id, $link = null, $close_mysql = true)
+	function get_sales_id(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql = true)
 	{
 		global $host;
 		global $user;
@@ -211,7 +214,7 @@
 		return $Sales_id;
 	}
 	// 取得 member info
-	function get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link = null, $close_mysql = true)
+	function get_member_info(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql = true)
 	{
 		global $host;
 		global $user;
@@ -277,7 +280,7 @@
 		return $data;
 	}
 	// 變更(Insert/Update)遠投保單狀態 public
-	function modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $link = null, $close_mysql = true, $ChangeStatusAnyway = false, $Role = "", $log_title = "", $log_subtitle = "")
+	function modify_order_state(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, $close_mysql = true, $ChangeStatusAnyway = false, $Role = "", $log_title = "", $log_subtitle = "")
 	{
 		global $g_encrypt_id;
 		global $g_encrypt_mobile;
@@ -308,9 +311,9 @@
 				$Sales_id  				= mysqli_real_escape_string($link, $Sales_id			);
 				$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
 				$Mobile_no  			= mysqli_real_escape_string($link, $Mobile_no			);
-				$Role  					= mysqli_real_escape_string($link, $Role			);
+				$Role  					= mysqli_real_escape_string($link, $Role				);
 				$Status_code  			= mysqli_real_escape_string($link, $Status_code			);
-
+				
 				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
 				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
 				$Salesid 			 	= trim(stripslashes($Sales_id));
@@ -432,7 +435,7 @@
 		return $data;
 	}
 	// Update遠投保單狀態 private
-	function updateOrderState($link, $result, $Insuranceno, $Remote_insuranceno, $Salesid, $Personid, $Mobileno, $Role, $Statuscode, $ChangeStatusAnyway = false)
+	function updateOrderState(&$link, $result, $Insuranceno, $Remote_insuranceno, $Salesid, $Personid, $Mobileno, $Role, $Statuscode, $ChangeStatusAnyway = false)
 	{
 		$ret = 0;
 		if (mysqli_num_rows($result) > 0)
@@ -457,12 +460,13 @@
 				}
 				if ($flag == 1)
 				{
-					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`member_type`, `order_status`, `log_date`";
+					$sql2 = "INSERT INTO `orderlog` (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`, `order_status`, `log_date`";
 					if ($Mobileno  != "") $sql2 = $sql2.",`mobile_no`";
 					if ($Role != "") $sql2 = $sql2.",`role`";
-					$sql2 = $sql2.") VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Statuscode',NOW())";
+					$sql2 = $sql2.") VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Statuscode',NOW()";
 					if ($Mobileno  != "") $sql2 = $sql2.",'$Mobileno'";
 					if ($Role != "") $sql2 = $sql2.",'$Role'";
+					$sql2 = $sql2.")";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 				}
 				//echo "user data change ok!";
@@ -473,14 +477,16 @@
 				$ret = 1;
 				wh_log($Insurance_no, $Remote_insurance_no, "(X) update order state - disconnect mysql orderlog table failure :".$e->getMessage(), $Person_id);
 			}
-		} else {
+		}
+		else
+		{
 			$ret = 2;
 		}
 		return $ret;
 	}
 	
 	// 變更(Insert/Update)member public
-	function modify_member($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, &$status_code, $link = null, $close_mysql = true)
+	function modify_member(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, &$status_code, $close_mysql = true)
 	{
 		global $g_encrypt_id;
 		global $g_encrypt_mobile;
@@ -500,15 +506,15 @@
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 
-			$Person_id  	= mysqli_real_escape_string($link,$Person_id);
-			$Mobile_no  	= mysqli_real_escape_string($link,$Mobile_no);
-			$Member_name  	= mysqli_real_escape_string($link,$Member_name);
-			$FCM_Token  	= mysqli_real_escape_string($link,$FCM_Token);
+			$Person_id  	= mysqli_real_escape_string($link, $Person_id	);
+			$Mobile_no  	= mysqli_real_escape_string($link, $Mobile_no	);
+			$Member_name  	= mysqli_real_escape_string($link, $Member_name	);
+			$FCM_Token  	= mysqli_real_escape_string($link, $FCM_Token	);
 
-			$Personid 		= trim(stripslashes($Person_id));
-			$Mobileno 		= trim(stripslashes($Mobile_no));
+			$Personid 		= trim(stripslashes($Person_id)  );
+			$Mobileno 		= trim(stripslashes($Mobile_no)  );
 			$Membername 	= trim(stripslashes($Member_name));
-			$FCMToken 		= trim(stripslashes($FCM_Token));
+			$FCMToken 		= trim(stripslashes($FCM_Token)  );
 			
 			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
 			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt_mobile		, $Mobileno);
@@ -526,8 +532,15 @@
 					$mid = 0;
 					try
 					{
-						$sql2 = "INSERT INTO `memberinfo` (`insurance_no`,`remote_insurance_no`,`person_id`,`mobile_no`,`member_name`, `notificationToken`,`pid_pic`, `member_trash`, `inputdttime`) VALUES ('$Insurance_no','$Remote_insurance_no','$Personid','$Mobileno','$Membername','$FCMToken','{$image}', 0,NOW())";
-						mysqli_query($link,$sql2) or die(mysqli_error($link));
+						$sql2 = "INSERT INTO `memberinfo` (`insurance_no`,`remote_insurance_no`,`person_id`,`mobile_no`,`member_name`";
+						if ($FCM_Token != "") $sql2 = $sql2.",`notificationToken`";
+						if ($Image_pid_pic != "") $sql2 = $sql2.",`pid_pic`";
+						$sql2 = $sql2.",`member_trash`, `inputdttime`) VALUES ('$Insurance_no','$Remote_insurance_no','$Personid','$Mobileno','$Membername'";
+						if ($FCM_Token != "") $sql2 = $sql2.",'$FCMToken'";
+						if ($Image_pid_pic != "") $sql2 = $sql2.",'{$Image_pid_pic}'";
+						$sql2 = $sql2.", 0,NOW())";
+						echo $sql2."\r\n";
+						mysqli_query($link, $sql2) or die(mysqli_error($link));
 						//echo "user data change ok!";
 						$data["status"]			= "true";
 						$data["code"]			= "0x0200";
@@ -558,7 +571,7 @@
 				$status_code 			= "";
 			}
 			if ($status_code != "")
-				$data = Modify_order_State($Insurance_no, $Remote_insurance_no, $Personid, $Sales_id, $Mobileno, "C2");
+				$data = Modify_order_State($link, $Insurance_no, $Remote_insurance_no, $Personid, $Sales_id, $Mobileno, "C2");
 		}
 		catch (Exception $e)
 		{
@@ -585,7 +598,7 @@
 		return $data;
 	}
 	// Update idphoto public
-	function update_idphoto($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $close_mysql = true)
+	function update_idphoto(&$link, $Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $close_mysql = true)
 	{
 		try
 		{
@@ -716,7 +729,7 @@
 		return $data;
 	}
 	// Update member public
-	function update_member($Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $link = null, $close_mysql = true)
+	function update_member(&$link, $Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $close_mysql = true)
 	{
 		try
 		{
@@ -828,7 +841,7 @@
 	}
 	
 	// 變更(Insert/Update)pdflog public
-	function modify_pdf_log($Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $Status_code, $link = null, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	function modify_pdf_log(&$link, $Insurance_no, $Remote_insurance_no, $Title, $base64pdf, $pdf_path, $Status_code, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
 		global $key;
 		

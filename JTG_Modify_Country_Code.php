@@ -67,7 +67,6 @@
 		($Remote_insurance_no 	!= '') &&
 		($Country_code 			!= ''))
 	{
-		$link = null;
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -82,7 +81,6 @@
 			$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
 			$Person_id 				= trim(stripslashes($Person_id));
 			$Country_code 			= trim(stripslashes($Country_code));
-
 			$sql = "SELECT * from countrylog where person_id='$Person_id' and insurance_no= '$Insurance_no' and remote_insurance_no= '$Remote_insurance_no' ";
 			$result = mysqli_query($link, $sql);
 			if (mysqli_num_rows($result) > 0)
@@ -112,7 +110,7 @@
 			$symbol4log = ($status_code == $status_code_failure) ? "(X) ": "";
 			$sql = ($status_code == $status_code_failure) ? " :".$sql : "";
 			wh_log($Insurance_no, $Remote_insurance_no, $symbol4log."modify countrylog table result :".$data["responseMessage"].$sql, $Person_id);
-			$data_Status = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false);
+			$data_Status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
 			
 			if ($data["status"] 	   == "true" &&
 				$data_Status["status"] == "false")

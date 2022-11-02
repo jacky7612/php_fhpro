@@ -91,7 +91,7 @@
 		}
 	*/
 	// 當資料不齊全時，從資料庫取得 public
-	function get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, &$Person_id, &$Role,
+	function get_salesid_personinfo_if_not_exists(&$link, $Insurance_no, $Remote_insurance_no, &$Person_id, &$Role,
 												  &$Sales_id, &$Mobile_no, &$Member_name, $close_mysql = true)
 	{
 		$ret = true;
@@ -104,7 +104,7 @@
 		wh_log($Insurance_no, $Remote_insurance_no, "do function - get_member_info", $Person_id);
 		if ($Mobile_no == "" || $Member_name == "")
 		{
-			$memb = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id, $link, $close_mysql);
+			$memb = get_member_info($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
 			if ($memb["status"] == "true")
 			{
 				if ($Member_name == "") $Member_name = $memb["member_name"];
@@ -117,13 +117,13 @@
 		if ($ret && $Sales_id == "")
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_sales_id", $Person_id);
-			$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no, $Person_id, $link, $close_mysql);
+			$Sales_Id = get_sales_id($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
 		}
 		
 		if ($ret == false)
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_jsondata_from_jsonlog_table", $Person_id);
-			$data = get_jsondata_from_jsonlog_table($Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $link, $close_mysql);
+			$data = get_jsondata_from_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $close_mysql);
 			if ($data["status"] == "true")
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "getjson data from jsonlog table succeed", $Person_id);

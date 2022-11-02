@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-02 09:39:55
+-- 產生時間： 2022-11-02 14:08:20
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -251,7 +251,7 @@ CREATE TABLE `orderlog` (
   `sales_id` varchar(32) NOT NULL DEFAULT '',
   `person_id` varchar(10) NOT NULL DEFAULT '',
   `mobile_no` varchar(255) DEFAULT NULL,
-  `member_type` tinyint(1) NOT NULL DEFAULT 0,
+  `role` varchar(100) NOT NULL,
   `order_status` varchar(5) NOT NULL DEFAULT '0',
   `log_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
