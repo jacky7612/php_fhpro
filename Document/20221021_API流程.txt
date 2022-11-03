@@ -116,15 +116,16 @@ ps.每個步驟都要狀態API
 4、log2file重點每個步驟，才好追查原因 		(V) 2022.10.29  complete :2022.10.30
 5、memberinfo需加入行投號及保單號			(V) 2022.10.28  complete :2022.10.30
 6、建立範例json並讀取測試						2022.10.31
+
 	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
 	JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
 	JTG_Modify_Insurance_Status				(V) 2022.11.01  complete :2022.11.02
 	JTG_Query_Member		  				(V) 2022.11.01  complete :2022.11.02
-	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.03
+	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
 	JTG_Save_IDPhoto		  				(V) 2022.11.01  complete :2022.11.03
-	JTG_Get_IDPIC			  				() 2022.11.01  complete :
-	JTG_Parse_OCR  							() 2022.11.01  complete :
-	JTG_Gov_ID				  				() 2022.11.01  complete :
+	JTG_Get_IDPIC			  				(V) 2022.11.01  complete :2022.11.03 [getpidpic2、getuserList]
+	JTG_Parse_OCR  							(O) 2022.11.01  complete :			 尚未確定廠商，目前是空的
+	JTG_Gov_ID				  				(O) 2022.11.01  complete :2022.11.03 有基礎功能，未正式連到內政部
 	
 	JTG_Face_Compare		  				() 2022.11.01  complete :
 	JTG_Live_Check			  				() 2022.11.01  complete :
@@ -139,7 +140,7 @@ ps.每個步驟都要狀態API
 	第一次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :
 	第一次JTG_Start_Meeting		  			() 2022.11.01  complete :
 	第一次JTG_Stop_Meeting		  			() 2022.11.01  complete :
-	
+	//-------------------------------------------------------------------------------------------------------------
 	JTG_Get_Proposal_PDF	  				() 2022.11.01  complete :
 	JTG_Signature_PDF		  				() 2022.11.01  complete :
 	JTG_Get_Json				  			() 2022.11.01  complete :
