@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-02 14:08:20
+-- 產生時間： 2022-11-03 09:55:21
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -117,7 +117,7 @@ CREATE TABLE `idphoto` (
   `updatedtime` datetime NOT NULL,
   `person_id` varchar(256) NOT NULL,
   `insurance_no` varchar(32) DEFAULT NULL,
-  `remote_insurance_no ` varchar(32) DEFAULT NULL,
+  `remote_insurance_no` varchar(32) DEFAULT NULL,
   `frontpath` varchar(256) DEFAULT NULL,
   `backpath` varchar(256) DEFAULT NULL,
   `saveType` varchar(5) NOT NULL DEFAULT 'DB'
