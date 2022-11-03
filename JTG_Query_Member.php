@@ -180,7 +180,7 @@
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);//."\r\n".$g_exit_symbol."SSO Login for get insurance json exit ->");
+			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}	
 	}
 	else

@@ -118,6 +118,8 @@
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_sales_id", $Person_id);
 			$Sales_Id = get_sales_id($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
+			if ($Sales_Id == "")
+				$ret = false;
 		}
 		
 		if ($ret == false)
@@ -221,98 +223,92 @@
 		return $ip;
 	}
 	// 儲存臉部照片
-	function save_decode_image($image, $filename, &$imageFileType)
+	function base64ToImage($Insurance_no, $Remote_insurance_no, $Person_id, $imageData, $Dst_filename, &$imageFileType)
 	{
-		$file = fopen($filename, "w");
-		
-		if($file <=0) return 0;
-		$data = base64_decode($image);
-		if(strlen($data) <=0) 
+		$ret = 1;
+		$fileName = $Dst_filename;
+		try
 		{
-			unlink($filename);
-			return 0;
+			list($type, $imageData) = explode(';', $imageData);
+			list(,$extension) 		= explode('/', $type	 );
+			list(,$imageData)      	= explode(',', $imageData);
+			$imageFileType = $extension;
+			$fileName = $fileName.'.'.$extension;
+			$imageData = base64_decode($imageData);
+			file_put_contents($fileName, $imageData);
 		}
-		$log = "access base64decode size:".strlen($data);
-		wh_log($log);
-		fwrite($file, $data);
-		fclose($file);
-		switch (exif_imagetype($filename)) {
-			case IMAGETYPE_GIF: 
-				$imageFileType = "gif";
-				break;
-			case IMAGETYPE_JPEG:
-				$imageFileType = "jpg";
-				break;
-			case IMAGETYPE_PNG:
-				$imageFileType = "png";
-				break;		
+		catch (Exception $e)
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "(X) base64ToImage Exception error :".$e->getMessage(), $Person_id);
+			$ret = 0;
 		}
-		return 1;
+		return $ret;
 	}
 	// 取得並儲存臉部照片
 	function get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, $update_member = false)
 	{
-		$image1 = null;
-		if($base64image!='') 
+		global $key;
+		
+		$ret_image = null;
+		if ($base64image != '') 
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "base64image size:".strlen($base64image), $Person_id);
 		}
-		// if (move_uploaded_file($_FILES["Pid_Pic"]["tmp_name"], $target_file1)) {
-		if (save_decode_image($base64image, $target_file1, $imageFileType)) {
-			if (!update_member)
-				rename($target_file, $target_file.".".$imageFileType);
-			rename($target_file1, $target_file1.".".$imageFileType);
-			
+		
+		if (base64ToImage($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $imageFileType))
+		{
 			$target_file = $target_file.".".$imageFileType;
 			$target_file1 = $target_file1.".".$imageFileType;
+			copy($target_file, $target_file1);
 
 			$resizeObj = new resize($target_file1);		 
 			$img_data = getimagesize($target_file1);
-			if ($img_data[0] < $img_data[1]){// *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
+			if ($img_data[0] < $img_data[1]) // *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
+			{
 				$resizeObj->resizeImage(400, 600, 'auto');
 			}
 			else
 			{
 				$resizeObj->resizeImage(600, 400, 'auto');
 			}
-			$resizeObj->saveImage($target_file, 100);// *** 3) Save image
+			$resizeObj->saveImage($target_file1, 100);// *** 3) Save image
 			
-			unlink($target_file1);
-			//echo "OK";
-			//$image = addslashes(file_get_contents($target_file));//for DB
-			if (!update_member)
+			if (!$update_member)
 			{
 				$image = addslashes(encrypt($key, base64_encode(file_get_contents($target_file))));
-				//$data2 = file_get_contents($_FILES['Pid_Pic']['tmp_name']);
-				//$base64_f2 = base64_encode($data2);
+				wh_log($Insurance_no, $Remote_insurance_no, "addslashes encode size:".strlen($image), $Person_id);
 			}
 			else
 			{
 				//encrypt
-				$image = (encrypt($key,base64_encode(file_get_contents($target_file))));
+				$image = encrypt($key, base64_encode(file_get_contents($target_file)));
 				wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image), $Person_id);
 			}
-			$image1 = file_get_contents($target_file);
-			unlink($target_file);
-		} else {
-			$image = null;
+			$ret_image = file_get_contents($target_file1);
+			unlink($target_file1); // delete file
+			unlink($target_file); // delete file
+		}
+		else
+		{
 			if($base64image!='')
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "save_decode_image1 Failed", $Person_id);
 			}
 		}
-		return $image1;
+		return $ret_image;
 	}
 	// 取得並儲存臉部照片(含浮水印)
 	function get_image_content_watermark($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1, $target_file2)
 	{
-		if (save_decode_image($base64imageID, $target_file1, $imageFileType))
+		global $key;
+		global $g_watermark_src_url;
+		
+		if (base64ToImage($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file1, $imageFileType))
 		{
-			if($base64imageID != '')
+			if ($base64imageID != '')
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "base64image size:".strlen($base64imageID), $Person_id);
 			}
-			rename($target_file1, $target_file1.".".$imageFileType);
 			
 			$target_file  = $target_file.".".$imageFileType;
 			$target_file1 = $target_file1.".".$imageFileType;
@@ -328,14 +324,13 @@
 			$img_data = getimagesize($target_file1);
 			if ($img_data[0] < $img_data[1])
 			{
-				$resizeObj -> resizeImage(400, 600, 'auto'); // *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
+				$resizeObj->resizeImage(400, 600, 'auto'); // *** 2) Resize image (options: exact, portrait, landscape, auto, crop)
 			}
 			else
 			{
-				$resizeObj -> resizeImage(600, 400, 'auto');
+				$resizeObj->resizeImage(600, 400, 'auto');
 			}
 			$resizeObj->saveImage($target_file, 100); // *** 3) Save image
-			unlink($target_file1);
 
 			//add watermark
 			$watermark_filename = $g_watermark_src_url;
@@ -344,12 +339,12 @@
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "watermark ok", $Person_id);
 			}
-				
-			$image2 = (encrypt($key,base64_encode(file_get_contents($target_file2))));
-			wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image), $Person_id);
 			
+			$image2 = (encrypt($key, base64_encode(file_get_contents($target_file2))));
+			wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image2), $Person_id);
+			
+			unlink($target_file1);
 			unlink($target_file);
-			//echo $target_file2;
 			unlink($target_file2);
 		}
 		else
@@ -363,36 +358,38 @@
 		return $image2;
 	}
 	// 先確認是否人臉, 若否回傳非人臉,請重拍
-	function verify_is_face($image1)
+	function verify_is_face($src_image)
 	{
+		global $g_verify_is_face_apiurl;
+		
 		$data = array();
 		$data["status"]			= "true";
 		$data["code"]			= "0x0200";
 		$data["responseMessage"]= "辨識人臉成功";
-		if($image1 != null)
+		if ($src_image != null)
 		{
-			$base64image = base64_encode($image1);
+			$base64image = base64_encode($src_image);
 			$uriBase = $g_verify_is_face_apiurl;
 			$fields = [
 				'image_file1'         => $base64image,
 			];
-			
+			 
+			//execute post
 			$fields_string = http_build_query($fields);	
 			$ch = curl_init();
 			curl_setopt($ch,CURLOPT_URL, $uriBase);
 			curl_setopt($ch,CURLOPT_POST, true);
 			curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-			curl_setopt($ch,CURLOPT_RETURNTRANSFER, true); 
-			//execute post
-			$result = curl_exec($ch);		
-
+			curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+			$result = curl_exec($ch);
+			
+			$obj = json_decode($result, true);
 			$IsSuccess = "";
-			$obj = json_decode($result, true) ;
-		
-			$IsSuccess = $obj['IsSuccess'];
+			if ($obj != null)
+				$IsSuccess = $obj['IsSuccess'];
 			//echo $result2;
-			if  ($IsSuccess == "true"){
-				;//continue to add memeber
+			if  ($IsSuccess == "true")
+			{
 			}
 			else
 			{

@@ -598,8 +598,10 @@
 		return $data;
 	}
 	// Update idphoto public
-	function update_idphoto(&$link, $Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $close_mysql = true)
+	function update_idphoto(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $Image_src, &$status_code, $close_mysql = true)
 	{
+		global $g_encrypt_id;
+		
 		try
 		{
 			if ($link == null)
@@ -607,11 +609,11 @@
 				$link = mysqli_connect($host, $user, $passwd, $database);
 				mysqli_query($link,"SET NAMES 'utf8'");
 			}
-			$Person_id  = mysqli_real_escape_string($link,$Person_id);
-			$front  	= mysqli_real_escape_string($link,$front	 );
+			$Person_id  = mysqli_real_escape_string($link, $Person_id);
+			$front  	= mysqli_real_escape_string($link, $front	 );
 			$Personid 	= trim(stripslashes($Person_id));
 			
-			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id, $Personid);
 			
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -622,12 +624,12 @@
 					wh_log($Insurance_no, $Remote_insurance_no, "person_id verify ok", $Person_id);
 					try {
 						// 將照片儲存到 NAS
-						$data = will_save2nas_prepare($Insurance_no, $Remote_insurance_no, $Person_id);
+						$data = will_save2nas_prepare($Insurance_no, $Remote_insurance_no, $Person_id, $front);
 						if ($data["status"] == "false")
 							return $data;
 						
 						$filename = $data["filename"];
-						$retimg = save_image2nas($Insurance_no, $Remote_insurance_no, $Person_id, $filename, $image2);
+						$retimg = save_image2nas($Insurance_no, $Remote_insurance_no, $Person_id, $filename, $Image_src);
 						
 						// 
 						$log = "";
@@ -640,29 +642,31 @@
 							{
 								if($front=="0")
 								{
-									$sql2 = "UPDATE  `idphoto` set `saveType`='NAS', `frontpath` = '$filename', `updatedtime` = NOW() where `person_id`='".$Personid."' and insurance_no= '".$Insurance_no."' ";
+									$sql2 = "UPDATE  `idphoto` set `saveType`='NAS', `frontpath` = '$filename', `updatedtime` = NOW() where `person_id`='".$Personid."' and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."' ";
 									$log = "UPDATE idphoto frontpath ".$filename;
 									
 								}
 								else
 								{
-									$sql2 = "UPDATE  `idphoto` set `saveType`='NAS', `backpath` = '$filename', `updatedtime` = NOW() where `person_id`='".$Personid."' and insurance_no= '".$Insurance_no."' ";	
+									$sql2 = "UPDATE  `idphoto` set `saveType`='NAS', `backpath` = '$filename', `updatedtime` = NOW() where `person_id`='".$Personid."' and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."' ";	
 									$log = "UPDATE  idphoto backpath ".$filename;
 								}
-							} else {
+							}
+							else
+							{
 								if($front=="0")
 								{
-									$sql2 = "INSERT INTO  `idphoto` ( `person_id`, `insurance_no`, `frontpath` , `saveType`, `updatedtime`) VALUES ('$Personid', '$Insurance_no', '$filename', 'NAS', NOW()) ";
+									$sql2 = "INSERT INTO  `idphoto` ( `person_id`, `insurance_no`, `remote_insurance_no`, `frontpath` , `saveType`, `updatedtime`) VALUES ('$Personid', '$Insurance_no', '$Remote_insurance_no', '$filename', 'NAS', NOW()) ";
 									$log = "INSERT idphoto frontpath ".$filename;
 								}
 								else
 								{
-									$sql2 = "INSERT INTO  `idphoto` ( `person_id`, `insurance_no`, `backpath` , `saveType`, `updatedtime`)  VALUES ('$Personid', '$Insurance_no', '$filename', 'NAS', NOW()) ";
+									$sql2 = "INSERT INTO  `idphoto` ( `person_id`, `insurance_no`, `remote_insurance_no`, `backpath` , `saveType`, `updatedtime`)  VALUES ('$Personid', '$Insurance_no', '$Remote_insurance_no', '$filename', 'NAS', NOW()) ";
 									$log = "INSERT idphoto backpath ".$filename;
 								}
 							}
-							//echo $sql2;
 							mysqli_query($link, $sql2) or die(mysqli_error($link));
+							wh_log($Insurance_no, $Remote_insurance_no, "UPDATE idphoto :".$log, $Person_id);
 						}
 						else
 						{
@@ -729,8 +733,12 @@
 		return $data;
 	}
 	// Update member public
-	function update_member(&$link, $Insuranceno, $Remote_insuranceno, $Personid, &$status_code, $close_mysql = true)
+	function update_member(&$link, $Insurance_no, $Remote_insurance_no, $image, $Person_id, $Member_name, $Mobile_no, $FCM_Token, &$status_code, $close_mysql = true)
 	{
+		global $g_encrypt_id;
+		global $g_encrypt_mobile;
+		global $g_encrypt_Membername;
+		
 		try
 		{
 			if ($link == null)
@@ -779,7 +787,6 @@
 						}
 						
 						$sql2 = $sql2.", `updatedttime`=NOW() where mid=$mid;";
-						
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 						
 						//echo "user data change ok!";

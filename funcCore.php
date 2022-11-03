@@ -28,7 +28,7 @@
 		return $ret;
 	}
 	// 照片儲入Nas事先工作 public
-	function will_save2nas_prepare($Insurance_no, $Remote_insurance_no, $Person_id)
+	function will_save2nas_prepare($Insurance_no, $Remote_insurance_no, $Person_id, $front)
 	{
 		$data = array();
 		$data["status"]			 = "true";
@@ -48,7 +48,7 @@
 		}
 		if ($data["status"] == "true")
 		{
-			$filename = $foldername."/".$Insurance_no."_".$Personid."_".$front;
+			$filename = $foldername."/".$Insurance_no."_".$Person_id."_".$front;
 			$data["filename"] = $filename;
 		}
 		wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"], $Person_id);

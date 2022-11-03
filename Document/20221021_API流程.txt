@@ -120,8 +120,8 @@ ps.每個步驟都要狀態API
 	JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
 	JTG_Modify_Insurance_Status				(V) 2022.11.01  complete :2022.11.02
 	JTG_Query_Member		  				(V) 2022.11.01  complete :2022.11.02
-	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.02
-	JTG_Save_IDPhoto		  				() 2022.11.01  complete :
+	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.03
+	JTG_Save_IDPhoto		  				(V) 2022.11.01  complete :2022.11.03
 	JTG_Get_IDPIC			  				() 2022.11.01  complete :
 	JTG_Parse_OCR  							() 2022.11.01  complete :
 	JTG_Gov_ID				  				() 2022.11.01  complete :
