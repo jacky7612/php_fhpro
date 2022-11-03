@@ -1,54 +1,69 @@
 <?php
 	include("func.php");
-
+	
+	// initial
+	$status_code_succeed 	= "D2"; // 成功狀態代碼
+	$status_code_failure 	= "";   // 失敗狀態代碼
+	$data 					= array();
+	$fields2   				= array();
+	$userList  				= array();
+	$numbering 				= "";
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Member_name			= "";
+	$Role 					= "";
+	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Person_id 				= isset($_POST['Person_id']) 	? $_POST['Person_id'] : '';
+	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	
 	$Insurance_no 			= check_special_char($Insurance_no		 );
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
 	$Person_id 				= check_special_char($Person_id			 );
-
-	$status_code_succeed = "D2"; // 成功狀態代碼
-	$status_code_failure = "";   // 失敗狀態代碼
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "get idpic entry <-", $Person_id);
-	
-	// 驗證 security token
-	$headers = apache_request_headers();
-	$token 	 = $headers['Authorization'];
-	if (check_header($key, $token) == true)
+	// 模擬資料
+	if ($g_test_mode)
 	{
-		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
-	}
-	else
-	{
-		//echo "error token";
-		$data 					= array();
-		$data["status"]			= "false";
-		$data["code"]			= "0x0209";
-		$data["responseMessage"]= "Invalid token!";
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);	
-		return;							
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
-	if (($Member_name 	== '') ||
-		($Mobile_no 	== '') )
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
 	{
-		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
-		$Mobile_no 	 = $memb["Mobile_no"];
-		$Member_name = $memb["Member_name"];
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		return;
 	}
-	$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no);
 	
-	if (($Insurance_no 			!= '') &&
-		($Remote_insurance_no 	!= ''))
+	wh_log($Insurance_no, $Remote_insurance_no, "get idpic entry <-", $Person_id);
+
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Get_IDPIC", "get idpic exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
 	{
-		$link = null;
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	if ($Insurance_no 			!= '' &&
+		$Remote_insurance_no 	!= '' &&
+		$Person_id 				!= '')
+	{
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -63,40 +78,24 @@
 			$sql = "SELECT a.*,b.member_name FROM orderinfo a ";
 			$sql = $sql." inner join ( select person_id,member_name from memberinfo) as b ON a.person_id= b.person_id ";
 			$sql = $sql." where  a.order_trash=0 ";
-			//echo $sql;
-			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
-			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
-
+			$sql = $sql.merge_sql_string_if_not_empty("a.insurance_no"			, $Insurance_no			);
+			$sql = $sql.merge_sql_string_if_not_empty("a.remote_insurance_no"	, $Remote_insurance_no	);
+			$sql = $sql.merge_sql_string_if_not_empty("a.person_id"				, $Person_id			);
+			
 			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
-					//$mid=0;
-					//$order_status="";
-					//$policyList = array();
-					//$userposlist = array();
-					//$videoList = array();
-					$fields2   = array();
-					$userList  = array();
-					$numbering = "";
 					$row = mysqli_fetch_assoc($result);
-	
-					//$fields2=getStatus($link,$Insurance_no);
 					
-					$insuredDate = date('Ymd', strtotime($row['inputdttime']));  //"20210720";
-					
-			
-					$userList = getuserList($link,$Insuranceno,$key);
-					//$userList = [ ["userId" => "A123456789","userType" => "要保人","userPhoto" => "fajsdihjproi;rjgkljdsiofjsadljasie;fijwflkjdfoia==","identifyResultStatus" => "通過", "identifyFinishDate" => "20210721121527333" ],["userId" => "A123456789","userType" => "被保人","userPhoto" => "fajsdihjproi;rjgkljdsiofjsadljasie;fijwflkjdfoia==","identifyResultStatus" => "通過", "identifyFinishDate" => "20210721121527333"] ];
-					
-				
-					//$videoList = getvideolist($link,$Insuranceno,$sip);
-
+					$insuredDate = date('Ymd', strtotime($row['inputdttime']));
+					$userList = getuserList($link, $Insuranceno, $Remote_insurance_no, $Person_id, false);
 					$fields2 = ["status" => "true", "code" => "0x0200", "msg" => "查詢成功", "insuredDate"  => $insuredDate, "userList" => $userList ];
 	
 					$data 		 = $fields2;
 					$status_code = $status_code_succeed;
+					$data["responseMessage"]= "查詢成功";
 				}
 				else
 				{
@@ -128,11 +127,13 @@
 		{
 			try
 			{
+				if ($status_code != "")
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+				if ($data_status["status"] == "false")
+					$data = $data_status;
+			
 				if ($link != null)
 				{
-					if ($status_code != "")
-						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
-	
 					mysqli_close($link);
 					$link = null;
 				}

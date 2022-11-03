@@ -90,6 +90,45 @@
 			return;
 		}
 	*/
+	
+	// 取的保單所有關係人員 public
+	function get_role_from_json(&$link, $Insurance_no, $Remote_insurance_no, &$Person_id, $close_mysql = true)
+	{
+		$retJsonRole = array();
+		wh_log($Insurance_no, $Remote_insurance_no, "do function - get_jsondata_from_jsonlog_table", $Person_id);
+		$data = get_jsondata_from_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $close_mysql);
+		if ($data["status"] == "true")
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "getjson data from jsonlog table succeed", $Person_id);
+			$cxInsurance = json_decode($json_data);
+			// 取得 json data 中的 RoleInfo 及 其他資訊
+			$retJsonMemb = parse_or_print_json_data($cxInsurance, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Sales_id);
+			if ($retJsonMemb != null)
+			{
+				$retJsonRole = $retJsonMemb;
+				for ($i = 0; $i < count($retJsonMemb); $i++)
+				{
+					$roleInfo = $retJsonMemb[$i];
+					for ($j = 0; $j < count($roleInfo); $j++)
+					{
+						if ($roleInfo[$j]["idcard"] == $Person_id)
+						{
+							$Member_name = $roleInfo[$j]["name"];
+							$Mobile_no 	 = $roleInfo[$j]["tel"];
+							$Role 		 = $roleInfo[$j]["roleKey"];
+						}
+					}
+				}
+			}
+			$ret = true;
+			wh_log($Insurance_no, $Remote_insurance_no, "parse json data succeed", $Person_id);
+		}
+		else
+		{
+			wh_log($Insurance_no, $Remote_insurance_no, "do function - "."get_jsondata_from_jsonlog_table result :".$data["responseMessage"], $Person_id);
+		}
+		return $retJsonRole;
+	}
 	// 當資料不齊全時，從資料庫取得 public
 	function get_salesid_personinfo_if_not_exists(&$link, $Insurance_no, $Remote_insurance_no, &$Person_id, &$Role,
 												  &$Sales_id, &$Mobile_no, &$Member_name, $close_mysql = true)
@@ -473,198 +512,38 @@
 		global $saveType;
 		$saveType = $Type;
 	}
-	function getpidpic2($conn,$p_id,$keys,$front, $order_no)
+	
+	function getuserList(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql = true)
 	{
-		try {
-			
-			//oid,order_no,sales_id,person_id,mobile_no,member_type,order_status,log_date
-			$sql3 = "SELECT * FROM idphoto ";
-			//echo $sql;
-			$pid = trim(stripslashes($p_id));
-			
-			if ($pid != "") {	
-				$sql3 = $sql3." where person_id='".$pid."'";
-			}
-			//echo $sql3;
-			if($order_no != "") {
-				$sql3 .= " and insurance_id='".$order_no."'";
-			}
-			
-			
-			$pidpic2 = "";
-			//echo $saveType;
-			if ($result2 = mysqli_query($conn, $sql3)){
-				if (mysqli_num_rows($result2) > 0){
-					
-					while($row2 = mysqli_fetch_array($result2)){
-						
-						if($row2['saveType']=='NAS'){
-							setSaveType("NAS");
-							//$saveType = "NAS";
-							if ($front == "0"){
-									if ($row2['frontpath'] != null) {
-										$fp=fopen($row2['frontpath'], "r");
-										$out=fread($fp, filesize($row2['frontpath']));
-										fclose($fp);
-										//echo decrypt($keys,$out); 
-										//echo $row2['frontpath'];
-										
-										$pidpic2 =  decrypt($keys,$out); //decrypt($keys,$row2['front']);
-									}else{
-										$pidpic2 = "";
-									}
-								}
-							if ($front == "1"){
-								if ($row2['backpath'] != null) {
-									$fp=fopen($row2['backpath'], "r");
-									$out=fread($fp, filesize($row2['backpath']));
-									fclose($fp);
-										//echo decrypt($keys,$out); 
-									$pidpic2 =  decrypt($keys,$out);
-								}else{
-									$pidpic2 = "";
-								}							
-							}
-						}
-						else
-						{
-							//echo "DB";
-							setSaveType("DB");
-							if ($front == "0"){
-								if ($row2['front'] != null) {
-									$pidpic2 = decrypt($keys,$row2['front']);
-								}else{
-									$pidpic2 = "";
-								}
-							}
-							if ($front == "1"){
-								if ($row2['back'] != null) {
-									$pidpic2 = decrypt($keys,$row2['back']);
-								}else{
-									$pidpic2 = "";
-								}						
-							}
-						}
-						
-						break;
-					}
-				}else {
-					//有可能是舊的方式,沒有儲存 insurance_id
-						$sql3 = "SELECT * FROM idphoto ";
-						//echo $sql;					
-						if ($pid != "") {	
-							$sql3 = $sql3." where person_id='".$pid."'";
-						}				
-						if ($result2 = mysqli_query($conn, $sql3)){
-							if (mysqli_num_rows($result2) > 0){							
-								while($row2 = mysqli_fetch_array($result2)){
-									if($row2['saveType']=='NAS'){
-										setSaveType("NAS");
-										//$saveType = "NAS";
-										if ($front == "0"){
-												if ($row2['frontpath'] != null) {
-													$fp=fopen($row2['frontpath'], "r");
-													$out=fread($fp, filesize($row2['frontpath']));
-													fclose($fp);
-													//echo decrypt($keys,$out); 
-													//echo $row2['frontpath'];
-													
-													$pidpic2 =  decrypt($keys,$out); //decrypt($keys,$row2['front']);
-												}else{
-													$pidpic2 = "";
-												}
-											}
-										if ($front == "1"){
-											if ($row2['backpath'] != null) {
-												$fp=fopen($row2['backpath'], "r");
-												$out=fread($fp, filesize($row2['backpath']));
-												fclose($fp);
-													//echo decrypt($keys,$out); 
-												$pidpic2 =  decrypt($keys,$out);
-											}else{
-												$pidpic2 = "";
-											}							
-										}
-									}
-									else
-									{
-										//echo "DB";
-										setSaveType("DB");
-										if ($front == "0"){
-											if ($row2['front'] != null) {
-												$pidpic2 = decrypt($keys,$row2['front']);
-											}else{
-												$pidpic2 = "";
-											}
-										}
-										if ($front == "1"){
-											if ($row2['back'] != null) {
-												$pidpic2 = decrypt($keys,$row2['back']);
-											}else{
-												$pidpic2 = "";
-											}						
-										}
-									}
-									
-									break;
-									
-								}
-							}
-							else
-							{
-								$pidpic2 = "";
-							}
-						}
-					
-				}
-			}else {
-				$pidpic2 = "";
-			}
-		} catch (Exception $e) {
-			$pidpic2="";
-		}	
-		return $pidpic2;	
-	}
-	function getuserList($conn,$order_no,$keys){
-		try {
-			
-			$orderno = trim(stripslashes($order_no));
+		try
+		{
+			$RoleName = "";
+			$Insurance_no = trim(stripslashes($Insurance_no));
+			$Remote_insurance_no = trim(stripslashes($Remote_insurance_no));
 
 			$sql2 = "( SELECT a.*,b.member_name FROM orderlog a inner join ( select person_id,member_name from memberinfo) as b ON a.person_id= b.person_id ";
-			$sql2 = $sql2." where a.order_no='".$orderno."' and a.member_type = 1 and a.order_status in ('D0','D1') order by log_date desc limit 1 )";
+			$sql2 = $sql2." where a.insurance_no='".$Insurance_no."' and a.remote_insurance_no='".$Remote_insurance_no."' and a.role = 'proposer' and a.order_status in ('D1','D3') order by log_date desc limit 1 )";
 			$sql2 = $sql2." UNION ( SELECT a.*,b.member_name FROM orderlog a inner join ( select person_id,member_name from memberinfo) as b ON a.person_id= b.person_id ";
-			$sql2 = $sql2." where a.order_no='".$orderno."' and a.member_type = 2 and a.order_status in ('D0','D1') order by log_date desc limit 1 )";
+			$sql2 = $sql2." where a.insurance_no='".$Insurance_no."' and a.remote_insurance_no='".$Remote_insurance_no."' and a.role = 'insured' and a.order_status in ('D1','D3') order by log_date desc limit 1 )";
 			$sql2 = $sql2." UNION ( SELECT a.*,b.member_name FROM orderlog a inner join ( select person_id,member_name from memberinfo) as b ON a.person_id= b.person_id ";
-			$sql2 = $sql2." where a.order_no='".$orderno."' and a.member_type = 3 and a.order_status in ('D0','D1') order by log_date desc limit 1 )";
-
-			//echo $sql2;
+			$sql2 = $sql2." where a.insurance_no='".$Insurance_no."' and a.remote_insurance_no='".$Remote_insurance_no."' and a.role = 'legalRepresentative' and a.order_status in ('D1','D3') order by log_date desc limit 1 )";
 
 			$fields1 = array();
-			if ($result2 = mysqli_query($conn, $sql2)){
-
-				
-				if (mysqli_num_rows($result2) > 0){
+			if ($result2 = mysqli_query($link, $sql2))
+			{
+				if (mysqli_num_rows($result2) > 0)
+				{
 					//$mid=0;
-					$order_status="";
-					while($row2 = mysqli_fetch_array($result2)){
+					$order_status = "";
+					while ($row2 = mysqli_fetch_array($result2))
+					{
 						$person_id = $row2['person_id'];
 						//$member_name = $row2['member_name'];
-						$member_name = decrypt($keys,stripslashes($row2['member_name']));
-
-						$member_types = str_replace(",", "", $row2['member_type']);
-						switch ($member_types) {
-							case "1":
-								$membertype = "要保人";
-								break;
-							case "2":
-								$membertype = "被保人";
-								break;
-							case "3":
-								$membertype = "法定代理人";
-								break;
-							default:
-								$membertype = "";
-						}
+						$member_name = decrypt($keys, stripslashes($row2['member_name']));
+						decrypt_string_if_not_empty($g_encrypt_Membername, stripslashes($row2['member_name']));
+						
+						$Role = str_replace(",", "", $row2['role']);
+						$RoleName = get_role_name($Role);
 						$pid = str_replace(",", "", $person_id);
 						$pname = str_replace(",", "", $member_name);
 						$pid = check_special_char($pid);
@@ -673,25 +552,51 @@
 						$data2 = [
 							'userId'       			=> $pid,   
 							'userName'       		=> $pname, 
-							'userType'   			=> $membertype,   
-							'frontIdPhoto'    		=> getpidpic2($conn,$pid,$keys,"0", $order_no),
-							'backIdPhoto'    		=> getpidpic2($conn,$pid,$keys,"1", $order_no),
+							'userType'   			=> $RoleName,   
+							'frontIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $Person_id, "0", false),
+							'backIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $Person_id, "1", false),
 							'saveType'    			=> getSaveType()
 						];
 						array_push($fields1, $data2);
 					}
-				}else{
-					$fields1=null;
 				}
-			}else{
-
-				$fields1=null;
 			}
-		} catch (Exception $e) {
-
-			$fields1=null;
-		
-		}	
+		}
+		catch (Exception $e)
+		{ }
+		finally
+		{
+			if (count($fields1) == 0)
+			{
+				$retJsonMemb = get_role_from_json($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
+				
+				if ($retJsonMemb != null)
+				{
+					for ($i = 0; $i < count($retJsonMemb); $i++)
+					{
+						$roleInfo = $retJsonMemb[$i];
+						for ($j = 0; $j < count($roleInfo); $j++)
+						{
+							$pid = $roleInfo[$j]["idcard"];
+							$pname = $roleInfo[$j]["name"];
+							$RoleName = get_role_name($roleInfo[$j]["roleKey"]);
+							if ($RoleName != "")
+							{
+								$data2 = [
+									'userId'       			=> $pid,   
+									'userName'       		=> $pname, 
+									'userType'   			=> $RoleName,   
+									'frontIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $pid, "0", false),
+									'backIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $pid, "1", false),
+									'saveType'    			=> getSaveType()
+								];
+								array_push($fields1, $data2);
+							}
+						}
+					}
+				}
+			}
+		}
 		return $fields1;
 	}
 	// get idpic use - end

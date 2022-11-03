@@ -5,6 +5,7 @@
 	$status_code_succeed 	= "C2"; // 成功狀態代碼
 	$status_code_failure 	= ""; // 失敗狀態代碼
 	$data 					= array();
+	$retJsonRole			= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *

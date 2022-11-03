@@ -973,4 +973,203 @@
 		}
 		return $data;
 	}
+	// 取得對應的身份證正反面照片
+	function getpidpic2(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		try
+		{
+			$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+			$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+			
+			//oid,order_no,sales_id,person_id,mobile_no,member_type,order_status,log_date
+			$sql3 = "SELECT * FROM idphoto where 1=1 ";
+			//echo $sql;
+			$Person_id = trim(stripslashes($Person_id));
+			
+			if ($Person_id 			 != "") $sql3 = $sql3." and person_id='".$Person_id."'";
+			if ($Insurance_no 		 != "") $sql3 = $sql3." and insurance_no='".$Insurance_no."'";
+			if ($Remote_insurance_no != "") $sql3 = $sql3." and remote_insurance_no='".$Remote_insurance_no."'";
+			
+			$pidpic2 = "";
+			//echo $saveType;
+			if ($result2 = mysqli_query($link, $sql3))
+			{
+				if (mysqli_num_rows($result2) > 0)
+				{
+					while ($row2 = mysqli_fetch_array($result2))
+					{
+						if ($row2['saveType']=='NAS')
+						{
+							setSaveType("NAS");
+							//$saveType = "NAS";
+							if ($front == "0")
+							{
+								if ($row2['frontpath'] != null)
+								{
+									$fp = fopen($row2['frontpath'], "r");
+									$out = fread($fp, filesize($row2['frontpath']));
+									fclose($fp);
+									$pidpic2 = decrypt_string_if_not_empty(true, $out); //decrypt($keys,$row2['front']);
+								}
+								else
+								{
+									$pidpic2 = "";
+								}
+							}
+							if ($front == "1")
+							{
+								if ($row2['backpath'] != null)
+								{
+									$fp = fopen($row2['backpath'], "r");
+									$out = fread($fp, filesize($row2['backpath']));
+									fclose($fp);
+									$pidpic2 = decrypt_string_if_not_empty(true,$out);
+								}
+								else
+								{
+									$pidpic2 = "";
+								}							
+							}
+						}
+						else
+						{
+							//echo "DB";
+							setSaveType("DB");
+							if ($front == "0")
+							{
+								if ($row2['front'] != null)
+								{
+									$pidpic2 = decrypt_string_if_not_empty(true, $row2['front']);
+								}
+								else
+								{
+									$pidpic2 = "";
+								}
+							}
+							if ($front == "1")
+							{
+								if ($row2['back'] != null)
+								{
+									$pidpic2 = decrypt_string_if_not_empty(true, $row2['back']);
+								}
+								else
+								{
+									$pidpic2 = "";
+								}						
+							}
+						}
+						break;
+					}
+				}
+				else
+				{
+					//有可能是舊的方式,沒有儲存 insurance_id
+					$sql3 = "SELECT * FROM idphoto WHERE 1=1 ";
+					//echo $sql;					
+					
+					if ($Person_id 			 != "") $sql3 = $sql3." and person_id='".$Person_id."'";
+					if ($Insurance_no 		 != "") $sql3 = $sql3." and insurance_no='".$Insurance_no."'";
+					if ($Remote_insurance_no != "") $sql3 = $sql3." and remote_insurance_no='".$Remote_insurance_no."'";
+		
+					if ($result2 = mysqli_query($link, $sql3))
+					{
+						if (mysqli_num_rows($result2) > 0)
+						{							
+							while($row2 = mysqli_fetch_array($result2))
+							{
+								if($row2['saveType']=='NAS')
+								{
+									setSaveType("NAS"); //$saveType = "NAS";
+									if ($front == "0")
+									{
+										if ($row2['frontpath'] != null)
+										{
+											$fp=fopen($row2['frontpath'], "r");
+											$out=fread($fp, filesize($row2['frontpath']));
+											fclose($fp);
+											$pidpic2 =  decrypt_string_if_not_empty(true, $out); //decrypt($keys,$row2['front']);
+										}
+										else
+										{
+											$pidpic2 = "";
+										}
+									}
+									if ($front == "1")
+									{
+										if ($row2['backpath'] != null)
+										{
+											$fp=fopen($row2['backpath'], "r");
+											$out=fread($fp, filesize($row2['backpath']));
+											fclose($fp);
+											$pidpic2 =  decrypt_string_if_not_empty(true, $out);
+										}
+										else
+										{
+											$pidpic2 = "";
+										}							
+									}
+								}
+								else
+								{
+									//echo "DB";
+									setSaveType("DB");
+									if ($front == "0")
+									{
+										if ($row2['front'] != null)
+										{
+											$pidpic2 = decrypt_string_if_not_empty(true, $row2['front']);
+										}
+										else
+										{
+											$pidpic2 = "";
+										}
+									}
+									if ($front == "1")
+									{
+										if ($row2['back'] != null)
+										{
+											$pidpic2 = decrypt_string_if_not_empty(true, $row2['back']);
+										}
+										else
+										{
+											$pidpic2 = "";
+										}						
+									}
+								}
+								break;
+							}
+						}
+						else
+						{
+							$pidpic2 = "";
+						}
+					}
+				}
+			}
+			else
+			{
+				$pidpic2 = "";
+			}
+		}
+		catch (Exception $e)
+		{
+			$pidpic2 = "";
+		}
+		finally
+		{
+			try
+			{
+				if ($link != null && $close_mysql)
+				{
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				wh_log($dst_title, $dst_subtitle, "(X) [getpidpic2] get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			}
+		}
+		return $pidpic2;	
+	}
 ?>

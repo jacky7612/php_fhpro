@@ -1,4 +1,22 @@
 <?php
+	function get_role_name($val)
+	{
+		$ret = "";
+		switch ($val) {
+			case "proposer":
+				$ret = "要保人";
+				break;
+			case "insured":
+				$ret = "被保人";
+				break;
+			case "legalRepresentative":
+				$ret = "法定代理人";
+				break;
+			default:
+				$ret = "";
+		}
+		return $ret;
+	}
 	// encrypt-加密  public
 	function encrypt_string_if_not_empty($flag, $val)
 	{
