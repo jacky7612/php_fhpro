@@ -850,7 +850,6 @@
 	// 變更(Insert/Update)pdflog public
 	function modify_pdf_log(&$link, $Insurance_no, $Remote_insurance_no, $Mobile_no, $Title, $base64pdf, $pdf_path, $Status_code, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
-		global $key;
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -901,6 +900,7 @@
 							if ($Statuscode == "") $Statuscode = "00";
 							try
 							{
+								$pdf_content["data"] = $base64pdf;
 								$sql2 = "INSERT INTO `pdflog` (`insurance_no`,`remote_insurance_no`";
 								if ($Title 	   != "") $sql2 = $sql2.",`title`";
 								if ($base64pdf != "") $sql2 = $sql2.",`pdf_data`";
@@ -908,7 +908,7 @@
 								$sql2 = $sql2.",`order_status`, `updatetime`) VALUES ('$Insuranceno','$Remote_insuranceno'";
 								
 								if ($Title 	   != "") $sql2 = $sql2.",'$Title'";
-								if ($base64pdf != "") $sql2 = $sql2.",'{\"pdfdata\":\"$base64pdf\"}'";
+								if ($base64pdf != "") $sql2 = $sql2.",'".json_encode($pdf_content)."'";
 								if ($pdf_path  != "") $sql2 = $sql2.",'$pdf_path'";
 								$sql2 = $sql2.",'$Statuscode', NOW())";
 								
@@ -969,6 +969,104 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0203";
 			$data["responseMessage"]= "操作：access status-API parameter is required!";
+		}
+		return $data;
+	}
+	// 取得 pdf info
+	function get_pdflog_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Title, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		$sql2 = "";
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data 		= array();
+		$ret_data 	= array();
+		// echo $Insurance_no."\r\n".$Remote_insurance_no."\r\n".$base64pdf."\r\n".$pdf_path."\r\n".$Status_code."\r\n";
+		if ($Insurance_no 			!= '' &&
+			$Remote_insurance_no 	!= '' &&
+			$Title					!= '')
+		{
+			try
+			{
+				if ($link == null)
+				{
+					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				}
+				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
+				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
+				$Title  				= mysqli_real_escape_string($link, $Title				);
+
+				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
+				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
+				$Title 			 		= trim(stripslashes($Title));
+				
+				$sql = "SELECT * FROM pdflog where 1=1 ";
+				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
+				$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insuranceno	);
+				$sql = $sql.merge_sql_string_if_not_empty("title"				, $Title				);
+				if ($result = mysqli_query($link, $sql))
+				{
+					if (mysqli_num_rows($result) > 0)
+					{
+						while ($row = mysqli_fetch_array($result))
+						{
+							$ret_data["pdf_path"] 	= $row['pdf_path'];
+							$pdf_data = json_decode($row['pdf_data']);
+							$ret_data["pdf_data"] = $pdf_data->data;
+							
+						}
+						$data["status"]="true";
+						$data["code"]="0x0200";
+						$data["responseMessage"]="操作：查詢pdf完成!";
+						$data["json"]= json_encode($ret_data);
+					}
+					else
+					{
+						$data["status"]			="false";
+						$data["code"]			="0x0201";
+						$data["responseMessage"]="操作：查無pd資料!";
+						$data["json"]= $ret_data;
+						$ret = 0;
+					}
+				}
+				else
+				{
+					$data["status"]			= "false";
+					$data["code"]			= "0x0204";
+					$data["responseMessage"]= "操作：查詢pdf-SQL fail!";
+					$data["json"]= $ret_data;
+				}
+			}
+			catch (Exception $e)
+			{
+				$data["status"]			= "false";
+				$data["code"]			= "0x0202";
+				$data["responseMessage"]= "操作：查詢pdf-Exception error!";
+				$data["json"]			= $ret_data;
+			}
+			finally
+			{
+				try
+				{
+					if ($link != null && $close_mysql)
+					{
+						mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+						$link = null;
+					}
+				}
+				catch(Exception $e)
+				{
+					wh_log($dst_title, $dst_subtitle, "(X) 操作：查詢pdf - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
+				}
+				return $data;
+			}
+		}
+		else
+		{
+			$data["status"]			= "false";
+			$data["code"]			= "0x0203";
+			$data["responseMessage"]= "操作：query pdflog status-API parameter is required!";
+			$data["json"]			= $ret_data;
 		}
 		return $data;
 	}

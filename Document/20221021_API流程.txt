@@ -132,9 +132,9 @@ ps.每個步驟都要狀態API
 	JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	
-	JTG_Get_Proposal_PDF  					() 2022.11.01  complete :
-	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
-	JTG_Verify_OTP_Code		  				() 2022.11.01  complete :
+	JTG_Get_Proposal_PDF  					(V) 2022.11.01  complete :2022.11.04
+	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.04
+	JTG_Verify_OTP_Code		  				(V) 2022.11.01  complete :2022.11.04
 	
 	第一次JTG_Get_FrsipInfo		  			() 2022.11.01  complete :
 	第一次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :

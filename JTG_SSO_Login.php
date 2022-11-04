@@ -141,13 +141,13 @@
 					$pdf_info = json_decode($out);
 					try
 					{
-						for ($i = 0; $i < count($cxInsurance->applicationData); $i++)
+						for ($i = 0; $i < count($pdf_info->applicationData); $i++)
 						{
 							$pdf_data 	 = $pdf_info->applicationData[$i]->attacheContent;
 							$pdf_subname = $pdf_info->applicationData[$i]->attacheName;
 							switch($pdf_subname)
 							{
-								case "要保書": $pdf_subname = $pdf_subname."_ori"; break;
+								case "要保書": $pdf_subname = "insurance_1"; break;
 							}
 							if ($pdf_data != "")
 							{
