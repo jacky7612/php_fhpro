@@ -144,6 +144,7 @@ ps.每個步驟都要狀態API
 	JTG_Get_Proposal_PDF	  				() 2022.11.01  complete :
 	JTG_Signature_PDF		  				() 2022.11.01  complete :
 	JTG_Get_Json				  			() 2022.11.01  complete :
+	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
 	JTG_Verify_OTP_Code			  			() 2022.11.01  complete :
 	
 	JTG_Get_AttachementInfo					() 2022.11.01  complete :		需建立

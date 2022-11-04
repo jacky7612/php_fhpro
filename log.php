@@ -16,7 +16,8 @@
 		global $log_filename;
 		global $glogfile;
 		
-		create_folder($log_filename);
+		echo $log_path;
+		create_folder($log_path);
 		file_put_contents($glogfile, date("Y-m-d H:i:s")."  ------  ".$log_msg."\n", FILE_APPEND);
 	}
 	function wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")

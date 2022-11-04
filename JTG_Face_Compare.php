@@ -65,6 +65,7 @@
 		return;
 	}
 	
+	// start
 	if ($Insurance_no 			!= '' &&
 		$Remote_insurance_no  	!= '' &&
 		$Person_id  			!= '' &&

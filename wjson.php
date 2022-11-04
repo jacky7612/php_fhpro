@@ -1,6 +1,6 @@
 <?php
 	$glog_json_file = "";
-	$json_path  = $g_json_path;
+	$json_path = $g_json_path;
 	
 	/*
 	function create_folder($name)

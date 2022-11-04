@@ -4,7 +4,7 @@
 	$g_exit_symbol						= "---------------------------  ";
 	$g_test_mode						= true;
 	$g_wjson2file_flag					= true;
-	$g_wpdf2file_flag					= false;
+	$g_wpdf2file_flag					= true;
 	
 	$g_encrypt_id						= false;
 	$g_encrypt_mobile					= false;
