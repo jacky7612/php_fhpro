@@ -5,6 +5,7 @@
 	$status_code_succeed 	= "D2"; // 成功狀態代碼
 	$status_code_failure 	= "";   // 失敗狀態代碼
 	$data 					= array();
+	$data_status			= array();
 	$fields2   				= array();
 	$userList  				= array();
 	$numbering 				= "";
@@ -129,7 +130,7 @@
 			{
 				if ($status_code != "")
 					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
-				if ($data_status["status"] == "false")
+				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 			
 				if ($link != null)
@@ -156,7 +157,7 @@
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."get idpic exit ->", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."get idpic exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

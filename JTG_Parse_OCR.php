@@ -24,5 +24,5 @@
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->");
+	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
 ?>

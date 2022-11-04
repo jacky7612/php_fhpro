@@ -539,7 +539,7 @@
 						if ($FCM_Token != "") $sql2 = $sql2.",'$FCMToken'";
 						if ($Image_pid_pic != "") $sql2 = $sql2.",'{$Image_pid_pic}'";
 						$sql2 = $sql2.", 0,NOW())";
-						echo $sql2."\r\n";
+						//echo $sql2."\r\n";
 						mysqli_query($link, $sql2) or die(mysqli_error($link));
 						//echo "user data change ok!";
 						$data["status"]			= "true";

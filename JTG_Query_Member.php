@@ -5,6 +5,8 @@
 	$status_code_succeed 	= "C1"; // 成功狀態代碼
 	$status_code_failure 	= "C0"; // 失敗狀態代碼
 	$data 					= array();
+	$data_create			= array();
+	$data_status			= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -56,7 +58,7 @@
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Modify_Country_Code", "Country Code exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Query_Member", "query member exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -140,9 +142,6 @@
 			$sql 		= ($status_code == $status_code_failure) ? " :".$sql : "";
 			wh_log($Insurance_no, $Remote_insurance_no, $symbol4log."query memberinfo table result :".$data["responseMessage"].$sql, $Person_id);
 			
-			if ($status_code != "")
-				$data_Status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $status_code, false);
-			
 			// 儲存資料至資料庫
 			if ($status_code == $status_code_succeed && $DoCreateMember_Flag == "true")
 			{
@@ -168,20 +167,25 @@
 			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
+				if ($status_code != "")
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+				if (count($data_status) > 0 &&  $data_status["status"] == "false")
+					$data = $data_status;
+				
 				if ($link != null)
 				{
-					mysqli_close($link);
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$link = null;
 				}
 			}
-			catch (Exception $e)
+			catch(Exception $e)
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
-		}	
+		}
 	}
 	else
 	{

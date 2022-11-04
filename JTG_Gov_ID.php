@@ -5,6 +5,7 @@
 	$status_code_succeed 	= "E1"; // 成功狀態代碼
 	$status_code_failure 	= "E0"; // 失敗狀態代碼
 	$data 					= array();
+	$data_status			= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -200,7 +201,7 @@
 			{
 				if ($status_code != "")
 					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
-				if ($data_status["status"] == "false")
+				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
 				if ($link != null)

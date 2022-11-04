@@ -6,6 +6,7 @@
 	$status_code_succeed = "A2"; // 成功狀態代碼
 	$status_code_failure = "A1"; // 失敗狀態代碼
 	$data 				 = array();
+	$data_status		 = array();
 	$link				 = null;
 	$Insurance_no		 = "";
 	$Remote_insurance_no = "";
@@ -120,8 +121,10 @@
 							$Tmp_Person_id 	= $roleInfo[$j]["idcard"];
 							$Tmp_role 		= $roleInfo[$j]["roleKey"];
 							$Tmp_Mobile_no 	= $roleInfo[$j]["tel"];
-							$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Tmp_Person_id, $Sales_id, $Tmp_Mobile_no, $status_code, false, false, $Tmp_role, "SSO_Login", $remote_ip4filename);
-							//$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, $link, false, false, $Role);
+							if ($status_code != "")
+								$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+							if (count($data_status) > 0 && $data_status["status"] == "false")
+								$data = $data_status;
 						}
 					}
 				}

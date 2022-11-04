@@ -286,7 +286,7 @@
 	// 取得並儲存臉部照片
 	function get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, $update_member = false)
 	{
-		global $key;
+		global $g_encrypt_image;
 		
 		$ret_image = null;
 		if ($base64image != '') 
@@ -314,13 +314,13 @@
 			
 			if (!$update_member)
 			{
-				$image = addslashes(encrypt($key, base64_encode(file_get_contents($target_file))));
+				$image = addslashes(encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file))));
 				wh_log($Insurance_no, $Remote_insurance_no, "addslashes encode size:".strlen($image), $Person_id);
 			}
 			else
 			{
 				//encrypt
-				$image = encrypt($key, base64_encode(file_get_contents($target_file)));
+				$image = encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file)));
 				wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image), $Person_id);
 			}
 			$ret_image = file_get_contents($target_file1);
@@ -331,7 +331,7 @@
 		{
 			if($base64image!='')
 			{
-				wh_log($Insurance_no, $Remote_insurance_no, "save_decode_image1 Failed", $Person_id);
+				wh_log($Insurance_no, $Remote_insurance_no, "base64ToImage Failed", $Person_id);
 			}
 		}
 		return $ret_image;
@@ -339,7 +339,7 @@
 	// 取得並儲存臉部照片(含浮水印)
 	function get_image_content_watermark($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1, $target_file2)
 	{
-		global $key;
+		global $g_encrypt_image;
 		global $g_watermark_src_url;
 		
 		if (base64ToImage($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file1, $imageFileType))
@@ -379,7 +379,7 @@
 				wh_log($Insurance_no, $Remote_insurance_no, "watermark ok", $Person_id);
 			}
 			
-			$image2 = (encrypt($key, base64_encode(file_get_contents($target_file2))));
+			$image2 = (encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file2))));
 			wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image2), $Person_id);
 			
 			unlink($target_file1);

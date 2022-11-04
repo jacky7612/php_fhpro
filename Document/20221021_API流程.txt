@@ -119,18 +119,18 @@ ps.每個步驟都要狀態API
 
 	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
 	JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
-	JTG_Modify_Insurance_Status				(V) 2022.11.01  complete :2022.11.02
-	JTG_Query_Member		  				(V) 2022.11.01  complete :2022.11.02
-	JTG_Modify_Member		  				(V) 2022.11.01  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
-	JTG_Save_IDPhoto		  				(V) 2022.11.01  complete :2022.11.03
-	JTG_Get_IDPIC			  				(V) 2022.11.01  complete :2022.11.03 [getpidpic2、getuserList]
-	JTG_Parse_OCR  							(O) 2022.11.01  complete :			 尚未確定廠商，目前是空的
-	JTG_Gov_ID				  				(O) 2022.11.01  complete :2022.11.03 有基礎功能，未正式連到內政部
+	JTG_Modify_Insurance_Status				(V) 2022.11.02  complete :2022.11.02
+	JTG_Query_Member		  				(V) 2022.11.02  complete :2022.11.02 目前邏輯只有使用APP輸入身份證字號成功，才會紀錄到memberinfo
+	JTG_Modify_Member		  				(V) 2022.11.02  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
+	JTG_Save_IDPhoto		  				(V) 2022.11.02  complete :2022.11.03
+	JTG_Get_IDPIC			  				(V) 2022.11.02  complete :2022.11.03 [getpidpic2、getuserList]
+	JTG_Parse_OCR  							(O) 2022.11.02  complete :			 尚未確定廠商，目前是空的
+	JTG_Gov_ID				  				(O) 2022.11.02  complete :2022.11.03 有基礎功能，未正式連到內政部
 	
-	JTG_Face_Compare		  				() 2022.11.01  complete :
-	JTG_Live_Check			  				() 2022.11.01  complete :
-	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
-	JTG_Verify_OTP_Code		  				() 2022.11.01  complete :
+	JTG_Face_Compare		  				(O) 2022.11.04  complete :2022.11.04 程式已調整，要結合實際測試
+	JTG_JTG_Live_Compare	  				(O) 2022.11.04  complete :2022.11.04 程式已調整，要結合實際測試
+	JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
+	JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	
 	JTG_Get_Proposal_PDF  					() 2022.11.01  complete :
 	JTG_Send_OTP_Code		  				() 2022.11.01  complete :

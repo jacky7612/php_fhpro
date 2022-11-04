@@ -9,6 +9,7 @@
 	$g_encrypt_id						= false;
 	$g_encrypt_mobile					= false;
 	$g_encrypt_Membername				= false;
+	$g_encrypt_image					= false;
 	$g_Ignor_verify_face				= true;
 	
 	$g_insurance_sso_api_url 			= "https://localhost/test_fhpro/"					; // 取得保險公司相關資料 API url
@@ -18,6 +19,8 @@
 	$g_json_path	  	 				= $g_root_url."/json/"								; // json directory
 	$g_pdf_path		  	 				= $g_root_url."/pdf/"								; // pdf directory
 	$g_images_dir 						= $g_root_url."/images/"							; // 照片 directory
+	$g_live_dir 						= $g_root_url."/live/"								; // 照片 directory
+	$g_attachment_dir 					= $g_root_url."/attachment/"						; // 附件照片 directory
 	$g_watermark_src_url 				= $g_root_url."/watermark.png"						; // 浮水印來源
 	$g_verify_is_face_apiurl 			= $g_root_url."/faceengine/api/faceDetect.php"		; // 辨別是否為人臉API url
 											// 'http://3.37.63.32/faceengine/api/faceDetect.php';
@@ -27,6 +30,18 @@
 	$g_live_compare_face_pose_apiurl01 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
 	$g_live_compare_face_pose_apiurl02 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
 	$g_live_compare_face_pose_apiurl00 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
-	$g_OTP_apiurl 						= $g_mpost_url. "ldi/otp/getOne"					; // OTP url
+	
+	$g_OTP_enable						= false;
+	$g_OTP_apiurl 						= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // OTP url
+	$g_OTP_UID_key						= "UID";
+	$g_OTP_UID_value					= "NBTAONLINE";
+	$g_OTP_PWD_key						= "PWD";
+	$g_OTP_PWD_value					= "zaq12wsx";
+	$g_OTP_subject_key					= "SB";
+	$g_OTP_subject_value				= "第一金OTP驗證碼";
+	$g_OTP_message_key					= "MSG";
+	$g_OTP_message_value				= "第一金遠距行動投保APP(一次性驗證碼簡訊),您的驗證碼為:";
+	$g_OTP_mobile_key					= "DEST";
+	
 	$g_PDF_apiurl 						= $g_mpost_url. "ldi/getPdf"						; // PDF url
 ?>
