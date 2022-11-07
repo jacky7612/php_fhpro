@@ -135,7 +135,7 @@
 						//echo $result2;
 						if  ($IsSuccess2 == "true"){
 							$confidence = doubleval($obj2['confidence']);
-							if ($confidence >= 0.45)		//0.5
+							if ($confidence >= 0.43)		//0.5
 							{
 								//echo "人臉比對完成！同一人(confidence=".$confidence.")";		
 								$data["status"]			= "true";

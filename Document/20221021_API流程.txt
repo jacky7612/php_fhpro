@@ -132,38 +132,41 @@ ps.每個步驟都要狀態API
 	JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	
-	JTG_Get_Proposal_PDF  					(V) 2022.11.01  complete :2022.11.04
-	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.04
-	JTG_Verify_OTP_Code		  				(V) 2022.11.01  complete :2022.11.04
+	JTG_Get_Proposal_PDF  					(V) 2022.11.01  complete :2022.11.05
+	JTG_Save_Proposal_PDF					(O) 2022.11.01  complete :2022.11.07[未測試，從JTG_Get_Proposal_PDF複製]
+	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.05
+	JTG_Verify_OTP_Code		  				(V) 2022.11.01  complete :2022.11.05
 	
-	第一次JTG_Get_FrsipInfo		  			() 2022.11.01  complete :
-	第一次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :
-	第一次JTG_Start_Meeting		  			() 2022.11.01  complete :
-	第一次JTG_Stop_Meeting		  			() 2022.11.01  complete :
+	第一次JTG_Get_FrsipInfo		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接影音系統API]
+	第一次JTG_Get_MeetingInfo		  		(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接視訊系統API]
+	第一次JTG_Start_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
+	第一次JTG_Stop_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
 	//-------------------------------------------------------------------------------------------------------------
-	JTG_Get_Proposal_PDF	  				() 2022.11.01  complete :
-	JTG_Signature_PDF		  				() 2022.11.01  complete :
-	JTG_Get_Json				  			() 2022.11.01  complete :
-	JTG_Send_OTP_Code		  				() 2022.11.01  complete :
-	JTG_Verify_OTP_Code			  			() 2022.11.01  complete :
+	JTG_Get_Proposal_PDF	  				(V) 2022.11.01  complete :2022.11.07
+	JTG_Save_Proposal_PDF					(V) 2022.11.01  complete :2022.11.07 [從JTG_Get_Proposal_PDF複製]
+	JTG_Get_Json				  			(V) 2022.11.01  complete :2022.11.07
+	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.07
+	JTG_Verify_OTP_Code			  			(V) 2022.11.01  complete :2022.11.07
 	
-	JTG_Get_AttachementInfo					() 2022.11.01  complete :		需建立
-	JTG_Upload_Attachment		  			() 2022.11.01  complete :
+	JTG_Get_AttachementInfo					(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	JTG_Upload_Attachment		  			(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
 	
-	第二次JTG_Get_FrsipInfo		  			() 2022.11.01  complete :
-	第二次JTG_Get_MeetingInfo		  		() 2022.11.01  complete :
-	第二次JTG_Start_Meeting		  			() 2022.11.01  complete :
-	第二次JTG_Stop_Meeting		  			() 2022.11.01  complete :
+	第二次JTG_Get_FrsipInfo		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接影音系統API]
+	第二次JTG_Get_MeetingInfo		  		(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接視訊系統API]
+	第二次JTG_Start_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
+	第二次JTG_Stop_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
 	
-	業務-要保書簽名JTG_Get_Proposal_PDF		() 2022.11.01  complete :
-	回傳業務-要保書簽名JTG_Signature_PDF	() 2022.11.01  complete :
-	業務-業報書簽名JTG_Get_Proposal_PDF		() 2022.11.01  complete :
-	回傳業務-業報書簽名JTG_Signature_PDF	() 2022.11.01  complete :
+	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
+	回傳業務-要保書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
+	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
+	回傳業務-業報書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
 	
-	要保書-押上保單號碼JTG_Get_Proposal_PDF	() 2022.11.01  complete :
-	要保書-押上保單號碼JTG_Signature_PDF	() 2022.11.01  complete :
-	JTG_Get_PolicyNo		  				() 2022.11.01  complete :
-	JTG_Send_Policy			  				() 2022.11.01  complete :
+	要保書-押上保單號碼JTG_Get_Proposal_PDF		(V) 2022.11.01  complete :2022.11.07
+	要保書-押上保單號碼JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
+	JTG_Get_PolicyNo		  					() 2022.11.01  complete :2022.11.08 雲端達人-取得保單號碼，並押上保單號碼
+	JTG_Send_Policy			  					() 2022.11.01  complete :2022.11.08
 	
-8、PDFlog紀錄PDF路徑						()
+	JTG_Get_Signature		  				(O) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	JTG_Save_Signature		  				(O) 2022.11.01  complete : [未實際測試，需建假資料測試]
+	
 7、postman測試API							()

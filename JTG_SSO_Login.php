@@ -151,10 +151,13 @@
 							}
 							if ($pdf_data != "")
 							{
+								// 儲存PDF檔案
 								$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $pdf_subname, $pdf_data);
+								
 								// 紀錄至 pdf_log table
+								$empty_Person_id = "";
 								$data_pdf = array();
-								$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $Mobile_no, $pdf_subname, $pdf_data, $pdf_path, $status_code, false, "SSO_Login", $remote_ip4filename);
+								$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $empty_Person_id, $Mobile_no, $pdf_subname, $pdf_data, $pdf_path, $status_code, false, "SSO_Login", $remote_ip4filename);
 								
 								wh_log("SSO_Login", $remote_ip4filename, "pdf operator result :". $data_pdf["responseMessage"]);
 							}

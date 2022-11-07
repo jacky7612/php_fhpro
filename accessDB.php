@@ -848,7 +848,7 @@
 	}
 	
 	// 變更(Insert/Update)pdflog public
-	function modify_pdf_log(&$link, $Insurance_no, $Remote_insurance_no, $Mobile_no, $Title, $base64pdf, $pdf_path, $Status_code, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	function modify_pdf_log(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Title, $base64pdf, $pdf_path, $Status_code, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
@@ -869,12 +869,14 @@
 				}
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
+				$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
 				$Title  				= mysqli_real_escape_string($link, $Title				);
 				$pdf_path  				= mysqli_real_escape_string($link, $pdf_path			);
 				$Status_code  			= mysqli_real_escape_string($link, $Status_code			);
 
 				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
 				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
+				$Person_id 				= trim(stripslashes($Person_id));
 				$Title 			 		= trim(stripslashes($Title));
 				$pdf_path 			 	= trim(stripslashes($pdf_path));
 				$Statuscode 		 	= trim(stripslashes($Status_code));
@@ -882,6 +884,7 @@
 				$sql = "SELECT * FROM pdflog where 1=1 ";
 				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
 				$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insuranceno	);
+				$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id	);
 				$sql = $sql.merge_sql_string_if_not_empty("title"				, $Title				);
 				$sql = $sql.merge_sql_string_if_not_empty("order_status"		, $Statuscode			);
 				if ($result = mysqli_query($link, $sql))
@@ -902,11 +905,13 @@
 							{
 								$pdf_content["data"] = $base64pdf;
 								$sql2 = "INSERT INTO `pdflog` (`insurance_no`,`remote_insurance_no`";
+								if ($Person_id != "") $sql2 = $sql2.",`person_id`";
 								if ($Title 	   != "") $sql2 = $sql2.",`title`";
 								if ($base64pdf != "") $sql2 = $sql2.",`pdf_data`";
 								if ($pdf_path  != "") $sql2 = $sql2.",`pdf_path`";
 								$sql2 = $sql2.",`order_status`, `updatetime`) VALUES ('$Insuranceno','$Remote_insuranceno'";
 								
+								if ($Person_id != "") $sql2 = $sql2.",'$Person_id'";
 								if ($Title 	   != "") $sql2 = $sql2.",'$Title'";
 								if ($base64pdf != "") $sql2 = $sql2.",'".json_encode($pdf_content)."'";
 								if ($pdf_path  != "") $sql2 = $sql2.",'$pdf_path'";

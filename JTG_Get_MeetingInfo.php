@@ -1,6 +1,24 @@
 <?php
 	include("func.php");
 	
+	// initial
+	$status_code_succeed 	= "K3"; // 成功狀態代碼
+	$status_code_failure 	= "K2"; // 失敗狀態代碼
+	$data 					= array();
+	$data_status			= array();
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Member_name			= "";
+	$base64image			= "";
+	$Role 					= "";
+	$imageFileType 			= "jpg";
+	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
@@ -16,60 +34,47 @@
 	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
 	$MEETING_time 			= check_special_char($MEETING_time);
 	
-	// 驗證 security token
-	$headers = apache_request_headers();
-	$token 	 = $headers['Authorization'];
-	if(check_header($key, $token) == true)
-	{
-		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]			= "false";
-		$data["code"]			= "0x0209";
-		$data["responseMessage"]= "Invalid token!";
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		return;							
-	}
-	
-	$status_code_succeed = "K3"; // 成功狀態代碼
-	$status_code_failure = "K2"; // 失敗狀態代碼
 	$status_code_succeed = ($MEETING_time == 1) ? "K3" : "Q3"; // 成功狀態代碼
 	$status_code_failure = ($MEETING_time == 1) ? "K2" : "Q3"; // 失敗狀態代碼
-	$status_code = "";
-	wh_log($Insurance_no, $Remote_insurance_no, "meeting info entry <-", $Person_id);
+	
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
+	}
 	
 	// 當資料不齊全時，從資料庫取得
-	if (($Member_name 	== '') ||
-		($Mobile_no 	== '') )
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
 	{
-		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
-		$Mobile_no 	 = $memb["mobile_no"];
-		$Member_name = $memb["member_name"];
-		$Role 		 = $memb["role"];
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		return;
 	}
-	$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no);
 	
-	/*
-	proposer：要保人
-	insured：被保人  
-	legalRepresentative：法定代理人
-	agentOne:業務
-	*/
-	if (($Role 		!= '') &&
-		($Person_id != ''))
+	wh_log($Insurance_no, $Remote_insurance_no, "meeting info entry <-", $Person_id);
+	
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Face_Compare", "face compare exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
 	{
-		//check 帳號/密碼
-		//$host = 'localhost';
-		//$user = 'tglmember_user';
-		//$passwd = 'tglmember210718';
-		//$database = 'tglmemberdb';
-		//echo $sql;
-		//return;
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	// start
+	if ($Insurance_no 			!= '' &&
+		$Remote_insurance_no 	!= '' &&
+		$Person_id 				!= '' &&
+		$Role 					!= '')
+	{
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -146,13 +151,16 @@
         }
 		finally
 		{
+			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
+				if ($status_code != "")
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+				if (count($data_status) > 0 && $data_status["status"] == "false")
+					$data = $data_status;
+				
 				if ($link != null)
 				{
-					if ($status_code != "")
-						$data = modify_order_state($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, "", $status_code, $link);
-	
 					mysqli_close($link);
 					$link = null;
 				}
@@ -163,6 +171,7 @@
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
 			}
+			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
@@ -173,7 +182,7 @@
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."meeting info exit ->", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."meeting info exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

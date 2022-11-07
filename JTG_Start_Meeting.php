@@ -3,7 +3,25 @@
 	
 	const _ENV = "PROD"; 
 	//const _ENV = "UAT"; 
-		
+	
+	// initial
+	$status_code_succeed 	= "L1"; // 成功狀態代碼
+	$status_code_failure 	= "L0"; // 失敗狀態代碼
+	$data 					= array();
+	$data_status			= array();
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Member_name			= "";
+	$base64image			= "";
+	$Role 					= "";
+	$imageFileType 			= "jpg";
+	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	//2022/5/5, 第二階段不同角色, 視訊同框 
 	$postdata 				= file_get_contents("php://input",'r'); 
@@ -53,45 +71,31 @@
 	$MEETING_time 			= check_special_char($MEETING_time);
 	
 	$Person_id = $proposer_id;
-	// 驗證 security token
-	$headers = apache_request_headers();
-	$token 	 = $headers['Authorization'];
-	if(check_header($key, $token) == true)
+	// 當資料不齊全時，從資料庫取得
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
 	{
-		wh_log($Insurance_no, $Remote_insurance_no, "security token succeed", $Person_id);
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
 		$data["status"]			= "false";
-		$data["code"]			= "0x0209";
-		$data["responseMessage"]= "Invalid token!";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-		wh_log($Insurance_no, $Remote_insurance_no, "(X) security token failure", $Person_id);
-		return;							
+		return;
 	}
 	
-	$status_code_succeed = "L1"; // 成功狀態代碼
-	$status_code_failure = "L0"; // 失敗狀態代碼
-	$status_code_succeed = ($MEETING_time == 1) ? "L1" : "R1"; // 成功狀態代碼
-	$status_code_failure = ($MEETING_time == 1) ? "L0" : "R0"; // 失敗狀態代碼
-	$status_code = "";
 	wh_log($Insurance_no, $Remote_insurance_no, "start meeting entry <-", $Person_id);
 	
-	// 當資料不齊全時，從資料庫取得
-	if (($Member_name 	== '') ||
-		($Mobile_no 	== '') ||
-		($Role 			== ''))
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Face_Compare", "start meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
 	{
-		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
-		$Mobile_no 	 = $memb["mobile_no"];
-		$Member_name = $memb["member_name"];
-		$Role 		 = $memb["role"];
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
 	}
-	$Sales_Id = $agent_id;
-
+	
+	// start
 	if (($Insurance_no 			!= '') &&
 		($Remote_insuance_no	!= '') &&
 		($lat 					!= '') &&
@@ -155,8 +159,8 @@
 				if (mysqli_num_rows($result) > 0)
 				{
 					//$mid=0;
-					$order_status="";
-					while($row = mysqli_fetch_array($result))
+					$order_status = "";
+					while ($row = mysqli_fetch_array($result))
 					{
 						//$mid = $row['mid'];
 						$order_status = $row['order_status'];
@@ -701,7 +705,7 @@
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."start meeting exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -154,7 +154,6 @@
 						//($Insurance_no!='') &&
 						($Member_name != '') ) 
 					{
-
 						$date 		= date_create();
 						$file_name 	= guid();
 						$target_dir = $g_images_dir;

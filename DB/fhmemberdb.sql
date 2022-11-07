@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-04 09:03:08
+-- 產生時間： 2022-11-07 04:34:27
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -38,20 +38,20 @@ CREATE TABLE `accesscode` (
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `attachement`
+-- 資料表結構 `attachment`
 --
 
-CREATE TABLE `attachement` (
+CREATE TABLE `attachment` (
   `id` int(11) NOT NULL,
-  `insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `remote_insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `person_id` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `attache_title` varchar(500) CHARACTER SET utf8 NOT NULL,
-  `attache_graph` longblob DEFAULT NULL,
-  `attache_path` varchar(256) CHARACTER SET utf8 DEFAULT NULL,
+  `insurance_no` varchar(32) NOT NULL,
+  `remote_insurance_no` varchar(32) NOT NULL,
+  `person_id` varchar(32) NOT NULL,
+  `attach_title` varchar(500) NOT NULL,
+  `attach_graph` longblob DEFAULT NULL,
+  `attach_path` varchar(256) DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -131,13 +131,13 @@ CREATE TABLE `idphoto` (
 
 CREATE TABLE `jsonlog` (
   `id` int(11) NOT NULL,
-  `insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `remote_insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `insurance_no` varchar(32) NOT NULL,
+  `remote_insurance_no` varchar(32) NOT NULL,
   `json_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`json_data`)),
-  `order_status` varchar(5) CHARACTER SET utf8 NOT NULL,
+  `order_status` varchar(5) NOT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -264,13 +264,14 @@ CREATE TABLE `orderlog` (
 
 CREATE TABLE `pdflog` (
   `id` int(20) NOT NULL,
-  `insurance_no` varchar(32) NOT NULL,
-  `remote_insurance_no` varchar(32) NOT NULL,
-  `title` varchar(100) DEFAULT NULL,
+  `insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `remote_insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `person_id` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
+  `title` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `pdf_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`pdf_data`)),
-  `pdf_path` varchar(256) DEFAULT NULL,
-  `order_status` varchar(5) NOT NULL,
-  `upatetime` datetime NOT NULL
+  `pdf_path` varchar(256) CHARACTER SET utf8 DEFAULT NULL,
+  `order_status` varchar(5) CHARACTER SET utf8 NOT NULL,
+  `updatetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -338,9 +339,9 @@ ALTER TABLE `accesscode`
   ADD PRIMARY KEY (`id`);
 
 --
--- 資料表索引 `attachement`
+-- 資料表索引 `attachment`
 --
-ALTER TABLE `attachement`
+ALTER TABLE `attachment`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -442,9 +443,9 @@ ALTER TABLE `accesscode`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用資料表自動遞增(AUTO_INCREMENT) `attachement`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `attachment`
 --
-ALTER TABLE `attachement`
+ALTER TABLE `attachment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

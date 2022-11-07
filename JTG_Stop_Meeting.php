@@ -36,6 +36,23 @@
 	}
 	*/
 	
+	// initial
+	$status_code_succeed 	= "L3"; // 成功狀態代碼
+	$status_code_failure 	= "L2"; // 失敗狀態代碼
+	$data 					= array();
+	$data_status			= array();
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Member_name			= "";
+	$base64image			= "";
+	$Role 					= "";
+	$imageFileType 			= "jpg";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -55,29 +72,38 @@
 	agentOne:業務
 	*/
 	
-	$status_code_succeed = "L3"; // 成功狀態代碼
-	$status_code_failure = "L2"; // 失敗狀態代碼
 	$status_code_succeed = ($MEETING_time == 1) ? "L3" : "R3"; // 成功狀態代碼
 	$status_code_failure = ($MEETING_time == 1) ? "L2" : "R2"; // 失敗狀態代碼
-	$status_code = "";
-	wh_log($Insurance_no, $Remote_insurance_no, "frsip info entry <-", $Person_id);
 	
 	// 當資料不齊全時，從資料庫取得
-	if (($Member_name 	== '') ||
-		($Mobile_no 	== '') ||
-		($Role 			== ''))
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
 	{
-		$memb 		 = get_member_info($Insurance_no, $Remote_insurance_no, $Person_id);
-		$Mobile_no 	 = $memb["mobile_no"];
-		$Member_name = $memb["member_name"];
-		$Role 		 = $memb["role"];
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		return;
 	}
-	$Sales_Id = get_sales_id($Insurance_no, $Remote_insurance_no);
-
-	if (($Insurance_no 			!= '') &&
-		($Remote_insuance_no 	!= '') &&
-		($Meeting_id 			!= '') &&
-		($Role 					!= '') )
+	
+	wh_log($Insurance_no, $Remote_insurance_no, "stop meeting entry <-", $Person_id);
+	
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Face_Compare", "stop meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
+	{
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	if ($Insurance_no 			!= '' &&
+		$Remote_insuance_no 	!= '' &&
+		$Person_id 				!= '' &&
+		$Meeting_id 			!= '' &&
+		$Role 					!= '' )
 	{
 		//check 帳號/密碼
 		//$host = 'localhost';
@@ -325,7 +351,7 @@
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

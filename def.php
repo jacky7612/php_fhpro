@@ -1,10 +1,21 @@
 <?php
 	$g_mpost_url 						= "https://localhost/test_fhpro/";//PROD不明，可能需去除
 	
+	
+	$g_db_ip							= "127.0.0.1";
+	$g_db_user							= "root";
+	$g_db_pwd							= "";
+	$g_db_name							= "fhmemberdb";
+	
 	$g_exit_symbol						= "---------------------------  ";
 	$g_test_mode						= true;
 	$g_wjson2file_flag					= true;
 	$g_wpdf2file_flag					= true;
+	
+	// 加密金鑰
+	//$key = "9Dcl8uXVFt/vSYaizaE+KkAgXtYO0807"; //prod	
+	$key = "YcL+NyCRl5FYMWhozdV5V8eu6qv3cLDL";	//uat
+	$g_iv  = "77215989@jotangi";
 	
 	$g_encrypt_id						= false;
 	$g_encrypt_mobile					= false;
@@ -30,6 +41,7 @@
 	$g_live_compare_face_pose_apiurl01 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
 	$g_live_compare_face_pose_apiurl02 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
 	$g_live_compare_face_pose_apiurl00 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
+	$g_NAS_dir 							= "/dis_app/dis_idphoto/"							; // NAS 路徑
 	
 	$g_OTP_enable						= false;
 	$g_OTP_apiurl 						= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // OTP url
@@ -42,6 +54,12 @@
 	$g_OTP_message_key					= "MSG";
 	$g_OTP_message_value				= "第一金遠距行動投保APP(一次性驗證碼簡訊),您的驗證碼為:";
 	$g_OTP_mobile_key					= "DEST";
+	
+	$g_PolicyNo_enable					= false; // 雲端達人-取得保單號碼，並押上保單號碼
+	$g_PolicyNo_apiurl 					= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // 雲端達人-取得保單號碼 url
+	
+	$g_Policy_enable					= false; // 回傳保單資訊至雲端達人
+	$g_Policy_apiurl 					= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // 回傳保單資訊至雲端達人 url
 	
 	$g_PDF_apiurl 						= $g_mpost_url. "ldi/getPdf"						; // PDF url
 ?>

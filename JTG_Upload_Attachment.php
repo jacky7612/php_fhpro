@@ -24,22 +24,12 @@
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$attachment_Titile	= isset($_POST['Titile']) 				? $_POST['Titile'] 				: '';
+	$attachment_Pic 	= isset($_POST['Graph']) 				? $_POST['Graph'] 				: '';
 
 	$Insurance_no 		= check_special_char($Insurance_no);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
 	$Person_id 			= check_special_char($Person_id);
-
-	//$Mobile_no = isset($_POST['Mobile_no']) ? $_POST['Mobile_no'] : '';
-	//$Member_name = isset($_POST['Member_name']) ? $_POST['Member_name'] : '';
-
-	//$Person_id = "{$_REQUEST["Person_id"]}";
-
-	//$image_name = addslashes($_FILES['image']['name']);
-	//$sql = "INSERT INTO `product_images` (`id`, `image`, `image_name`) VALUES ('1', '{$image}', '{$image_name}')";
-	//if (!mysql_query($sql)) { // Error handling
-	//    echo "Something went wrong! :("; 
-	//}
-
 	
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
@@ -53,11 +43,11 @@
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "get attachement entry <-", $Person_id);
-	
+	wh_log($Insurance_no, $Remote_insurance_no, "upload attachment entry <-", $Person_id);
+
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Get_Attachment", "get attachement exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Upload_Attachment", "upload attachment exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -66,11 +56,14 @@
 	}
 	
 	// start
-	if (($Insurance_no 			!= '' &&
-		 $Remote_insuance_no 	!= '' &&
-		 $Person_id 			!= '' &&
-		 strlen($Person_id) > 1) )
+	if ($Insurance_no 			!= '' &&
+		$Remote_insuance_no 	!= '' &&
+		$Person_id 				!= '' &&
+		strlen($Person_id) > 1 )
 	{
+		//$image = addslashes(file_get_contents($_FILES['Signature_pic']['tmp_name'])); //SQL Injection defence!
+		//$image = addslashes(encrypt($key,base64_encode(file_get_contents($_FILES['Signature_pic']['tmp_name'])))); //SQL Injection defence!		
+		$image = addslashes(encrypt_string_if_not_empty($g_encrypt_image, $attachment_pic)); //SQL Injection defence!
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -84,50 +77,67 @@
 			$Remote_insuance_no = trim(stripslashes($Remote_insuance_no));
 			$Personid 			= trim(stripslashes($Person_id)			);
 			
-			$sql = "SELECT * FROM attachement where ";
-			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	 );
-			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no);
-			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			 );
+			$sql = "SELECT * FROM attachment where ";
+			if ($Insurance_no != "") {
+				$sql = $sql." and insurance_no='".$Insurance_no."'";
+			}
+			if ($Remote_insuance_no != "") {	
+				$sql = $sql." and remote_insuance_no='".$Remote_insuance_no."'";
+			}
+			if ($Personid != "") {	
+				$sql = $sql." and person_id='".$Personid."'";
+			}
 
-			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
+					$mid=0;
 					while ($row = mysqli_fetch_array($result))
 					{
-						$array4json["attache_title"] = $row['attach_title'];
-						$array4json["attach_graph"] = addslashes(decrypt_string_if_not_empty($g_encrypt_image, $row['attach_graph'])); //SQL Injection defence!
+						$mid = $row['id'];
+						//$membername = $row['member_name'];
+					}	
+					$mid = (int)str_replace(",", "", $mid);
+					try
+					{
+						$sql2 = "update `attachment` set `attach_graph`='{$image}', `updatetime`=NOW() where id=$mid;";
+						mysqli_query($link,$sql2) or die(mysqli_error($link));
+						//echo "user data change ok!";
+						$data["status"]			= "true";
+						$data["code"]			= "0x0200";
+						$data["responseMessage"]= "簽名檔上傳成功!";
 					}
-					$data["status"]			= "true";
-					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "取得附件資訊成功!";
-					$data["json"]			= json_encode($array4json);
-					$status_code = $status_code_succeed;
+					catch (Exception $e)
+					{
+						$data["status"]			= "false";
+						$data["code"]			= "0x0202";
+						$data["responseMessage"]= "Exception error!";							
+					}
 				}
 				else
 				{
-					$data["status"]			= "false";
+					$sql2 = "INSERT INTO `attachment` (`insurance_no`,`remote_insuance_no`,`person_id`, `attach_title`, `attach_graph`, `createtime`, `updatetime`) VALUES ('$Insurance_no','$Remote_insuance_no','$Personid','{$attachment_Titile}','{$image}', NOW(), NOW())";
+					
+					mysqli_query($link,$sql2) or die(mysqli_error($link));
+					//echo "user data change ok!";
+					$data["status"]			= "true";
 					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "查無此附件資訊!";
-					$data["json"]			= "";
-					$status_code = $status_code_failure;						
+					$data["responseMessage"]= "附件檔上傳成功!";						
 				}
 			}
 			else
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";
+				$data["responseMessage"]= "SQL fail!";					
 			}
 		}
 		catch (Exception $e)
 		{
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
+			$data["responseMessage"]= "Exception error!";					
         }
 		finally
 		{
@@ -150,20 +160,20 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
-	} else {
+	}
+	else
+	{
 		//echo "need mail and password!";
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."get attachment exit ->"."\r\n", $Person_id);
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."upload attachment exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

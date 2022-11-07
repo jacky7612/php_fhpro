@@ -8,14 +8,16 @@
 	
 	function getHost()
 	{
-		$hostname="127.0.0.1";//"15.164.44.222";//PROD
+		global $g_db_ip;
+		$hostname = $g_db_ip;
 		$hostname2 = trim(stripslashes($hostname));
 		return str_replace(",", "", $hostname2);
 	}
 	
 	function getUser()
 	{
-		$dbuser="root";
+		global $g_db_user;
+		$dbuser = $g_db_user;
 		//$dbuser="tglmember_user";
 		$dbuser2 = trim(stripslashes($dbuser));
 		return str_replace(",", "_", $dbuser2);
@@ -23,15 +25,16 @@
 	
 	function getPassword()
 	{
-		//$dbpwd="Tglmember,@210718";
-		$dbpwd="";//"JTG@1qaz@WSX";
+		global $g_db_pwd;
+		$dbpwd = $g_db_pwd;
 		$dbpwd2 = trim(stripslashes($dbpwd));
 		return str_replace(",", "", $dbpwd2);
 	}
 	
 	function getDatabase()
 	{
-		$dbname="fhmemberdb";
+		global $g_db_name;
+		$dbname=$g_db_name;
 		$dbname2 = trim(stripslashes($dbname));
 		return str_replace(",", "", $dbname2);
 	}
@@ -50,8 +53,9 @@
 	
 	function encrypt($key, $payload)
 	{
+		global $g_iv;
 		//$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
-		$iv = "77215989@jotangi";
+		$iv = $g_iv;
 		$encrypted = openssl_encrypt($payload, 'aes-256-cbc', $key, 1, $iv);
 		//return base64_encode($encrypted . '::' . $iv);
 		return base64_encode($encrypted);
@@ -59,17 +63,17 @@
 
 	function decrypt($key, $garble)
 	{
+		global $g_iv;
 		//list($encrypted_data, $iv) = explode('::', base64_decode($garble), 2);
-		$iv = "77215989@jotangi";
+		$iv = $g_iv;
 		$encrypted_data = base64_decode($garble);
 		return openssl_decrypt($encrypted_data, 'aes-256-cbc', $key, 1, $iv);
 	}
 	function NASDir()
 	{
-		$nasfolder = "/dis_app/dis_idphoto/";//UAT/PROD
+		global $g_NAS_dir;
+		$nasfolder = $g_NAS_dir;
 		//$nasfolder = "/var/www/html/member/api/uploads/dis_idphoto/";//開發機
 		return $nasfolder;
 	}
-	//$key = "9Dcl8uXVFt/vSYaizaE+KkAgXtYO0807"; //prod	
-	$key = "YcL+NyCRl5FYMWhozdV5V8eu6qv3cLDL";	//uat
 ?>
