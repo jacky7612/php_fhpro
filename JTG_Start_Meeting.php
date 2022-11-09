@@ -86,10 +86,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -289,10 +286,7 @@
 									}
 									$array4json["meetingurl"]		= $meetingurl;	
 									$array4json["meetingid"]		= $meeting_id;
-									$data["status"]			= "true";
-									$data["code"]			= "0x0200";
-									$data["responseMessage"]= "OK";
-									$data["json"]			= json_encode($array4json);
+									$data = result_message("true", "0x0200", "OK", json_encode($array4json));
 									$status_code = $status_code_succeed;
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -305,10 +299,7 @@
 								//還未有會議室,需要新開會議室
 								if ($agent_id == '')//只有業務能開啟新會議室,此次呼叫沒有業務，而且沒有ongoing meeting
 								{
-									$data["status"]			 = "false";
-									$data["code"]			 = "0x0205";
-									$data["responseMessage"] = "尚未到視訊會議室時間!";
-									$data["json"]			= "";
+									$data = result_message("false", "0x0205", "尚未到視訊會議室時間!", "");
 									$status_code = $status_code_failure;
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -324,10 +315,7 @@
 					{
 						if ($data["status"] == "true")
 						{
-							$data["status"]			 = "false";
-							$data["code"]			 = "0x0205";
-							$data["responseMessage"] = "非業務員無法進行往後動作!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0205", "非業務員無法進行往後動作!", "");
 						}
 						else
 						{
@@ -372,10 +360,7 @@
 							{
 								$err = $e->getMessage();
 							}
-							$data["status"]			= "false";
-							$data["code"]			= "0x0205";
-							$data["responseMessage"]= "Get Token Failed!".((strlen($err) > 0) ? " except".$err : "");
-							$data["json"]			= "";
+							$data = result_message("false", "0x0205", "Get Token Failed!".((strlen($err) > 0) ? " except".$err : ""), "");
 							$status_code = $status_code_failure;
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -394,10 +379,7 @@
 						
 						if (intval($max) > intval($maxlicense))
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0207";
-							$data["responseMessage"]= "超過會議室人數上限,請稍後再開啟視訊會議";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0207", "超過會議室人數上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -474,10 +456,7 @@
 							}
 							else
 							{
-								$data["status"]			= "false";
-								$data["code"]			= "0x0206";
-								$data["responseMessage"]= "超過會議室上限,請稍後再開啟視訊會議";
-								$data["json"]			= "";
+								$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 								$status_code = $status_code_failure;
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -489,10 +468,7 @@
 						}
 						else
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0206";
-							$data["responseMessage"]= "會議室目前都在使用中";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0206", "會議室目前都在使用中", "");
 							$status_code = $status_code_failure;
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -504,10 +480,7 @@
 						// mysqli_query($link, $sql); 	// [怪]mark這段很奇怪-jacky
 						if ($vmrenough == 0)
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0206";
-							$data["responseMessage"]= "超過會議室上限,請稍後再開啟視訊會議";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -518,10 +491,7 @@
 						// Double check
 						if ($agent_id == '') // 只有業務能開啟新會議室
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0205";
-							$data["responseMessage"]= "客戶無權限發起會議!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0205", "客戶無權限發起會議!", "");
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 06\r\n", $Person_id);
@@ -549,10 +519,7 @@
 							//restore status vmrinfo
 							$sql  					 = "update vmrinfo SET status=0 , updatetime=NOW() where vid=$vid";
 							$ret  					 = mysqli_query($link, $sql);
-							$data["status"]			 = "false";
-							$data["code"]			 = "0x0206";
-							$data["responseMessage"] = "系統忙碌,請稍後再開啟視訊會議";
-							$data["json"]			 = "";
+							$data = result_message("false", "0x0206", "系統忙碌,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -635,46 +602,27 @@
 						//$meetingurl="https://meet.deltapath.com/webapp/#/?conference=884378136732@deltapath.com&name=錢總&join=1&media";
 						$array4json["meetingurl"]		= $meetingurl;
 						$array4json["meetingid"]		= $meeting_id;
-						$data["status"]			= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "OK";
-						$data["json"]			= json_encode($array4json);
+						$data = result_message("true", "0x0200", "OK", json_encode($array4json));
 						$status_code = $status_code_succeed;
 					}
 					catch (Exception $e)
 					{
-						//$this->_response(null, 401, $e->getMessage());
-						//echo $e->getMessage();
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= $e->getMessage();
-						$data["json"]			= "";
+						$data = result_message("false", "0x0202", "Exception error [inner] :".$e->getMessage(), "");
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "不存在此要保流水序號的資料!";
-					$data["json"]			= "";						
+					$data = result_message("false", "0x0201", "不存在此要保流水序號的資料!", "");
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";					
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-            //$this->_response(null, 401, $e->getMessage());
-			//echo $e->getMessage();
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= $e->getMessage();
-			$data["json"]			= "";				
+			$data = result_message("false", "0x0202", "Exception error [outer] :".$e->getMessage(), "");
         }
 		finally
 		{
@@ -694,21 +642,14 @@
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

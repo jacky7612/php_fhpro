@@ -58,10 +58,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -102,7 +99,7 @@
 				$data = verify_is_face($ret_image);
 				if ($data["status"] == "false")
 				{
-					$status_code 			= "";
+					$status_code = "";
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 					wh_log($Insurance_no, $Remote_insurance_no, "modify member exit ->", $Person_id);
@@ -165,57 +162,44 @@
 						
 						if ($g_Ignor_verify_face == false)
 						{
-									$data = verify_is_face($image1);
-									if ($data["status"] == "false")
-									{
-										header('Content-Type: application/json');
-										echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-										wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
-										return;
-									}
+							$data = verify_is_face($image1);
+							if ($data["status"] == "false")
+							{
+								header('Content-Type: application/json');
+								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
+								return;
+							}
 						}
 						
 						// update mysql
 						$data = update_member($link, $Insurance_no, $Remote_insurance_no, $base64image, $Person_id, $Member_name, $Mobile_no, $FCM_Token, $status_code, false);
+						$data = result_message("true", "0x0200", "更新member成功!", "");
 					}
 					else
 					{
-						//echo "need mail and password!";
-						$data["status"]			= "false";
-						$data["code"]			= "0x0203";
-						$data["responseMessage"]= "member - API parameter is required!";
-						$data["json"]			= "";
-						$status_code 			= "";
+						$data = result_message("false", "0x0203", "member - API parameter is required!", "");
+						$status_code = "";
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0203";
-					$data["responseMessage"]= "idphoto - API parameter is required!";
-					$data["json"]			= "";
-					$status_code 			= "";
+					$data = result_message("false", "0x0203", "idphoto - API parameter is required!", "");
+					$status_code = "";
 					//option , so can skip
 				}
 			}
 		}
 		else
 		{
-			//echo "need mail and password!";
-			$data["status"]			= "false";
-			$data["code"]			= "0x0203";
-			$data["responseMessage"]= "API parameter is required!";
-			$data["json"]			= "";
-			$status_code 			= "";
+			$data = result_message("false", "0x0203", "API parameter is required!", "");
+			$status_code = "";
 		}
 	}
 	catch (Exception $e)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0202";
-		$data["responseMessage"]= "Exception error!";
-		$data["json"]			= "";
-		$status_code 			= "";
+		$data = result_message("false", "0x0202", "Exception error!", "");
+		$status_code = "";
 	}
 	finally
 	{
@@ -235,10 +219,7 @@
 		}
 		catch(Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error: disconnect!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 		}
 		wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 	}

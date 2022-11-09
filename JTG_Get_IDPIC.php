@@ -42,9 +42,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -96,45 +94,28 @@
 					$fields2 = ["status" => "true", "code" => "0x0200", "msg" => "查詢成功", "insuredDate"  => $insuredDate, "userList" => $userList ];
 	
 					$array4json	= $fields2;
-					
-					$data["status"]			= "true";
-					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "查詢成功";
-					$data["json"]			= $array4json;
-					
+					$data = result_message("true", "0x0200", "查詢成功", $array4json);
 					$status_code = $status_code_succeed;
 				}
 				else
 				{
 					$array4json["insuredDate"]	= date('Ymd');
-					
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "不存在此要保流水序號的資料!";
-					$data["json"]			= json_encode($array4json);
-					$status_code 			= $status_code_failure;
+					$data = result_message("false", "0x0201", "不存在此要保流水序號的資料!", json_encode($array4json));
+					$status_code = $status_code_failure;
 				}
 			}
 			else
 			{
 				$array4json["insuredDate"]	= date('Ymd');
-				
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= json_encode($array4json);
-				$status_code 			= $status_code_failure;
+				$data = result_message("false", "0x0202", "SQL fail!", json_encode($array4json));
+				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
 			$array4json["insuredDate"]	= date('Ymd');
-			
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= json_encode($array4json);
-			$status_code 			= $status_code_failure;
+			$data = result_message("false", "0x0202", "Exception error!", json_encode($array4json));
+			$status_code = $status_code_failure;
 		}
 		finally
 		{
@@ -153,22 +134,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 		}
 	}
 	else
 	{
 		$array4json["insuredDate"]	= date('Ymd');
-		
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0201";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= $array4json;
+		$data = result_message("false", "0x0201", "API parameter is required!", json_encode($array4json));
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

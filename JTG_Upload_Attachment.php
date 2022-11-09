@@ -35,10 +35,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -104,18 +101,12 @@
 					{
 						$sql2 = "update `attachment` set `attach_graph`='{$image}', `updatetime`=NOW() where id=$mid;";
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
-						//echo "user data change ok!";
-						$data["status"]			= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "簽名檔上傳成功!";
-						$data["json"]			= "";
+						
+						$data = result_message("true", "0x0200", "附件檔上傳成功", "");
 					}
 					catch (Exception $e)
 					{
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= "Exception error!";
-						$data["json"]			= "";						
+						$data = result_message("false", "0x0202", "Exception error!", "");
 					}
 				}
 				else
@@ -123,27 +114,17 @@
 					$sql2 = "INSERT INTO `attachment` (`insurance_no`,`remote_insuance_no`,`person_id`, `attach_title`, `attach_graph`, `createtime`, `updatetime`) VALUES ('$Insurance_no','$Remote_insuance_no','$Personid','{$attachment_Titile}','{$image}', NOW(), NOW())";
 					
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
-					//echo "user data change ok!";
-					$data["status"]			= "true";
-					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "附件檔上傳成功!";
-					$data["json"]			= "";						
+					$data = result_message("true", "0x0200", "附件檔上傳成功", "");
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";				
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";				
+			$data = result_message("false", "0x0202", "Exception error!", "");
         }
 		finally
 		{
@@ -163,21 +144,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

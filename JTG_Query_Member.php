@@ -49,10 +49,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -96,6 +93,7 @@
 						$mid = $row['mid'];
 						$Role = $row['role'];
 					}
+					$data = result_message("false", "0x0203", "get data failure", "");
 					$data["status"]			= "true";
 					$data["code"]			= "0x0200";
 					$data["responseMessage"]= "查詢身份證資料成功!";
@@ -109,10 +107,7 @@
 					$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $json_Person_id, $Role, $Sales_id, $Mobile_no, $Member_name, false);
 					if (!$ret_code)
 					{
-						$data["status"]			= "false";
-						$data["code"]			= "0x0203";
-						$data["responseMessage"]= "API parameter is required!";
-						$data["json"]			= "";
+						$data = result_message("false", "0x0203", "API parameter is required!", "");
 						header('Content-Type: application/json');
 						echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 						return;
@@ -121,29 +116,20 @@
 					{
 						if ($Person_id == $json_Person_id)
 						{
-							$data["status"]			= "true";
-							$data["code"]			= "0x0200";
-							$data["responseMessage"]= "查詢身份證資料成功!";
-							$data["json"]			= "";
-							$status_code 			= $status_code_succeed;
+							$data = result_message("true", "0x0200", "查詢身份證資料成功!", "");
+							$status_code = $status_code_succeed;
 						}
 						else
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0201";
-							$data["responseMessage"]= "查無身份證資料，請重新輸入正確的身份證字號，才可進行下一步操作!";
-							$data["json"]			= "";
-							$status_code 			= $status_code_failure;
+							$data = result_message("false", "0x0201", "查無身份證資料，請重新輸入正確的身份證字號，才可進行下一步操作!", "");
+							$status_code = $status_code_failure;
 						}
 					}	
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";				
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 			}
 			
 			$symbol4log = ($status_code == $status_code_failure) ? "(X) "	 : "";
@@ -165,10 +151,7 @@
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "Exception error!", "");
 			wh_log($Insurance_no, $Remote_insurance_no, "(X) query memberinfo sop catch :".$data["responseMessage"]."\r\n"."error detail :".$e.getMessage(), $Person_id);					
         }
 		finally
@@ -189,21 +172,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		//echo "參數錯誤 !";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 		wh_log($Insurance_no, $Remote_insurance_no, "(!)".$data["responseMessage"], $Person_id);
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";

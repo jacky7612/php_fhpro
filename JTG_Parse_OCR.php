@@ -20,8 +20,6 @@
 	$Role 					= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	// add code at here
-	
 	
 	// 模擬資料
 	if ($g_test_mode)
@@ -36,10 +34,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -57,6 +52,7 @@
 		return;
 	}
 	$data = $ret;
+	// add code at here
 						
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

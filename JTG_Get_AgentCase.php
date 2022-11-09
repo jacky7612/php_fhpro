@@ -44,10 +44,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -95,36 +92,22 @@
 					$jsondata 			= json_encode($data_input);
 					$out 				= CallAPI("POST", $url, $jsondata, $token2, false);
 					
-					$data["status"]			= "true";
-					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "succeed";
-					$data["json"]			= $out;
+					$data = result_message("true", "0x0200", "succeed", $out);
 					return;
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0204";
-					$data["responseMessage"]= "token failure";
-					$data["json"]			= "";
+					$data = result_message("false", "0x0204", "token failure", "");
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0201";
-				$data["responseMessage"]= "沒有此會員!";
-				$data["json"]			= "";						
+				$data = result_message("false", "0x0201", "沒有此會員!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-            //$this->_response(null, 401, $e->getMessage());
-			//echo $e->getMessage();
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "系統異常";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "系統異常", "");
         }
 		finally
 		{
@@ -144,20 +127,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

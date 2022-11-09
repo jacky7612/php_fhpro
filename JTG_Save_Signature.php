@@ -34,10 +34,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -97,45 +94,31 @@
 						$mid = $row['mid'];]
 					}	
 					$mid = (int)str_replace(",", "", $mid);
-					try {
+					try
+					{
 						$sql2 = "update `memberinfo` set `signature_pic`='{$image}', `updatedttime`=NOW() where mid=$mid;";
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 						//echo "user data change ok!";
-						$data["status"]="true";
-						$data["code"]="0x0200";
-						$data["responseMessage"]="簽名檔上傳成功!";
-						$data["json"]			= "";
+						$data = result_message("true", "0x0200", "簽名檔上傳成功!", "");
 					}
 					catch (Exception $e)
 					{
-						$data["status"]="false";
-						$data["code"]="0x0202";
-						$data["responseMessage"]="Exception error!";	
-						$data["json"]			= "";						
+						$data = result_message("false", "0x0202", "Exception error!", "");
 					}
 				}
 				else
 				{
-					$data["status"]="false";
-					$data["code"]="0x0201";
-					$data["responseMessage"]="無相同身份證資料,無法更新!".$Person_id;
-					$data["json"]			= "";					
+					$data = result_message("false", "0x0201", "無相同身份證資料,無法更新!".$Person_id, "");
 				}
 			}
 			else
 			{
-				$data["status"]="false";
-				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";
-				$data["json"]			= "";				
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";
-			$data["json"]			= "";					
+			$data = result_message("false", "0x0202", "Exception error!", "");
         }
 		finally
 		{
@@ -155,21 +138,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

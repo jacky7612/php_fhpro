@@ -52,10 +52,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -80,10 +77,7 @@
 	}
 	else
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0201";
-		$data["responseMessage"]= "Status_code is empty!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0201", "Status_code is empty!", "");
 	}
 	wh_log($Insurance_no, $Remote_insurance_no, "Modify orderlog sop finish :".$data["responseMessage"], $Person_id);
 	

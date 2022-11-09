@@ -49,6 +49,17 @@
 		}
 		return false;
 	}
+	
+	// 訊息中心 public
+	function result_message($status, $code, $responseMessage, $json)
+	{
+		$data = array();
+		$data["status"]			= $status;
+		$data["code"]			= $code;
+		$data["responseMessage"]= $responseMessage;
+		$data["json"]			= $json;
+		return $data;
+	}
 	// 驗證 security token - 看門狗 public
 	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{

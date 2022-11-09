@@ -92,14 +92,12 @@
 				$over_day  = over_insurance_day($dueTime);
 				if ($over_12Hr || $over_day)
 				{
-					$status_code 	= $status_code_failure;
-					$data["status"]	= "false";
-					$data["code"]	= "0x0204";
+					$status_code 	= $status_code_failure;;
 					if ($over_12Hr)
-						$data["responseMessage"] = "要保日 > 12H";
+						$responseMessage = "要保日 > 12H";
 					if ($over_day)
-						$data["responseMessage"] = "要保日跨日";
-					$data["json"] 	= "";
+						$responseMessage .= (strlen($responseMessage) > 0) ? "，且要保日跨日" : "要保日跨日";
+					$data = result_message("false", "0x0204", $responseMessage, "");
 					wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -175,30 +173,19 @@
 				
 				if ($data["status"]	== "true")
 				{
-					$data["status"]			 = "true";
-					$data["code"]			 = "0x0200";
-					$data["responseMessage"] = "json資料解析成功";
-					$data["json"]			 = $out;
+					$data = result_message("true", "0x0200", "json資料解析成功", $out);
 				}
 				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]);
 			}
 			else
 			{
-				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :");
-				$data["status"]			 = "false";
-				$data["code"]			 = "0x0201";
-				$data["responseMessage"] = "json資料解析異常";
-				$data["json"]			 = $out;
+				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :".$out);
+				$data = result_message("false", "0x0201", "json資料解析異常", $out);
 			}
 		}
 		catch (Exception $e)
 		{
-            //$this->_response(null, 401, $e->getMessage());
-			//echo $e->getMessage();
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "系統異常";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "系統異常", "");
 			wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
         }
 		finally
@@ -214,24 +201,18 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
-			wh_log("SSO_Login", $remote_ip4filename, "finally complete - status:".$status_code);//."\r\n".$g_exit_symbol."SSO Login for get insurance json exit ->");
+			wh_log("SSO_Login", $remote_ip4filename, "finally complete - status:".$status_code);
 		}
 	}
 	else
 	{
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 		wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
 	}
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
+	
 ?>

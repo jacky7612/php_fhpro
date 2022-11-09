@@ -48,9 +48,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "parameter is required!";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -219,10 +217,7 @@
 						}
 						else
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0207";
-							$data["responseMessage"]= "Call API core無回應，無法比對!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0207", "Call API core無回應，無法比對!", "");
 							$status_code = $status_code_failure;
 						}
 						//{ 
@@ -243,19 +238,13 @@
 						//}
 						//echo $Action;
 						if ($Action == "OK")
-						{	
-							$data["status"]			= "true";
-							$data["code"]			= "0x0200";
-							$data["responseMessage"]= "動作相符!";
-							$data["json"]			= "";
+						{
+							$data = result_message("true", "0x0200", "動作相符!", "");
 							$status_code = $status_code_succeed;
 						}
 						else if ($Action == "Fail")
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0201";
-							$data["responseMessage"]= "動作不相符!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0201", "動作不相符!", "");
 							$status_code = $status_code_failure;
 						}
 						/* 2021/08/03 }else{
@@ -274,28 +263,19 @@
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0206";
-					$data["responseMessage"]= "身分證資料不存在!";
-					$data["json"]			= "";
+					$data = result_message("false", "0x0206", "身分證資料不存在!", "");
 					$status_code = $status_code_failure;
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "Exception error!", "");
 			$status_code = $status_code_failure;
 		}
 		finally
@@ -316,19 +296,14 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
-	} else {
-		//echo "參數錯誤 !";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";	
-		$data["json"]			= "";
+	}
+	else
+	{
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

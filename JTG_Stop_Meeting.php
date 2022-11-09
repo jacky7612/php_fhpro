@@ -59,10 +59,7 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";
+		$data = result_message("false", "0x0203", "get data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -130,10 +127,7 @@
 						$ret = mysqli_query($link, $sql);
 						if ($Role != "agentOne")
 						{
-							$data["status"]			= "true";
-							$data["code"]			= "0x0200";
-							$data["responseMessage"]= "OK";
-							$data["json"]			= "";
+							$data = result_message("true", "0x0200", "更新線上人數成功", "");
 							$status_code = $status_code_succeed;
 							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
 							header('Content-Type: application/json');
@@ -185,11 +179,8 @@
 								$token = $ret['token'];
 							else
 							{
-								$data["status"]			= "false";
-								$data["code"]			= "0x0202";
-								$data["responseMessage"]= "(X) 呼叫踢人 API error token invalid!";
-								$data["json"]			= "";
-								wh_log($Insurance_no, $Remote_insurance_no, "先踢人 error", $Person_id);
+								$data = result_message("false", "0x0202", "呼叫踢人 API error token invalid", "");
+								wh_log($Insurance_no, $Remote_insurance_no, "(X) 先踢人 error", $Person_id);
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								return;
@@ -240,46 +231,27 @@
 							}
 							*/						
 						}
-						$data["status"] 		= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "OK";
-						$data["json"]			= "";
+						$data = result_message("true", "0x0200", "關閉視訊會議Succeed", "");
 						$status_code = $status_code_succeed;
 					}
 					catch (Exception $e)
 					{
-						//$this->_response(null, 401, $e->getMessage());
-						//echo $e->getMessage();
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= $e->getMessage();
-						$data["json"]			= "";
+						$data = result_message("false", "0x0202", "Exception error [inner] :".$e->getMessage(), "");
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "不存在此要保流水序號的資料!";
-					$data["json"]			= "";						
+					$data = result_message("false", "0x0201", "不存在此要保流水序號的資料!", "");
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";				
+				$data = result_message("false", "0x0204", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-            //$this->_response(null, 401, $e->getMessage());
-			//echo $e->getMessage();
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= $e->getMessage();
-			$data["json"]			= "";			
+			$data = result_message("false", "0x0202", "Exception error [outer] :".$e->getMessage(), "");
         }
 		finally
 		{
@@ -299,20 +271,14 @@
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "Exception error: disconnect!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
 			}
+			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		//echo "need mail and password!";
-		$data["status"]			= "false";
-		$data["code"]			= "0x0203";
-		$data["responseMessage"]= "API parameter is required!";
-		$data["json"]			= "";	
+		$data = result_message("false", "0x0203", "API parameter is required!", "");
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
