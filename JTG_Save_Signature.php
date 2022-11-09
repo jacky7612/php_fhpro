@@ -37,6 +37,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -103,33 +104,38 @@
 						$data["status"]="true";
 						$data["code"]="0x0200";
 						$data["responseMessage"]="簽名檔上傳成功!";
+						$data["json"]			= "";
 					}
 					catch (Exception $e)
 					{
 						$data["status"]="false";
 						$data["code"]="0x0202";
-						$data["responseMessage"]="Exception error!";							
+						$data["responseMessage"]="Exception error!";	
+						$data["json"]			= "";						
 					}
 				}
 				else
 				{
 					$data["status"]="false";
 					$data["code"]="0x0201";
-					$data["responseMessage"]="無相同身份證資料,無法更新!".$Person_id;						
+					$data["responseMessage"]="無相同身份證資料,無法更新!".$Person_id;
+					$data["json"]			= "";					
 				}
 			}
 			else
 			{
 				$data["status"]="false";
 				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";					
+				$data["responseMessage"]="SQL fail!";
+				$data["json"]			= "";				
 			}
 		}
 		catch (Exception $e)
 		{
 			$data["status"]="false";
 			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";					
+			$data["responseMessage"]="Exception error!";
+			$data["json"]			= "";					
         }
 		finally
 		{
@@ -137,7 +143,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -160,9 +166,10 @@
 	else
 	{
 		//echo "need mail and password!";
-		$data["status"]="false";
-		$data["code"]="0x0203";
-		$data["responseMessage"]="API parameter is required!";
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

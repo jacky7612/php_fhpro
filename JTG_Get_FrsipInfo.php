@@ -7,6 +7,7 @@
 	$status_code_failure 	= "K0"; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$array4json				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -23,7 +24,6 @@
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-																											 //0:業務員  1:要保人 2:被保人 3: 法定代理人
 	$Role 				= isset($_POST['Role']) 	 			? $_POST['Role'] 	   			: 'proposer';//proposer：要保人, insured：被保人, legalRepresentative：法定代理人, agentOne：業務員一
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 
@@ -32,7 +32,7 @@
 	$Role 				= check_special_char($Role				);
 	$Person_id 			= check_special_char($Person_id			);
 
-	$MEETING_time 		= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
+	$MEETING_time 		= isset($_POST['MEETING_time']) 		? $_POST['MEETING_time'] 		: '';
 	$MEETING_time 		= check_special_char($MEETING_time);
 	/*
 	proposer：要保人
@@ -45,7 +45,7 @@
 	{
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
-		$Person_id 			 = "A123456789";
+		$Person_id 			 = "E123456789";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
@@ -55,6 +55,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -93,11 +94,12 @@
 			$Role 				= trim(stripslashes($Role)				);
 			$Personid 			= trim(stripslashes($Person_id)			);
 
-			if($Role != "agentOne") // 業務員
+			if ($Role != "agentOne") // 業務員
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
 				$data["responseMessage"]= "無此權限";
+				$data["json"]			= "";
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 				wh_log($Insurance_no, $Remote_insurance_no, "(!) query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
@@ -114,20 +116,15 @@
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
-					$frsipstatus = 0;							
-					$sql = "select * from vmrule where 1";
-					$result = mysqli_query($link, $sql);
-					while ($row = mysqli_fetch_array($result))
-					{
-						$frsipstatus = $row['frsipstatus'];
-					}
-					
 					// Call_API
-					// code here
+					// code here - get vrm status info
+					$frsip_status = "";
 					
-					$data["status"]		= "true";
-					$data["code"]		= "0x0200";
-					$data["frsipstatus"]=  $frsipstatus;
+					$array4json["frsip_status"]=  $frsip_status;
+					$data["status"]			= "true";
+					$data["code"]			= "0x0200";
+					$data["responseMessage"]= "取得frsip狀態成功!";
+					$data["json"]			= json_encode($array4json);
 					$status_code = $status_code_succeed;
 				}
 				else
@@ -135,6 +132,7 @@
 					$data["status"]			="false";
 					$data["code"]			="0x0205";
 					$data["responseMessage"]="無此業務員!";
+					$data["json"]			= "";
 					$status_code = $status_code_failure;
 				}
 			}
@@ -144,6 +142,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "SQL Failed!";
+				$data["json"]			= "";
 				$status_code = $status_code_failure;
 			}
 		}
@@ -152,6 +151,7 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0204";
 			$data["responseMessage"]= "Exception error!";
+			$data["json"]			= "";
 			$status_code = $status_code_failure;
         }
 		finally
@@ -160,7 +160,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -175,6 +175,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
@@ -184,6 +185,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

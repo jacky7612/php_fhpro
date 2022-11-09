@@ -7,6 +7,8 @@
 	$status_code_failure 	= "Y0"; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$applicationData		= array();
+	$uploadData				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -18,6 +20,10 @@
 	$Member_name			= "";
 	$base64image			= "";
 	$Role 					= "";
+	$Policy_no 				= "";
+	
+	$cxPolicy = new CXpolicy();
+	$cxPolicy->init();
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -51,6 +57,7 @@
 	if ($g_test_mode)
 	{
 		$Policy_time 			 = "1";
+		$Policy_no 				 = "Ins1996";
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
 		$Person_id 			 = "A123456789";
@@ -63,6 +70,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -117,6 +125,40 @@
 					$mid = 0;
 					try
 					{
+						// 從pdflog table取得pdf資料
+						$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "", false, true);
+						if ($ret_pdflog["status"] == "true")
+						{
+							$pdflog_info  = json_decode($ret_pdflog["json"]);
+							for ($i = 0; $i < count($pdflog_info); $i++)
+							{
+								$pdflog_name 	= $pdflog_info[$i]->pdf_name;
+								$pdflog_content = $pdflog_info[$i]->pdf_data;
+								$cxPolicy->applicationData[$i]["attacheCode"] 	= $i;
+								$cxPolicy->applicationData[$i]["attacheName"] 	= $pdflog_name;
+								$cxPolicy->applicationData[$i]["attacheContent"] 	= $pdflog_content;
+								$cxPolicy->applicationData[$i]["agentFlag"] 		= "Y";
+							}
+						}
+						
+						$ret_attachment = get_attachment_table_info($link, $Insurance_no, $Remote_insurance_no, "", false, true);
+						if ($ret_attachment["status"] == "true")
+						{
+							$attachment_info  = json_decode($ret_attachment["json"]);
+							for ($i = 0; $i < count($attachment_info); $i++)
+							{
+								$name 	= $attachment_info[$i]->attache_title;
+								$content = $attachment_info[$i]->attach_graph;
+								$cxPolicy->uploadData[$i]["attacheCode"] 		= $i;
+								$cxPolicy->uploadData[$i]["attacheName"] 		= $name;
+								$cxPolicy->uploadData[$i]["attacheContent"] 	= $content;
+							}
+						}
+						
+						$cxPolicy->acceptId 		= $Insurance_no; // 行動投保序號
+						$cxPolicy->policyNo 		= $Policy_no; // 保單號碼
+						$json_data = json_encode($cxPolicy);
+						//echo $json_data."\r\n\r\n";
 						// 呼叫 API
 						/*
 						$user_code = get_random_keys(6);
@@ -145,6 +187,7 @@
 							//1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0
 						}
 						*/
+						$result2 = "";
 						$ret_json = json_decode($result2);
 						
 						$ret_error_msg = "";
@@ -165,11 +208,12 @@
 						if ($ret_error_msg == "")
 						{
 							// 更新 orderinfo table
-							$sql2 = "update `orderinfo` set `policy_number`='$Policy_number' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and order_trash=0";
+							$sql2 = "update `orderinfo` set `policy_number`='$Policy_no' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and order_trash=0";
 							mysqli_query($link,$sql2) or die(mysqli_error($link));
 							$data["status"]			= "true";
 							$data["code"]			= "0x0200";
 							$data["responseMessage"]= "回傳保單資訊至雲端達人成功!";
+							$data["json"]			= "";
 							$status_code = $status_code_succeed;
 						}
 						else
@@ -177,6 +221,7 @@
 							$data["status"]			= "false";
 							$data["code"]			= "0x0201";
 							$data["responseMessage"]= "回傳保單資訊至雲端達人異常 :".$ret_error_msg;
+							$data["json"]			= "";
 							$status_code = $status_code_failure;
 						}
 					}
@@ -185,6 +230,7 @@
 						$data["status"]			= "false";
 						$data["code"]			= "0x0201";
 						$data["responseMessage"]= "回傳保單資訊至雲端達人未完成!";
+						$data["json"]			= "";
 						$status_code = $status_code_failure;
 					}
 				}
@@ -193,6 +239,7 @@
 					$data["status"]			= "false";
 					$data["code"]			= "0x0205";
 					$data["responseMessage"]= "回傳保單資訊至雲端達人錯誤!";
+					$data["json"]			= "";
 					$status_code = $status_code_failure;
 				}
 			}
@@ -201,6 +248,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
 				$data["responseMessage"]= "SQL fail!";
+				$data["json"]			= "";
 				$status_code = $status_code_failure;
 			}
 		}
@@ -208,7 +256,8 @@
 		{
 			$data["status"]="false";
 			$data["code"]="0x0202";
-			$data["responseMessage"]="Exception error!";					
+			$data["responseMessage"]="Exception error!";
+			$data["json"]			= "";					
         }
 		finally
 		{
@@ -216,7 +265,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false, true);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -231,6 +280,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
@@ -241,6 +291,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

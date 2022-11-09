@@ -6,6 +6,7 @@
 	$status_code_failure 	= ""; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$array4json				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -26,7 +27,7 @@
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
 	$Member_name 			= isset($_POST['Member_name']) 			? $_POST['Member_name'] 		: '';
-	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: ''; //大頭照
+	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: '';
 	$base64image 			= isset($_POST['Pid_Pic']) 				? $_POST['Pid_Pic'] 			: '';
 	
 	$Insurance_no 			= check_special_char($Insurance_no		 );
@@ -60,6 +61,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -79,10 +81,10 @@
 	
 	try
 	{
-		if (($Person_id 	!= '') &&
-			($Sales_id 		!= '') &&
-			($Member_name 	!= '') &&
-			($Mobile_no 	!= '') )
+		if ($Person_id 		!= '' &&
+			$Sales_id 		!= '' &&
+			$Member_name 	!= '' &&
+			$Mobile_no 		!= '' )
 		{
 			$date 		= date_create();
 			$file_name 	= uniqid(); //date_timestamp_get($date);
@@ -117,7 +119,7 @@
 			}
 			
 			// update mysql
-			$data = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $base64image, $status_code, false);
+			$data = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $base64image, $status_code, false);
 			wh_log($Insurance_no, $Remote_insurance_no, "modify_member function complete result :".$data["responseMessage"], $Person_id);
 			
 			// 操作：更新
@@ -182,6 +184,7 @@
 						$data["status"]			= "false";
 						$data["code"]			= "0x0203";
 						$data["responseMessage"]= "member - API parameter is required!";
+						$data["json"]			= "";
 						$status_code 			= "";
 					}
 				}
@@ -190,6 +193,7 @@
 					$data["status"]			= "false";
 					$data["code"]			= "0x0203";
 					$data["responseMessage"]= "idphoto - API parameter is required!";
+					$data["json"]			= "";
 					$status_code 			= "";
 					//option , so can skip
 				}
@@ -197,11 +201,11 @@
 		}
 		else
 		{
-			echo "Step param"."\r\n";
 			//echo "need mail and password!";
 			$data["status"]			= "false";
 			$data["code"]			= "0x0203";
 			$data["responseMessage"]= "API parameter is required!";
+			$data["json"]			= "";
 			$status_code 			= "";
 		}
 	}
@@ -210,6 +214,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0202";
 		$data["responseMessage"]= "Exception error!";
+		$data["json"]			= "";
 		$status_code 			= "";
 	}
 	finally
@@ -218,7 +223,7 @@
 		try
 		{
 			if ($status_code != "")
-				$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+				$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 			if (count($data_status) > 0 && $data_status["status"] == "false")
 				$data = $data_status;
 			
@@ -233,6 +238,7 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
 			$data["responseMessage"]= "Exception error: disconnect!";
+			$data["json"]			= "";
 		}
 		wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 	}

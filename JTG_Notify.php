@@ -1,28 +1,27 @@
 <?php
-	//$headers =  apache_request_headers();
-	//var_dump($headers);
-	//echo $headers['Authorization'];
-	include "comm.php";
 	include("func.php");
 	
-	$headers =  apache_request_headers();
-	$token = $headers['Authorization'];
-	if(check_header($key, $token)==true)
-	{
-		;//echo "valid token";
-	}
-	else
-	{
-		;//echo "error token";
-		$data = array();
-		$data["status"]="false";
-		$data["code"]="0x0209";
-		$data["responseMessage"]="Invalid token!";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-		return;							
-	}
+	global $g_notify_apiurl, $g_FCM_API_ACCESS_KEY;
 	
+	// initial
+	$status_code_succeed 	= "K1"; // 成功狀態代碼
+	$status_code_failure 	= "K0"; // 失敗狀態代碼
+	$data 					= array();
+	$data_status			= array();
+	$link					= null;
+	$Insurance_no 			= ""; // *
+	$Remote_insurance_no 	= ""; // *
+	$Person_id 				= ""; // *
+	$Mobile_no 				= "";
+	$json_Person_id 		= "";
+	$Sales_id 				= "";
+	$status_code 			= "";
+	$Member_name			= "";
+	$Role 					= "";
+	$FCM_title				= "";
+	$FCM_content			= "";
+	
+	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
@@ -34,121 +33,193 @@
 	$Person_id 			= check_special_char($Person_id			);
 	$FCM_title 			= check_special_char($FCM_title			);
 	$FCM_content 		= check_special_char($FCM_content		);
-	//$Sales_id = isset($_POST['Sales_id']) ? $_POST['Sales_id'] : '';
-	//$host = 'localhost';
-	//$user = 'tglmember_user';
-	//$passwd = 'tglmember210718';
-	//$database = 'tglmemberdb';
-	try {
+	
+	// 當資料不齊全時，從資料庫取得
+	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
+	if (!$ret_code)
+	{
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
+		header('Content-Type: application/json');
+		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	wh_log($Insurance_no, $Remote_insurance_no, "notify entry <-", $Person_id);
+	
+	// 驗證 security token
+	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$ret = protect_api("JTG_Notify", "notify exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
+	{
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	// start
+	try
+	{
 		$link = mysqli_connect($host, $user, $passwd, $database);
 		mysqli_query($link,"SET NAMES 'utf8'");
 		
-		$Insurance_no  	= mysqli_real_escape_string($link,$Insurance_no);
-		$Remote_insuance_no  	= mysqli_real_escape_string($link,$Remote_insuance_no);
-		$Person_id  	= mysqli_real_escape_string($link,$Person_id);
-		$FCM_title  	= mysqli_real_escape_string($link,$FCM_title);	
-		$FCM_content  	= mysqli_real_escape_string($link,$FCM_content);
-		//$Sales_id  = mysqli_real_escape_string($link,$Sales_id);
+		$Insurance_no  			= mysqli_real_escape_string($link,$Insurance_no			);
+		$Remote_insuance_no  	= mysqli_real_escape_string($link,$Remote_insuance_no	);
+		$Person_id  			= mysqli_real_escape_string($link,$Person_id			);
+		$FCM_title  			= mysqli_real_escape_string($link,$FCM_title			);	
+		$FCM_content  			= mysqli_real_escape_string($link,$FCM_content			);
 	
-		$Personid = trim(stripslashes($Person_id));
-		$FCMtitle = trim(stripslashes($FCM_title));
-		$FCMcontent = trim(stripslashes($FCM_content));
-		$Insuranceno = trim(stripslashes($Insurance_no));
-	
+		$Insurance_no 			= trim(stripslashes($Insurance_no));
+		$Remote_insuance_no 	= trim(stripslashes($Remote_insuance_no));
+		$Personid 				= trim(stripslashes($Person_id));
+		$FCMtitle 				= trim(stripslashes($FCM_title));
+		$FCMcontent 			= trim(stripslashes($FCM_content));
+		$Insuranceno 			= trim(stripslashes($Insurance_no));
 		
 		$sql = "SELECT * FROM memberinfo where member_trash=0 ";
-		if ($Personid != "") {	
-			$sql = $sql." and Person_id='".$Personid."'";
+		$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
+		$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+		
+		// 當為業務員時，要推播給其他相關人員；否則通知業務員要上線進行保單相關流程
+		switch ($Role)
+		{
+			case "proposer":
+			case "insured":
+			case "legalRepresentative":
+				$sql = $sql.merge_sql_string_if_not_empty("person_id", $Sales_id);
+				break;
+				
+			case "agentOne":
+				// $sql = $sql.merge_sql_string_if_not_empty("person_id", $Personid);
+				break;
 		}
 		
-		if ($result = mysqli_query($link, $sql)){
-			if (mysqli_num_rows($result)>0){
-				while($row = mysqli_fetch_array($result)){
+		if ($result = mysqli_query($link, $sql))
+		{
+			if (mysqli_num_rows($result) > 0)
+			{
+				while ($row = mysqli_fetch_array($result))
+				{
+					if ($row["person_id"] == $Personid) continue;
+					$notificationToken = $row['notificationToken'];
+					if ($notificationToken == null || strlen($notificationToken) <= 2)
+					{
+						wh_log($Insurance_no, $Remote_insurance_no, "(X) send FCM message error :token invalid! ".$row["person_id"], $Person_id);
+						$data["status"]			= "false";
+						$data["code"]			= "0x0204";
+						$data["responseMessage"]= "notificationToken is NULL";
+						$data["json"]			= "";
+					}
 					
-							$notificationToken = $row['notificationToken'];
-							//need to LOG for future use
-							//$sql = "INSERT INTO `notification_history` (`account`,`accountType`,`type`,`msg`,`createDateTime`) VALUES ('$store_account[$k]','0','5','$notificationmsg','$nowtime')";
-							//$db->query($sql);
-							
-							if(strlen($notificationToken)<=2) 
-							{
-								//error;				$data["status"]="false";
-								$data["code"]="0x0204";
-								$data["responseMessage"]="notificationToken is NULL";
-								header('Content-Type: application/json');
-								echo (json_encode($data, JSON_UNESCAPED_UNICODE));								
-								return;
-							}
-							
-							$fields = array(
-								'to' => $notificationToken,
-								"notification" => [
-									"body" => $FCMcontent,
-									"title" => $FCMtitle,
-									"icon" => "ic_launcher",
-									"sound" => "default",
-								],
-							);
-	
-							$headers = array(
-								'Authorization: key=AAAAo_0kJqM:APA91bGINmsgm6Q4eIL4jEP5ujJQlXK3YlA3AetNvDzN9KnKG_Z0Zjl59F7qHCCv5lvNqIeWMwoy8JtOX164vtHvXN-D9LcyocoEKTrFlnkH212xDbgdUgCQvyhKemLrPDfZKKyrca74',
+					$send_data = array(
+						'to' 			=> $notificationToken, // 接收端 Token
+						"notification" 	=> [
+							"title"	 		=> $FCMtitle,
+							"body" 			=> $FCMcontent,
+							"icon" 			=> "ic_launcher",
+							"sound" 		=> "default"
+						],
+					);
+					
+					//firebase認證 與 傳送格式
+					$headers = array (
+								'Authorization: key='.$g_FCM_API_ACCESS_KEY,
 								'Content-Type: application/json',
-							);
-	
-							for($i = 0; $i < 3; $i++)
-							{
-								$ch = curl_init();
-								curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
-								curl_setopt($ch, CURLOPT_POST, true);
-								curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-								curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-								curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-								$fcmresult = curl_exec($ch);			
-								curl_close($ch);	
-								if(strlen($fcmresult)>2)
-									break;
-									
-							}
-							$msg = $FCMtitle."-".$FCMcontent;
-							$sql = "INSERT INTO notificationlog (Person_id, role, msg, fcmresult, updatetime) VALUES ('$Personid', '1', '$msg', '$fcmresult', NOW())";
-							mysqli_query($link, $sql);
-							
-							break;
+								);
+					wh_log($Insurance_no, $Remote_insurance_no, "send FCM message had ready", $Person_id);
+					
+					// 呼叫FCM推播 API /*curl至firebase server發送到接收端*/
+					try
+					{
+						$ch = curl_init();
+						curl_setopt($ch, CURLOPT_URL, $g_notify_apiurl);
+						curl_setopt($ch, CURLOPT_POST, true);
+						curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($send_data));
+						$ret_fcm = curl_exec($ch); // ret_fcm 是firebase server的結果
+						curl_close($ch); // 關閉CURL連線
+					}
+					catch (Exception $e)
+					{
+						wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$row["person_id"]." call FCM exeception error : ".$e->getMessage(), $Person_id);
+					}
+					wh_log($Insurance_no, $Remote_insurance_no, "FCM result :".$ret_fcm, $Person_id);
+					
+					// 紀錄發佈紀錄至notification log
+					$msg = $FCMtitle."-".$FCMcontent;
+					$sql = "INSERT INTO notificationlog (insurance_no, remote_Insurance_no, person_id, role, msg, fcmresult, updatetime) VALUES ('$Insurance_no', '$Remote_insuance_no', '$Personid', 'proposer', '$msg', '$ret_fcm', NOW())";
+					mysqli_query($link, $sql);
 				}
 			}
 			else
 			{
-				$data["status"]="false";
-				$data["code"]="0x0205";
-				$data["responseMessage"]="無此人員推播失敗";
+				$data["status"]			= "false";
+				$data["code"]			= "0x0205";
+				$data["responseMessage"]= "無此人員推播失敗";
+				$data["json"]			= "";
 				header('Content-Type: application/json');
-				echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
+				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 				return;				
 			}
 		}
 		else
 		{
-				$data["status"]="false";
-				$data["code"]="0x0204";
-				$data["responseMessage"]="SQL fail!";
-				header('Content-Type: application/json');
-				echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
-				return;
+			$data["status"]			= "false";
+			$data["code"]			= "0x0204";
+			$data["responseMessage"]= "SQL fail!";
+			$data["json"]			= "";
+			header('Content-Type: application/json');
+			echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+			return;
 		}
 		
-		$data["status"]="true";
-		$data["code"]="0x0200";
-		$data["responseMessage"]="推播發送成功";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-	}catch (Exception $e) {
+		$data["status"]			= "true";
+		$data["code"]			= "0x0200";
+		$data["responseMessage"]= "推播發送成功";
+		$data["json"]			= "";
+	}
+	catch (Exception $e)
+	{
 		//$this->_response(null, 401, $e->getMessage());
 		//echo $e->getMessage();
-		$data["status"]="false";
-		$data["code"]="0x0202";
-		$data["responseMessage"]="系統異常";	
-		header('Content-Type: application/json');
-		echo (json_encode($data, JSON_UNESCAPED_UNICODE));			
-	}			
+		$data["status"]			= "false";
+		$data["code"]			= "0x0202";
+		$data["responseMessage"]= "系統異常";
+		$data["json"]			= "";			
+	}
+	finally
+	{
+		wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+		try
+		{
+			if ($status_code != "")
+				$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
+			if (count($data_status) > 0 && $data_status["status"] == "false")
+				$data = $data_status;
+			
+			if ($link != null)
+			{
+				mysqli_close($link);
+				$link = null;
+			}
+		}
+		catch (Exception $e)
+		{
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= "Exception error: disconnect!";
+			$data["json"]			= "";
+		}
+		wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+	}
+	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
+	if ($data["code"] == "0x0200") $symbol_str = "";
+	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."notify exit ->"."\r\n", $Person_id);
+	
+	header('Content-Type: application/json');
+	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

@@ -39,7 +39,14 @@
 	//if (!mysql_query($sql)) { // Error handling
 	//    echo "Something went wrong! :("; 
 	//}
-
+	
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "E123456789";
+	}
 	
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
@@ -48,6 +55,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -66,10 +74,10 @@
 	}
 	
 	// start
-	if (($Insurance_no 			!= '' &&
-		 $Remote_insuance_no 	!= '' &&
-		 $Person_id 			!= '' &&
-		 strlen($Person_id) > 1) )
+	if ($Insurance_no 			!= '' &&
+		$Remote_insuance_no 	!= '' &&
+		$Person_id 				!= '' &&
+		strlen($Person_id) 		 > 1 )
 	{
 		try
 		{
@@ -135,7 +143,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -145,7 +153,7 @@
 					$link = null;
 				}
 			}
-			catch(Exception $e)
+			catch (Exception $e)
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
@@ -154,7 +162,9 @@
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
-	} else {
+	}
+	else
+	{
 		//echo "need mail and password!";
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";

@@ -110,63 +110,74 @@ ps.每個步驟都要狀態API
 																						成功：[Y1]					待建立API
 工作項目
 -----------------------------------------------------------------
-1、整理全球現有API在第一金需要用到的		(V) 2022.10.21	complete :2022.10.23
-2、擴增的API及Table							(V) 2022.10.24  complete :2022.10.27
-3、API細部整理								(V) 2022.10.28  complete :2022.10.30
-4、log2file重點每個步驟，才好追查原因 		(V) 2022.10.29  complete :2022.10.30
-5、memberinfo需加入行投號及保單號			(V) 2022.10.28  complete :2022.10.30
-6、建立範例json並讀取測試						2022.10.31
-
-	JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
-	JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
-	JTG_Modify_Insurance_Status				(V) 2022.11.02  complete :2022.11.02
-	JTG_Query_Member		  				(V) 2022.11.02  complete :2022.11.02 目前邏輯只有使用APP輸入身份證字號成功，才會紀錄到memberinfo
-	JTG_Modify_Member		  				(V) 2022.11.02  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
-	JTG_Save_IDPhoto		  				(V) 2022.11.02  complete :2022.11.03
-	JTG_Get_IDPIC			  				(V) 2022.11.02  complete :2022.11.03 [getpidpic2、getuserList]
-	JTG_Parse_OCR  							(O) 2022.11.02  complete :			 尚未確定廠商，目前是空的
-	JTG_Gov_ID				  				(O) 2022.11.02  complete :2022.11.03 有基礎功能，未正式連到內政部
+1、整理全球現有API在第一金需要用到的			(V) 2022.10.21	complete :2022.10.23
+2、擴增的API及Table								(V) 2022.10.24  complete :2022.10.27
+3、API細部整理									(V) 2022.10.28  complete :2022.10.30
+4、log2file重點每個步驟，才好追查原因 			(V) 2022.10.29  complete :2022.10.30
+5、memberinfo需加入行投號及保單號				(V) 2022.10.28  complete :2022.10.30
+6、建立範例json並讀取測試							2022.10.31
 	
-	JTG_Face_Compare		  				(O) 2022.11.04  complete :2022.11.04 程式已調整，要結合實際測試
-	JTG_JTG_Live_Compare	  				(O) 2022.11.04  complete :2022.11.04 程式已調整，要結合實際測試
-	JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
-	JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
+	01.JTG_SSO_Login.php						(V) 2022.10.31  complete :2022.10.31 [modify_order_state、log.php、wjson.php、whpdf.php]當有真資料時，需補測存成Pdf
+	02.JTG_Modify_Country_Code  				(V) 2022.11.01  complete :2022.11.02 [協助SD文件]
+	03.JTG_Modify_Insurance_Status				(V) 2022.11.02  complete :2022.11.02
+	04.JTG_Query_Member		  					(V) 2022.11.02  complete :2022.11.02 目前邏輯只有使用APP輸入身份證字號成功，才會紀錄到memberinfo
+	05.JTG_Modify_Member		  				(V) 2022.11.02  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
+	06.JTG_Save_IDPhoto		  					(V) 2022.11.02  complete :2022.11.03
+	07.JTG_Get_IDPIC			  				(V) 2022.11.02  complete :2022.11.03 [getpidpic2、getuserList]
+	08.JTG_Parse_OCR  							(O2) 2022.11.02  complete :2022.11.03,09 尚未確定廠商，目前是空的
+	09.JTG_Gov_ID				  				(O2) 2022.11.02  complete :2022.11.03,09 有基礎功能，未正式連到內政部
 	
-	JTG_Get_Proposal_PDF  					(V) 2022.11.01  complete :2022.11.05
-	JTG_Save_Proposal_PDF					(O) 2022.11.01  complete :2022.11.07[未測試，從JTG_Get_Proposal_PDF複製]
-	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.05
-	JTG_Verify_OTP_Code		  				(V) 2022.11.01  complete :2022.11.05
+	10.JTG_Face_Compare		  					(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
+	11.JTG_JTG_Live_Compare	  					(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
+	12.JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
+	13.JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	
-	第一次JTG_Get_FrsipInfo		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接影音系統API]
-	第一次JTG_Get_MeetingInfo		  		(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接視訊系統API]
-	第一次JTG_Start_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
-	第一次JTG_Stop_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
+	14.JTG_Get_Proposal_PDF  					(V) 2022.11.01  complete :2022.11.05
+	15.JTG_Save_Proposal_PDF					(V) 2022.11.01  complete :2022.11.07[從JTG_Get_Proposal_PDF複製]
+	JTG_Send_OTP_Code		  					(V) 2022.11.01  complete :2022.11.05
+	JTG_Verify_OTP_Code		  					(V) 2022.11.01  complete :2022.11.05
+	
+	16.第一次.JTG_Get_FrsipInfo		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際串接影音系統API]
+	17.第一次.JTG_Get_MeetingInfo		  		(O2) 2022.11.01  complete :2022.11.07,09 [未實際串接視訊系統API]
+	18.第一次.JTG_Start_Meeting		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
+	19.第一次.JTG_Stop_Meeting		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
 	//-------------------------------------------------------------------------------------------------------------
-	JTG_Get_Proposal_PDF	  				(V) 2022.11.01  complete :2022.11.07
-	JTG_Save_Proposal_PDF					(V) 2022.11.01  complete :2022.11.07 [從JTG_Get_Proposal_PDF複製]
-	JTG_Get_Json				  			(V) 2022.11.01  complete :2022.11.07
-	JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.07
-	JTG_Verify_OTP_Code			  			(V) 2022.11.01  complete :2022.11.07
+	20.JTG_Get_Proposal_PDF	  					(V) 2022.11.01  complete :2022.11.07
+	21.JTG_Save_Proposal_PDF					(V) 2022.11.01  complete :2022.11.07 [從JTG_Get_Proposal_PDF複製]
+	22.JTG_Get_Json				  				(V) 2022.11.01  complete :2022.11.07
+	   JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.07
+	   JTG_Verify_OTP_Code			  			(V) 2022.11.01  complete :2022.11.07
 	
-	JTG_Get_AttachementInfo					(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
-	JTG_Upload_Attachment		  			(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	23.JTG_Get_AttachementInfo					(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	24.JTG_Upload_Attachment		  			(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+		
+	第二次JTG_Get_FrsipInfo		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，是否要串接影音系統API]
+	第二次JTG_Get_MeetingInfo		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，是否要串接視訊系統API]
+	第二次JTG_Start_Meeting		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
+	第二次JTG_Stop_Meeting		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
 	
-	第二次JTG_Get_FrsipInfo		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接影音系統API]
-	第二次JTG_Get_MeetingInfo		  		(O) 2022.11.01  complete :2022.11.07[未實際測試，是否要串接視訊系統API]
-	第二次JTG_Start_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
-	第二次JTG_Stop_Meeting		  			(O) 2022.11.01  complete :2022.11.07[未實際測試，程式段有call third party API]
+	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	回傳業務-要保書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	回傳業務-業報書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
 	
-	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
-	回傳業務-要保書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
-	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
-	回傳業務-業報書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
+	要保書-押上保單號碼JTG_Get_Proposal_PDF		(V) 2022.11.01  complete :2022.11.07,09 
+	要保書-押上保單號碼JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
 	
-	要保書-押上保單號碼JTG_Get_Proposal_PDF		(V) 2022.11.01  complete :2022.11.07
-	要保書-押上保單號碼JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07
-	JTG_Get_PolicyNo		  					() 2022.11.01  complete :2022.11.08 雲端達人-取得保單號碼，並押上保單號碼
-	JTG_Send_Policy			  					() 2022.11.01  complete :2022.11.08
+	25.JTG_Get_PolicyNo		  					(O2) 2022.11.01  complete :2022.11.09 雲端達人-取得保單號碼，並押上保單號碼
+	26.JTG_Send_Policy			  				(O2) 2022.11.01  complete :2022.11.08,09 
+	27.JTG_Get_Signature		  				(O) 2022.11.01  complete :2022.11.08,09 [未實際測試，需建假資料測試]
+	28.JTG_Save_Signature		  				(O) 2022.11.01  complete :2022.11.08,09 [未實際測試，需建假資料測試]
+	29.JTG_Notify								(O) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
+	30.JTG_Get_AgentCase						(O) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
 	
-	JTG_Get_Signature		  				(O) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
-	JTG_Save_Signature		  				(O) 2022.11.01  complete : [未實際測試，需建假資料測試]
-	
-7、postman測試API							()
+7、postman測試API								()
+
+8、重整API文件									()
+
+修正一：要保日>12H或要保日跨日	[V]
+修正二：OCR						[缺]
+修正三：推播					(V)
+修正四：視訊					[]
+修正五：內政部					[缺]
+修正六：回傳					[]

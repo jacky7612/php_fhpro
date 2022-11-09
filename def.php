@@ -1,5 +1,5 @@
 <?php
-	$g_mpost_url 						= "https://localhost/test_fhpro/";//PROD不明，可能需去除
+	$g_mpost_url 						= "https://localhost/test_fhpro/";//PROD不明，可能需去除，全球行投API
 	
 	
 	$g_db_ip							= "127.0.0.1";
@@ -55,11 +55,38 @@
 	$g_OTP_message_value				= "第一金遠距行動投保APP(一次性驗證碼簡訊),您的驗證碼為:";
 	$g_OTP_mobile_key					= "DEST";
 	
-	$g_PolicyNo_enable					= false; // 雲端達人-取得保單號碼，並押上保單號碼
+	$g_PolicyNo_enable					= false															; // 雲端達人-取得保單號碼，並押上保單號碼
 	$g_PolicyNo_apiurl 					= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // 雲端達人-取得保單號碼 url
 	
 	$g_Policy_enable					= false; // 回傳保單資訊至雲端達人
 	$g_Policy_apiurl 					= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // 回傳保單資訊至雲端達人 url
 	
-	$g_PDF_apiurl 						= $g_mpost_url. "ldi/getPdf"						; // PDF url
+	$g_notify_apiurl					= "https://fcm.googleapis.com/fcm/send"							; // 推播 url
+	$g_FCM_API_ACCESS_KEY				= "AAAAo_0kJqM:APA91bGINmsgm6Q4eIL4jEP5ujJQlXK3YlA3AetNvDzN9KnKG_Z0Zjl59F7qHCCv5lvNqIeWMwoy8JtOX164vtHvXN-D9LcyocoEKTrFlnkH212xDbgdUgCQvyhKemLrPDfZKKyrca74"; // FCM金鑰
+	
+	$g_join_meeting_apiurl				= "https://ldi.transglobe.com.tw"								; // 會議室 url
+										  // Prod url :"https://dis-cn1.transglobe.com.tw"
+										  /*
+										  $LB = rand(1, 10);
+											if ($LB > 5)
+												$main_url = "https://dis-cn2.transglobe.com.tw";
+											else
+												$main_url = "https://dis-cn1.transglobe.com.tw";
+										  */
+	$g_join_meeting_max_license			= 250;
+	$g_join_meeting_pincode				= "53758995";
+	
+	$g_create_meeting_apiurl			= "http://10.67.70.169/RESTful/index.php/v1/"					; // 會議室 url
+										  /*
+										  if(_ENV == "PROD")
+												$mainurl = "http://10.67.65.174/RESTful/index.php/v1/";
+												或
+												$mainurl = "http://10.67.65.180/RESTful/index.php/v1/";//內網 //PROD
+											else
+												$mainurl = "http://10.67.70.169/RESTful/index.php/v1/";//內網 //UAT
+										  */
+	$g_create_meeting_user				= "administrator";
+	$g_create_meeting_hash				= "CheFR63r";
+	
+	$g_PDF_apiurl 						= $g_mpost_url. "ldi/getPdf"									; // PDF url
 ?>

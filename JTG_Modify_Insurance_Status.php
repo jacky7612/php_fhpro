@@ -5,8 +5,9 @@
 	// initial
 	//$status_code_succeed = "B2"; // 成功狀態代碼
 	//$status_code_failure = ""; // 失敗狀態代碼
-	$data 					= array();
 	$link					= null;
+	$data 					= array();
+	$array4json				= array();
 	$Insurance_no 			= "";
 	$Remote_insurance_no 	= "";
 	$Person_id 				= "";
@@ -22,6 +23,8 @@
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			:  '';
 	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			:  '';
 	$Status_code 			= isset($_POST['Status_code']) 			? $_POST['Status_code'] 		:  '';
+	$UpdateAllStatus 		= isset($_POST['UpdateAllStatus']) 		? $_POST['UpdateAllStatus'] 	:  'false';
+	$ChangeStatusAnyway		= isset($_POST['ChangeStatusAnyway']) 	? $_POST['ChangeStatusAnyway'] 	:  'false';
 
 	$Insurance_no 			= check_special_char($Insurance_no);
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
@@ -29,6 +32,11 @@
 	$Person_id 				= check_special_char($Person_id);
 	$Mobile_no 				= check_special_char($Mobile_no);
 	$Status_code 			= check_special_char($Status_code);
+	$UpdateAllStatus 		= check_special_char($UpdateAllStatus);
+	$ChangeStatusAnyway 	= check_special_char($ChangeStatusAnyway);
+	
+	$UpdateAllStatus 		= trim(strtolower($UpdateAllStatus));
+	$ChangeStatusAnyway 	= trim(strtolower($ChangeStatusAnyway));
 	
 	// 模擬資料
 	if ($g_test_mode)
@@ -47,6 +55,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -67,13 +76,14 @@
 	if ($Status_code != "")
 	{
 		// 更新狀態
-		$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Status_code, true, true);
+		$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Status_code, true, ($UpdateAllStatus == "true"), ($ChangeStatusAnyway == "true"));
 	}
 	else
 	{
 		$data["status"]			= "false";
 		$data["code"]			= "0x0201";
 		$data["responseMessage"]= "Status_code is empty!";
+		$data["json"]			= "";
 	}
 	wh_log($Insurance_no, $Remote_insurance_no, "Modify orderlog sop finish :".$data["responseMessage"], $Person_id);
 	

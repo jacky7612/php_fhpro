@@ -1,6 +1,9 @@
 <?php
 	include("func.php");
 
+	$data 					= array();
+	$array4json				= array();
+	
 	$user 	= isset($_POST['user']) ? $_POST['user'] : '';
 	$pwd 	= isset($_POST['pwd'])  ? $_POST['pwd']  : '';
 	$data	= array();
@@ -14,12 +17,13 @@
 			if (base64_encode($user) == $vuser &&
 				base64_encode($pwd)  == $vpwd)
 			{
+				$array4json["token"]	 = $en;
 				$time 					 = date("Y-m-d H:i:s");
 				$en 					 = encrypt($key, $time);
 				$data["status"]			 = "true";
 				$data["code"]			 = "0x0200";
 				$data["responseMessage"] = "Succeed!";
-				$data["token"]			 = $en;
+				$data["json"]			 = json_encode($array4json);
 				wh_log("GetToken", $remote_ip4filename, $data["responseMessage"]);	
 			}
 			else
@@ -27,6 +31,7 @@
 				$data["status"]			 = "false";
 				$data["code"]			 = "0x0205";
 				$data["responseMessage"] = "Invalid user!";
+				$data["json"]			 = "";
 				wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);	
 			}
 		}
@@ -35,7 +40,8 @@
 			$data["status"]			 = "false";
 			$data["code"]			 = "0x0204";
 			$data["responseMessage"] = "Exception error!";
-			wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]");	
+			$data["json"]			 = "";
+			wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);	
         }
 	}
 	else
@@ -43,6 +49,7 @@
 		$data["status"]			 = "false";
 		$data["code"]			 = "0x0203";
 		$data["responseMessage"] = "API parameter is required!";
+		$data["json"]			 = "";
 		wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);
 	}
 	header('Content-Type: application/json');

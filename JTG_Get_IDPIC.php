@@ -6,6 +6,7 @@
 	$status_code_failure 	= "";   // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$array4json				= array();
 	$fields2   				= array();
 	$userList  				= array();
 	$numbering 				= "";
@@ -94,34 +95,45 @@
 					$userList = getuserList($link, $Insuranceno, $Remote_insurance_no, $Person_id, false);
 					$fields2 = ["status" => "true", "code" => "0x0200", "msg" => "查詢成功", "insuredDate"  => $insuredDate, "userList" => $userList ];
 	
-					$data 		 = $fields2;
-					$status_code = $status_code_succeed;
+					$array4json	= $fields2;
+					
+					$data["status"]			= "true";
+					$data["code"]			= "0x0200";
 					$data["responseMessage"]= "查詢成功";
+					$data["json"]			= $array4json;
+					
+					$status_code = $status_code_succeed;
 				}
 				else
 				{
+					$array4json["insuredDate"]	= date('Ymd');
+					
 					$data["status"]			= "false";
 					$data["code"]			= "0x0201";
 					$data["responseMessage"]= "不存在此要保流水序號的資料!";
-					$data["insuredDate"]	= date('Ymd');
+					$data["json"]			= json_encode($array4json);
 					$status_code 			= $status_code_failure;
 				}
 			}
 			else
 			{
+				$array4json["insuredDate"]	= date('Ymd');
+				
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "SQL fail!";
-				$data["insuredDate"]	= date('Ymd');
+				$data["json"]			= json_encode($array4json);
 				$status_code 			= $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
+			$array4json["insuredDate"]	= date('Ymd');
+			
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
 			$data["responseMessage"]= "Exception error!";
-			$data["insuredDate"]	= date('Ymd');
+			$data["json"]			= json_encode($array4json);
 			$status_code 			= $status_code_failure;
 		}
 		finally
@@ -129,7 +141,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 			
@@ -144,16 +156,19 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 		}
 	}
 	else
 	{
+		$array4json["insuredDate"]	= date('Ymd');
+		
 		//echo "need mail and password!";
 		$data["status"]			= "false";
 		$data["code"]			= "0x0201";
 		$data["responseMessage"]= "API parameter is required!";
-		$data["insuredDate"]	= date('Ymd');
+		$data["json"]			= $array4json;
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

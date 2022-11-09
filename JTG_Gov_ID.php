@@ -6,6 +6,7 @@
 	$status_code_failure 	= "E0"; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$array4json				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -161,12 +162,14 @@
 					$data["status"]			= "true";
 					$data["code"]			= "0x0200";
 					$data["responseMessage"]= "發送成功";
+					$data["json"]			= "";
 					$status_code = $status_code_succeed;
 					if ($out == null || $out = "")
 					{
 						$data["status"]			= "false";
 						$data["code"]			= "0x0201";
 						$data["responseMessage"]= "GOV 無回應!";
+						$data["json"]			= "";
 					}
 				}
 				else
@@ -174,6 +177,7 @@
 					$data["status"]			= "false";
 					$data["code"]			= "0x0204";
 					$data["responseMessage"]= "token fail";
+					$data["json"]			= "";
 					$status_code = $status_code_failure;
 				}
 			}
@@ -181,7 +185,8 @@
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";	
+				$data["responseMessage"]= "SQL fail!";
+				$data["json"]			= "";
 				$status_code = $status_code_failure;				
 			}
 		}
@@ -192,6 +197,7 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
 			$data["responseMessage"]= "系統異常";
+			$data["json"]			= "";
 			$status_code = $status_code_failure;				
         }
 		finally
@@ -200,7 +206,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -215,6 +221,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
@@ -222,9 +229,10 @@
 	else
 	{
 		//echo "need mail and password!";
-		$data["status"]="false";
-		$data["code"]="0x0203";
-		$data["responseMessage"]="API parameter is required!";
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	if (count($data) > 0)
 	{

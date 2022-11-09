@@ -99,6 +99,7 @@
 				$data["status"]			= "true";
 				$data["code"]			= "0x0200";
 				$data["responseMessage"]= "更新成功!";
+				$data["json"]			= "";
 				$status_code 			= $status_code_succeed;
 			}
 			else
@@ -106,12 +107,13 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
 				$data["responseMessage"]= "SQL fail!";
+				$data["json"]			= "";
 				$status_code 			= $status_code_failure;
 			}
 			$symbol4log = ($status_code == $status_code_failure) ? "(X) ": "";
 			$sql = ($status_code == $status_code_failure) ? " :".$sql : "";
 			wh_log($Insurance_no, $Remote_insurance_no, $symbol4log."modify countrylog table result :".$data["responseMessage"].$sql, $Person_id);
-			$data_Status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+			$data_Status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 			
 			if ($data["status"] 	   == "true" &&
 				count($data_status) 	> 0 	 &&
@@ -126,6 +128,7 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
 			$data["responseMessage"]= "Exception error!";
+			$data["json"]			= "";
 			wh_log($Insurance_no, $Remote_insurance_no, "(X) modify countrylog sop catch :".$data["responseMessage"]."\r\n"."error detail :".$e->getMessage(), $Person_id);			
 		}
 		finally
@@ -144,6 +147,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);//."\r\n".$g_exit_symbol."SSO Login for get insurance json exit ->");
 		}	
@@ -151,9 +155,10 @@
 	else
 	{
 		//echo "參數錯誤 !";
-		$data["status"]="false";
-		$data["code"]="0x0203";
-		$data["responseMessage"]="API parameter is required!";
+		$data["status"]			= "false";
+		$data["code"]			= "0x0203";
+		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

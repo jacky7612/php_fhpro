@@ -7,6 +7,7 @@
 	$data 					= array();
 	$data_create			= array();
 	$data_status			= array();
+	$array4json				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -25,6 +26,7 @@
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: '';
 	$DoCreateMember_Flag	= isset($_POST['CreateFlag']) 			? $_POST['CreateFlag'] 			: 'false';
 	
 	$Insurance_no 			= check_special_char($Insurance_no);
@@ -50,6 +52,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -96,6 +99,7 @@
 					$data["status"]			= "true";
 					$data["code"]			= "0x0200";
 					$data["responseMessage"]= "查詢身份證資料成功!";
+					$data["json"]			= "";
 					$status_code 			= $status_code_succeed;
 				}
 				else
@@ -108,6 +112,7 @@
 						$data["status"]			= "false";
 						$data["code"]			= "0x0203";
 						$data["responseMessage"]= "API parameter is required!";
+						$data["json"]			= "";
 						header('Content-Type: application/json');
 						echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 						return;
@@ -119,6 +124,7 @@
 							$data["status"]			= "true";
 							$data["code"]			= "0x0200";
 							$data["responseMessage"]= "查詢身份證資料成功!";
+							$data["json"]			= "";
 							$status_code 			= $status_code_succeed;
 						}
 						else
@@ -126,6 +132,7 @@
 							$data["status"]			= "false";
 							$data["code"]			= "0x0201";
 							$data["responseMessage"]= "查無身份證資料，請重新輸入正確的身份證字號，才可進行下一步操作!";
+							$data["json"]			= "";
 							$status_code 			= $status_code_failure;
 						}
 					}	
@@ -135,7 +142,8 @@
 			{
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";					
+				$data["responseMessage"]= "SQL fail!";
+				$data["json"]			= "";				
 			}
 			
 			$symbol4log = ($status_code == $status_code_failure) ? "(X) "	 : "";
@@ -145,7 +153,7 @@
 			// 儲存資料至資料庫
 			if ($status_code == $status_code_succeed && $DoCreateMember_Flag == "true")
 			{
-				$data_create = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, $status_code, false);
+				$data_create = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, $status_code, false);
 				if ($data["status"] 	   == "true" &&
 					$data_create["status"] == "false")
 				{
@@ -160,6 +168,7 @@
 			$data["status"]			= "false";
 			$data["code"]			= "0x0202";
 			$data["responseMessage"]= "Exception error!";
+			$data["json"]			= "";
 			wh_log($Insurance_no, $Remote_insurance_no, "(X) query memberinfo sop catch :".$data["responseMessage"]."\r\n"."error detail :".$e.getMessage(), $Person_id);					
         }
 		finally
@@ -168,7 +177,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 &&  $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -183,6 +192,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
@@ -193,9 +203,9 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 		wh_log($Insurance_no, $Remote_insurance_no, "(!)".$data["responseMessage"], $Person_id);
 	}
-	
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";
 	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."query member exit ->"."\r\n", $Person_id);

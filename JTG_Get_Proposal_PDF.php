@@ -2,10 +2,11 @@
 	include("func.php");
 	
 	// initial
-	$status_code_succeed 	= "I1"; // 成功狀態代碼
-	$status_code_failure 	= "I0"; // 失敗狀態代碼
+	$status_code_succeed 	= ""; // 成功狀態代碼
+	$status_code_failure 	= ""; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
+	$array4json				= array();
 	$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
@@ -38,9 +39,13 @@
 		
 	switch ($PDF_time)
 	{
-		case "2":
+		case "1": // 客戶-要保書
+			$status_code_succeed = "I1"; // 成功狀態代碼
+			$status_code_failure = "I0"; // 失敗狀態代碼
+		case "2": // 客戶-要保書
 			$status_code_succeed = "M1"; // 成功狀態代碼
 			$status_code_failure = "M0"; // 失敗狀態代碼
+			$PDF_time = "1";
 			break;
 		case "3": // 業務員-要保書
 			$status_code_succeed = "S1"; // 成功狀態代碼
@@ -54,8 +59,6 @@
 			$status_code_succeed = "W1"; // 成功狀態代碼
 			$status_code_failure = "W0"; // 失敗狀態代碼
 			break;
-		default:
-			$PDF_time = "ori";
 	}
 	
 	// 模擬資料
@@ -136,20 +139,26 @@
 					$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "insurance_".$PDF_time, false);
 					
 					/* */
-					$pdflog_info = json_decode($ret_pdflog["json"]);
-					$jsonlog_info = json_decode($json_data);
-					for ($i = 0; $i < count($jsonlog_info->applicationData); $i++)
+					if ($ret_pdflog["status"] == "true")
 					{
-						if ($ret_pdflog["status"] == "true")
+						//echo $ret_pdflog["json"]."\r\n\r\n";
+						$jsonlog_info = json_decode($json_data);
+						$pdflog_info  = json_decode($ret_pdflog["json"]);
+						for ($i = 0; $i < count($jsonlog_info->applicationData); $i++)
 						{
-							$pdflog_content = $pdflog_info->pdf_data;
-							$status_code = $status_code_succeed;
-							$jsonlog_info->applicationData[$i]->attacheContent = $pdflog_content;
+							//echo count($pdflog_info)."\r\n\r\n";
+							for ($j = 0; $j < count($pdflog_info); $j++)
+							{
+								//echo "152 ".$pdflog_info[$j]->pdf_data."\r\n\r\n";
+								$pdflog_content = $pdflog_info[$j]->pdf_data;
+								$jsonlog_info->applicationData[$i]->attacheContent = $pdflog_content;
+							}
 						}
-						else
-						{
-							$data = $ret_pdflog;
-						}
+						$status_code = $status_code_succeed;
+					}
+					else
+					{
+						$data = $ret_pdflog;
 					}
 					/* */
 				}
@@ -164,6 +173,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0204";
 				$data["responseMessage"]= "token fail";
+				$data["json"]			= "";
 				$status_code = $status_code_failure;
 			}
 		}
@@ -171,9 +181,10 @@
 		{
             //$this->_response(null, 401, $e->getMessage());
 			//echo $e->getMessage();
-			$data["status"]="false";
-			$data["code"]="0x0202";
-			$data["responseMessage"]="系統異常";
+			$data["status"]			= "false";
+			$data["code"]			= "0x0202";
+			$data["responseMessage"]= "系統異常";
+			$data["json"]			= "";
 			$status_code = $status_code_failure;					
         }
 		finally
@@ -182,7 +193,7 @@
 			try
 			{
 				if ($status_code != "")
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $status_code, false);
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
 				if (count($data_status) > 0 && $data_status["status"] == "false")
 					$data = $data_status;
 				
@@ -197,6 +208,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0202";
 				$data["responseMessage"]= "Exception error: disconnect!";
+				$data["json"]			= "";
 			}
 		}
 	}
@@ -206,6 +218,7 @@
 		$data["status"]			= "false";
 		$data["code"]			= "0x0203";
 		$data["responseMessage"]= "API parameter is required!";
+		$data["json"]			= "";
 	}
 	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
 	if ($data["code"] == "0x0200") $symbol_str = "";

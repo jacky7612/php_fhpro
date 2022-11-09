@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-07 04:34:27
+-- 產生時間： 2022-11-09 09:11:01
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -161,16 +161,16 @@ CREATE TABLE `meetinglog` (
   `filename` varchar(256) DEFAULT NULL,
   `proposer_id` varchar(256) DEFAULT NULL,
   `proposer_gps` varchar(64) DEFAULT NULL,
-  `proposer_addr` varchar(256) DEFAULT NULL,
+  `proposer_gps_addr` varchar(256) DEFAULT NULL,
   `insured_id` varchar(256) DEFAULT NULL,
   `insured_gps` varchar(64) DEFAULT NULL,
-  `insured_addr` varchar(256) DEFAULT NULL,
+  `insured_gps_addr` varchar(256) DEFAULT NULL,
   `legalRep_id` varchar(256) DEFAULT NULL,
   `legalRep_gps` varchar(64) DEFAULT NULL,
-  `legalRep_addr` varchar(256) DEFAULT NULL,
+  `legalRep_gps_addr` varchar(256) DEFAULT NULL,
   `agent_id` varchar(256) DEFAULT NULL,
   `agent_gps` varchar(64) DEFAULT NULL,
-  `agent_addr` varchar(256) DEFAULT NULL,
+  `agent_gps_addr` varchar(256) DEFAULT NULL,
   `updatetime` datetime NOT NULL,
   `vid` varchar(10) NOT NULL,
   `bStop` int(11) DEFAULT NULL
@@ -264,15 +264,15 @@ CREATE TABLE `orderlog` (
 
 CREATE TABLE `pdflog` (
   `id` int(20) NOT NULL,
-  `insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `remote_insurance_no` varchar(32) CHARACTER SET utf8 NOT NULL,
-  `person_id` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
-  `title` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `insurance_no` varchar(32) NOT NULL,
+  `remote_insurance_no` varchar(32) NOT NULL,
+  `person_id` varchar(32) DEFAULT NULL,
+  `title` varchar(100) DEFAULT NULL,
   `pdf_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`pdf_data`)),
-  `pdf_path` varchar(256) CHARACTER SET utf8 DEFAULT NULL,
-  `order_status` varchar(5) CHARACTER SET utf8 NOT NULL,
+  `pdf_path` varchar(256) DEFAULT NULL,
+  `order_status` varchar(5) NOT NULL,
   `updatetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 

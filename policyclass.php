@@ -1,4 +1,32 @@
 <?php
+	
+	class CXapplicationData
+	{
+		public $attacheCode 		= ''		; // 文件代碼
+		public $attacheName 		= ''		; // 文件名稱
+		public $attacheContent 		= ''		; // 文件內容
+		public $agentFlag 			= ''		; // 業務員顯示旗標
+	}
+	class CXuploadData
+	{
+		public $attacheCode 		= ''		; // 文件代碼
+		public $attacheName 		= ''		; // 文件名稱
+		public $attacheContent 		= ''		; // 文件內容
+	}
+	class CXpolicy
+	{
+		public $acceptId 			= ''		; // 行動投保序號
+		public $policyNo 			= ''		; // 保單號碼
+		public $applicationData 	= null		; // 要保書檔案明細		CXapplicationData
+		public $uploadData 			= null		; // 上傳檔案明細		cxUploadData
+		function init()
+		{
+			$applicationData 		= array();
+			$uploadData 			= array();
+		}
+	}
+
+	/*
 	class CXinsurance
 	{
 		// property declaration
@@ -32,12 +60,11 @@
 		public $tel 			= ''		; // 電話
 		public $roleName		= ''		; // 角色名稱
 		public $roleKey 		= ''		; // 角色代碼
-											/*
 											proposer：要保人 
 											insured：被保人 
 											legalRepresentative：法定代理人 
 											agentOne：業務員一
-											*/
+											
 	}
 	class CXapplicationData
 	{
@@ -63,4 +90,5 @@
 		public $insuredFlag			= ''	; // 被保人顯示旗標 	Y/N
 		public $representFlag		= ''	; // 法定代理人顯示旗標 Y/N
 	}
+	*/
 ?>

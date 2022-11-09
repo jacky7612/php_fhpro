@@ -1,6 +1,6 @@
 <?php
 	include("def.php");
-	include("insuranceclass.php");
+	include("policyclass.php");
 	include("log.php");
 	include("wjson.php");
 	include("wpdf.php");
@@ -56,9 +56,12 @@
 		global $g_test_mode;
 		
 		$data = array();
+		$data["status"] 		= "true";
+		$data["code"]			= "0x0200";
+		$data["responseMessage"]= "succeed!";
+		$data["json"]			= "";
 		if ($g_test_mode)
 		{
-			$data["status"] ="true";
 			return $data;
 		}
 		//$headers = apache_request_headers();
@@ -66,13 +69,13 @@
 		if (check_header($key, $token) == true)
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token succeed", $Person_id);
-			$data["status"]			="true";
 		}
 		else
 		{
 			$data["status"]			="false";
 			$data["code"]			="0x0209";
 			$data["responseMessage"]="Invalid token!";
+			$data["json"]			= "";
 			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token failure", $Person_id);
 			wh_log($Insurance_no, $Remote_insurance_no, $g_exit_symbol.$out_str, $Person_id);
 		}
@@ -146,9 +149,9 @@
 			$memb = get_member_info($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
 			if ($memb["status"] == "true")
 			{
-				if ($Member_name == "") $Member_name = $memb["member_name"];
-				if ($Mobile_no 	 == "") $Mobile_no 	 = $memb["mobile_no"];
-				if ($Role 		 == "") $Role 		 = $memb["role"];
+				if ($memb["member_name"] != "") $Member_name = $memb["member_name"];
+				if ($memb["mobile_no"] 	 != "") $Mobile_no 	 = $memb["mobile_no"];
+				if ($memb["role"] 		 != "") $Role 		 = $memb["role"];
 			}
 			else
 				$ret = false;
@@ -156,9 +159,7 @@
 		if ($ret && $Sales_id == "")
 		{
 			wh_log($Insurance_no, $Remote_insurance_no, "do function - get_sales_id", $Person_id);
-			$Sales_Id = get_sales_id($link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql);
-			if ($Sales_Id == "")
-				$ret = false;
+			$ret = get_sales_id($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $close_mysql);
 		}
 		
 		if ($ret == false)
@@ -229,13 +230,13 @@
 		$minutes += $since_start->i;
 		return ($minutes > $max_hour * 60);
 	}
-	// 跨天 public[尚需修正]
-	function over_insurance_day($dt_now, $dt_duetime)
+	// 跨天 public
+	function over_insurance_day($dt_duetime)
 	{
-		$start_date  = new DateTime($dt_now);
-		$since_start = $start_date->diff(new DateTime($dt_duetime));
-		$diff_day 	 = $since_start->days;
-		return ($diff_day > 0);
+		$str_now = date('Y'.'m'.'d');
+		$date = new DateTime($dt_duetime);
+		$str_duetime = $date->format('Ymd');
+		return ($str_now != $str_duetime);
 	}
 	// 取得遠端用戶的ip public
 	function get_remote_ip()
@@ -405,6 +406,7 @@
 		$data["status"]			= "true";
 		$data["code"]			= "0x0200";
 		$data["responseMessage"]= "辨識人臉成功";
+		$data["json"]			= "";
 		if ($src_image != null)
 		{
 			$base64image = base64_encode($src_image);
@@ -435,6 +437,7 @@
 				$data["status"]			= "false";
 				$data["code"]			= "0x0205";
 				$data["responseMessage"]= "無法辨識為人臉, 請重新辨識";
+				$data["json"]			= "";
 			}
 		}
 		return $data;
@@ -515,6 +518,8 @@
 	
 	function getuserList(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql = true)
 	{
+		global $g_encrypt_Membername;
+		
 		try
 		{
 			$RoleName = "";
@@ -539,20 +544,20 @@
 					{
 						$person_id = $row2['person_id'];
 						//$member_name = $row2['member_name'];
-						$member_name = decrypt($keys, stripslashes($row2['member_name']));
-						decrypt_string_if_not_empty($g_encrypt_Membername, stripslashes($row2['member_name']));
+						//$member_name = decrypt_string_if_not_empty($keys, stripslashes($row2['member_name']));
+						$member_name = decrypt_string_if_not_empty($g_encrypt_Membername, stripslashes($row2['member_name']));
 						
-						$Role = str_replace(",", "", $row2['role']);
-						$RoleName = get_role_name($Role);
-						$pid = str_replace(",", "", $person_id);
-						$pname = str_replace(",", "", $member_name);
-						$pid = check_special_char($pid);
-						$pname = check_special_char($pname);
+						$Role 		= str_replace(",", "", $row2['role']);
+						$RoleName 	= get_role_name($Role);
+						$pid 		= str_replace(",", "", $person_id);
+						$pname 		= str_replace(",", "", $member_name);
+						$pid 		= check_special_char($pid);
+						$pname 		= check_special_char($pname);
 						
 						$data2 = [
-							'userId'       			=> $pid,   
+							'userId'       			=> $pid,
 							'userName'       		=> $pname, 
-							'userType'   			=> $RoleName,   
+							'userType'   			=> $RoleName,
 							'frontIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $Person_id, "0", false),
 							'backIdPhoto'    		=> getpidpic2($link, $Insurance_no, $Remote_insurance_no, $Person_id, "1", false),
 							'saveType'    			=> getSaveType()
@@ -600,4 +605,17 @@
 		return $fields1;
 	}
 	// get idpic use - end
+	
+	function calculate_meeting_count(&$showName, $id, $name_title, $name, $Cur_count)
+	{
+		if ($id != '')
+		{
+			if (strlen($showName) <= 0)
+				$showName .= "name=".$name_title.$name;
+			else
+				$showName .= ", ".$name_title.$name;
+			$Cur_count ++;
+		}
+		return $Cur_count;
+	}
 ?>
