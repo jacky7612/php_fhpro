@@ -1,6 +1,8 @@
 <?php
 	include "func.php";
 	
+	global $g_test_mode;
+	
 	// initial
 	$status_code 		 = "A0"; // 取得 SSO json data 成功
 	$status_code_succeed = "A2"; // 成功狀態代碼
@@ -90,6 +92,11 @@
 				//判斷 要保日 > 12H 或 要保日跨日 失敗：[A1] 成功：[A2]
 				$over_12Hr = over_insurance_duetime(date("Y-m-d H:i:s"), $dueTime, 12);
 				$over_day  = over_insurance_day($dueTime);
+				if ($g_test_mode)
+				{
+					$over_12Hr = false;
+					$over_day  = false;
+				}
 				if ($over_12Hr || $over_day)
 				{
 					$status_code 	= $status_code_failure;;
@@ -109,12 +116,18 @@
 				}
 				wh_log("SSO_Login", $remote_ip4filename, "pass time");
 				
+				// 紀錄json到檔案
+				if ($g_wjson2file_flag)
+				{
+					$json_path = wh_json($Insurance_no, $Remote_insurance_no, $out);
+				}
 				// TODO: insert status into DB
 				// 儲存json
-				$data = write_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $out, $status_code, $remote_ip4filename, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
+				$data = write_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_path, $status_code, $remote_ip4filename, false, "SSO_Login", $remote_ip4filename); 	// 紀錄json到資料庫
+				
+				// 更新狀態-保單相關人員
 				if ($data["status"] == "true")
 				{
-					// 更新狀態
 					for ($i = 0; $i < count($retRoleInfo); $i++)
 					{
 						$roleInfo = $retRoleInfo[$i];
@@ -130,9 +143,6 @@
 						}
 					}
 				}
-				// 紀錄json到檔案
-				if ($g_wjson2file_flag)
-					wh_json($Insurance_no, $Remote_insurance_no, $out);
 				
 				// 儲存pdf到檔案
 				$pdf_subname = "";

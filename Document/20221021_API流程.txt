@@ -157,12 +157,12 @@ ps.每個步驟都要狀態API
 	第二次JTG_Stop_Meeting		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
 	
 	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	回傳業務-要保書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	回傳業務-要保書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
 	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	回傳業務-業報書簽名JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	回傳業務-業報書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
 	
-	要保書-押上保單號碼JTG_Get_Proposal_PDF		(V) 2022.11.01  complete :2022.11.07,09 
-	要保書-押上保單號碼JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	要保書-押上保單號碼.JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	要保書-押上保單號碼.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
 	
 	25.JTG_Get_PolicyNo		  					(O2) 2022.11.01  complete :2022.11.09 雲端達人-取得保單號碼，並押上保單號碼
 	26.JTG_Send_Policy			  				(O2) 2022.11.01  complete :2022.11.08,09 

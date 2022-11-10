@@ -19,6 +19,7 @@
 		$data			= array();
 		$data["status"]	= "false";
 		$mid 			= "";
+		$json_path 		= "";
 		try
 		{
 			if ($link == null)
@@ -37,8 +38,12 @@
 					while ($row = mysqli_fetch_array($result))
 					{
 						$mid 		= $row['id'];
-						$json_data 	= $row['json_data'];
+						$json_path 	= $row['json_path'];
 					}
+					$fp = fopen($json_path, "r");
+					$json_data = fread($fp, filesize($json_path));
+					fclose($fp);
+					//echo $json_data."\r\n\r\n";
 					$data["status"]			="true";
 					$data["code"]			="0x0200";
 					$data["responseMessage"]="資料庫操作-query json資料成功!";
@@ -88,7 +93,7 @@
 		return $data;
 	}
 	// 將資料寫入資料表 :jsonlog
-	function write_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, $status_code, $remote_ip4filename = "", $close_mysql = true, $log_title = "", $log_subtitle = "")
+	function write_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_path, $status_code, $remote_ip4filename = "", $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -113,7 +118,7 @@
 			{
 				if (mysqli_num_rows($result) == 0)
 				{
-					$sql2 = "INSERT INTO `jsonlog` (`insurance_no`,`remote_insurance_no`,`json_data`,`order_status`,`createtime`,`updatetime`) VALUES ('$Insurance_no','$Remote_insurance_no','$json_data','$status_code',NOW(),NOW())";
+					$sql2 = "INSERT INTO `jsonlog` (`insurance_no`,`remote_insurance_no`,`json_path`,`order_status`,`createtime`,`updatetime`) VALUES ('$Insurance_no','$Remote_insurance_no','$json_path','$status_code',NOW(),NOW())";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
 					wh_log($dst_title, $dst_subtitle, "write json data to mysql jsonlog table succeed", $Person_id);
 				}
@@ -1134,6 +1139,7 @@
 	// 取得對應的身份證正反面照片
 	function getpidpic2(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		//0: front, 1: back
 		try
 		{
 			$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
@@ -1167,7 +1173,7 @@
 									$fp = fopen($row2['frontpath'], "r");
 									$out = fread($fp, filesize($row2['frontpath']));
 									fclose($fp);
-									$pidpic2 = decrypt_string_if_not_empty(true, $out); //decrypt($keys,$row2['front']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $out); //decrypt($keys,$row2['front']);
 								}
 								else
 								{
@@ -1181,7 +1187,7 @@
 									$fp = fopen($row2['backpath'], "r");
 									$out = fread($fp, filesize($row2['backpath']));
 									fclose($fp);
-									$pidpic2 = decrypt_string_if_not_empty(true,$out);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $out);
 								}
 								else
 								{
@@ -1197,7 +1203,7 @@
 							{
 								if ($row2['front'] != null)
 								{
-									$pidpic2 = decrypt_string_if_not_empty(true, $row2['front']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['front']);
 								}
 								else
 								{
@@ -1208,7 +1214,7 @@
 							{
 								if ($row2['back'] != null)
 								{
-									$pidpic2 = decrypt_string_if_not_empty(true, $row2['back']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['back']);
 								}
 								else
 								{
@@ -1242,10 +1248,10 @@
 									{
 										if ($row2['frontpath'] != null)
 										{
-											$fp=fopen($row2['frontpath'], "r");
-											$out=fread($fp, filesize($row2['frontpath']));
+											$fp = fopen($row2['frontpath'], "r");
+											$out = fread($fp, filesize($row2['frontpath']));
 											fclose($fp);
-											$pidpic2 =  decrypt_string_if_not_empty(true, $out); //decrypt($keys,$row2['front']);
+											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt_image, $out); //decrypt($keys,$row2['front']);
 										}
 										else
 										{
@@ -1259,7 +1265,7 @@
 											$fp=fopen($row2['backpath'], "r");
 											$out=fread($fp, filesize($row2['backpath']));
 											fclose($fp);
-											$pidpic2 =  decrypt_string_if_not_empty(true, $out);
+											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt_image, $out);
 										}
 										else
 										{
@@ -1275,7 +1281,7 @@
 									{
 										if ($row2['front'] != null)
 										{
-											$pidpic2 = decrypt_string_if_not_empty(true, $row2['front']);
+											$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['front']);
 										}
 										else
 										{
@@ -1286,7 +1292,7 @@
 									{
 										if ($row2['back'] != null)
 										{
-											$pidpic2 = decrypt_string_if_not_empty(true, $row2['back']);
+											$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['back']);
 										}
 										else
 										{

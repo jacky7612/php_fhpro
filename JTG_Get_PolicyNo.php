@@ -70,7 +70,7 @@
 		$Sales_id 				!= '' &&
 		$Person_id 				!= '' &&
 		$Mobile_no 				!= '' &&
-		$PolicyNo_time 				!= '')
+		$PolicyNo_time 			!= '')
 	{
 		try 
 		{
@@ -130,6 +130,7 @@
 							//1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0
 						}
 						*/
+						$result2 = ""; // testing
 						$ret_json = json_decode($result2);
 						
 						$ret_error_msg = "";

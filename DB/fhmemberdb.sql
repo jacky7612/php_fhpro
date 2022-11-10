@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-09 09:11:01
+-- 產生時間： 2022-11-10 06:33:57
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -133,7 +133,7 @@ CREATE TABLE `jsonlog` (
   `id` int(11) NOT NULL,
   `insurance_no` varchar(32) NOT NULL,
   `remote_insurance_no` varchar(32) NOT NULL,
-  `json_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`json_data`)),
+  `json_path` varchar(256) NOT NULL,
   `order_status` varchar(5) NOT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL

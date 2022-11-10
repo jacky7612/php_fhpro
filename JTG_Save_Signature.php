@@ -91,7 +91,7 @@
 					$mid = 0;
 					while ($row = mysqli_fetch_array($result))
 					{
-						$mid = $row['mid'];]
+						$mid = $row['mid'];
 					}	
 					$mid = (int)str_replace(",", "", $mid);
 					try

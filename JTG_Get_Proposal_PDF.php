@@ -161,7 +161,7 @@
 					/* */
 				}
 				
-				$data = result_message("true", "0x0200", "取得pdf文件成功", json_encode($jsonlog_info));
+				$data = result_message("true", "0x0200", "取得pdf文件成功", $jsonlog_info);
 			}
 			else
 			{

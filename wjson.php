@@ -29,6 +29,7 @@
 			fwrite($file, $json_data); 
 			fclose($file);
 		}
+		return $glog_json_file;
 	}
 	function set_json_file_name($json_path, $Insurance_no, $Remote_insurance_no)
 	{
