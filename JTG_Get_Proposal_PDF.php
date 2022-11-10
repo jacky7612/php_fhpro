@@ -18,12 +18,14 @@
 	$Member_name			= "";
 	$base64image			= "";
 	$Role 					= "";
+	$jsonlog_info			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$App_type 			= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';	
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_Insuance_no = isset($_POST['Remote_Insuance_no']) 	? $_POST['Remote_Insuance_no'] 	: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$contain_json		= isset($_POST['contain_json']) 		? $_POST['contain_json'] 		: 'false';
 
 	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
 	//$Sso_token = "u0K2w1L0roUR8p1k3UJgZtlRbR6DD9BZHyXkDNvCALSY4zea11svxYSjoYP4iURR";
@@ -68,7 +70,7 @@
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
 		$Person_id 			 = "A123456789";
-		$token				 = "any";
+		//$contain_json 		 = "true";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
@@ -93,16 +95,12 @@
 		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
 		return;
 	}
-	
 	// 模擬資料
 	if ($g_test_mode)
 	{
-		$PDF_time 			 = "1";
-		$Insurance_no 		 = "Ins1996";
-		$Remote_insurance_no = "appl2022";
-		$Person_id 			 = "A123456789";
-		$token				 = "any";
+		$token = "any";
 	}
+	$contain_json = strtolower($contain_json);
 	
 	// start
 	if ($PDF_time 			 != '' &&
@@ -127,41 +125,65 @@
 			
 			if ($token2 != '')
 			{
-				// 從jsonlog table取得json資料
-				$json_data = "";
-				$data = get_jsondata_from_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, false);
+				// 從pdflog table取得pdf資料
+				$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "insurance_".$PDF_time, false);
 				
-				if ($data["status"] == "true")
+				if ($contain_json == "true")
 				{
-					// 從pdflog table取得pdf資料
-					$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "insurance_".$PDF_time, false);
+					// 從jsonlog table取得json資料
+					$json_data = "";
+					$data = get_jsondata_from_jsonlog_table($link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_data, false);
 					
-					/* */
+					if ($data["status"] == "true")
+					{
+						/* */
+						if ($ret_pdflog["status"] == "true")
+						{
+							//echo $ret_pdflog["json"]."\r\n\r\n";
+							$jsonlog_info = json_decode($json_data);
+							$pdflog_info  = json_decode($ret_pdflog["json"]);
+							for ($i = 0; $i < count($jsonlog_info->applicationData); $i++)
+							{
+								//echo count($pdflog_info)."\r\n\r\n";
+								for ($j = 0; $j < count($pdflog_info); $j++)
+								{
+									//echo "152 ".$pdflog_info[$j]->pdf_data."\r\n\r\n";
+									$pdflog_content = $pdflog_info[$j]->pdf_data;
+									$jsonlog_info->applicationData[$i]->attacheContent = $pdflog_content;
+								}
+							}
+							$status_code = $status_code_succeed;
+						}
+						else
+						{
+							$data = $ret_pdflog;
+							$status_code = $status_code_failure;
+						}
+						/* */
+					}
+				}
+				else
+				{
 					if ($ret_pdflog["status"] == "true")
 					{
-						//echo $ret_pdflog["json"]."\r\n\r\n";
-						$jsonlog_info = json_decode($json_data);
 						$pdflog_info  = json_decode($ret_pdflog["json"]);
-						for ($i = 0; $i < count($jsonlog_info->applicationData); $i++)
+						for ($j = 0; $j < count($pdflog_info); $j++)
 						{
-							//echo count($pdflog_info)."\r\n\r\n";
-							for ($j = 0; $j < count($pdflog_info); $j++)
-							{
-								//echo "152 ".$pdflog_info[$j]->pdf_data."\r\n\r\n";
-								$pdflog_content = $pdflog_info[$j]->pdf_data;
-								$jsonlog_info->applicationData[$i]->attacheContent = $pdflog_content;
-							}
+							$pdflog_content = $pdflog_info[$j]->pdf_data;
+							$jsonlog_info = $pdflog_content;
 						}
 						$status_code = $status_code_succeed;
 					}
 					else
 					{
 						$data = $ret_pdflog;
+						$status_code = $status_code_failure;
 					}
-					/* */
 				}
-				
-				$data = result_message("true", "0x0200", "取得pdf文件成功", $jsonlog_info);
+				if ($status_code == $status_code_succeed)
+				{
+					$data = result_message("true", "0x0200", "取得pdf文件成功", $jsonlog_info);
+				}
 			}
 			else
 			{
