@@ -1,7 +1,6 @@
 <?php
 	include("func.php");
-	global $g_OTP_enable, $g_OTP_apiurl, $g_OTP_UID_key, $g_OTP_UID_value, $g_OTP_PWD_key, $g_OTP_PWD_value;
-	global $g_OTP_subject_key, $g_OTP_subject_value, $g_OTP_message_key, $g_OTP_message_value, $g_OTP_mobile_key;
+	global $g_OTP_enable, $g_OTP_apiurl, $g_OTP_api_value;
 	
 	// initial
 	$status_code_succeed 	= "H1"; // 成功狀態代碼
@@ -61,13 +60,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "send otp entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "send otp entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -108,7 +107,7 @@
 			$sql = "SELECT * FROM orderinfo where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and sales_id='$Salesid' and person_id='$Personid' and order_trash=0";
 			$sql = $sql.merge_sql_string_if_not_empty("mobile_no"	, $Mobileno);
 			
-			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
@@ -124,13 +123,9 @@
 						if ($g_OTP_enable)
 						{
 							$uriBase2 = $g_OTP_apiurl;
-							$fields2 = [
-								$g_OTP_UID_key			=> $g_OTP_UID_value,
-								$g_OTP_PWD_key			=> $g_OTP_PWD_value,
-								$g_OTP_subject_key		=> $g_OTP_subject_value,
-								$g_OTP_message_key		=> $g_OTP_message_value.$user_code,
-								$g_OTP_mobile_key		=> $Mobileno
-							];
+							$g_OTP_api_value["MSG"] .= $user_code;
+							$g_OTP_api_value["DEST"] = $Mobileno;
+							$fields2 = $g_OTP_api_value;
 							$fields_string2 = http_build_query($fields2);	
 							$ch2 = curl_init();
 							curl_setopt($ch2,CURLOPT_URL, $uriBase2);
@@ -139,25 +134,52 @@
 							curl_setopt($ch2,CURLOPT_RETURNTRANSFER, true); 
 							//execute post
 							$result2 = curl_exec($ch2);
-							wh_log($Insurance_no, $Remote_insurance_no, "sms result :".$result2, $Person_id);
-							//1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "sms result :".$result2, $Person_id);
 						}
-						$result2 = "1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0";
-						$ret_json = json_decode($result2);
+						else // return sample message
+							$result2 = "1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0";
 						
 						$ret_error_msg = "";
-						try
+						if (strlen($result2) > 0)
 						{
-							$ret_array = explode(",",$result2);
-							if (count($ret_array) == 2)
+							$ret_array = array();
+							try
 							{
-								if ($ret_json->Status)
-									$ret_error_msg = $ret_json->Msg;
+								$ret_array = explode(",", $result2);
 							}
-						}
-						catch (Exception $e)
-						{
-							$ret_error_msg = "";
+							catch (Exception $e)
+							{
+								$ret_error_msg = "回傳格式錯誤，未知的訊息";
+							}
+							if ($ret_array == null || count($ret_array) < 5)
+							{
+								$ret_error_msg = "回傳格式錯誤，未知的訊息";
+							}
+							
+							// 舊程式 - start
+							try
+							{
+								$ret_array = explode(",", $result2);
+								if (count($ret_array) == 2)
+								{
+									if ($ret_json->Status)
+										$ret_error_msg = $ret_json->Msg;
+								}
+							}
+							catch (Exception $e)
+							{
+								$ret_error_msg = "回傳格式錯誤，未知的訊息";
+								$data = result_message("false", "0x0209", "parse json Exception error!", "");
+								JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+							}
+							$ret_json = json_decode($result2);
+							// 舊程式 - end
+							
+							if (strlen($ret_error_msg) > 0)
+							{
+								$data = result_message("false", "0x0201", $ret_error_msg." :".$result2, "");
+								JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"], $Person_id);
+							}
 						}
 						
 						if ($ret_error_msg == "")
@@ -170,35 +192,37 @@
 						}
 						else
 						{
-							$data = result_message("false", "0x0201", "簡訊發送異常 :".$ret_error_msg, "");
+							$data = result_message("false", "0x0201", "簡訊發送異常-".$ret_error_msg, "");
 							$status_code = $status_code_failure;
 						}
 					}
 					catch (Exception $e)
 					{
-						$data = result_message("false", "0x0201", "簡訊發送未完成!", "");
+						$data = result_message("false", "0x0209", "簡訊發送未完成!", "");
 						$status_code = $status_code_failure;
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 					}
 				}
 				else
 				{
-					$data = result_message("false", "0x0205", "流水要保序號錯誤!", "");
+					$data = result_message("false", "0x0206", "讀取資料錯誤!", "");
 					$status_code = $status_code_failure;
 				}
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "SQL fail!", "");
+				$data = result_message("false", "0x0208", "SQL fail!", "");
 				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error!", "");
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -212,20 +236,19 @@
 					$link = null;
 				}
 			}
-			catch(Exception $e)
+			catch (Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

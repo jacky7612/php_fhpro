@@ -20,7 +20,49 @@
 		create_folder($log_path);
 		file_put_contents($glogfile, date("Y-m-d H:i:s")."  ------  ".$log_msg."\n", FILE_APPEND);
 	}
+	
+	// write log for JTG_API
+	function JTG_wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
+	{
+		global $g_trace_log;
+		if ($g_trace_log["JTG_wh_log"] == false) return;
+		wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id);
+	}
+	
+	// write log for JTG_API exception
+	function JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
+	{
+		global $g_trace_log;
+		if ($g_trace_log["JTG_wh_log_Exception"] == false) return;
+		wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id);
+	}
+	
+	// write log for func
 	function wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
+	{
+		global $g_trace_log;
+		if ($g_trace_log["wh_log"] == false) return;
+		wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id);
+	}
+	
+	// write log for func watch dog
+	function wh_log_watch_dog($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
+	{
+		global $g_trace_log;
+		if ($g_trace_log["wh_log_watch_dog"] == false) return;
+		wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id);
+	}
+	
+	// write log for func exception
+	function wh_log_Exception($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
+	{
+		global $g_trace_log;
+		if ($g_trace_log["wh_log_Exception"] == false) return;
+		wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id);
+	}
+	
+	// write log core
+	function wh_log_core($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
 	{
 		global $log_path;
 		global $glogfile;

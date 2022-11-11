@@ -59,17 +59,17 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "stop meeting entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "stop meeting entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Face_Compare", "stop meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Stop_Meeting", "stop meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -109,7 +109,7 @@
 			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id			);
 			
-			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
@@ -129,7 +129,7 @@
 						{
 							$data = result_message("true", "0x0200", "更新線上人數成功", "");
 							$status_code = $status_code_succeed;
-							wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							return;
@@ -143,7 +143,7 @@
 							$sql = $sql.merge_sql_string_if_not_empty("remote_Insurance_no"	, $Remote_insurance_no	);
 							$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id			);
 							
-							wh_log($Insurance_no, $Remote_insurance_no, "業務離開", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "業務離開", $Person_id);
 							if ($result = mysqli_query($link, $sql))
 							{
 								while ($row = mysqli_fetch_array($result))
@@ -173,14 +173,14 @@
 							$hash 						= md5($g_create_meeting_hash);
 							$data_input1["data"]		= md5($hash."@deltapath");
 							$out 						= CallAPI4OptMeeting("POST", $url, $data_input1);
-							wh_log($Insurance_no, $Remote_insurance_no, "呼叫踢人 API", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "呼叫踢人 API", $Person_id);
 							$ret = json_decode($out, true);
 							if (strlen($ret) > 0 && $ret['success'] == true)
 								$token = $ret['token'];
 							else
 							{
-								$data = result_message("false", "0x0202", "呼叫踢人 API error token invalid", "");
-								wh_log($Insurance_no, $Remote_insurance_no, "(X) 先踢人 error", $Person_id);
+								$data = result_message("false", "0x0206", "呼叫踢人 API error token invalid", "");
+								JTG_wh_log($Insurance_no, $Remote_insurance_no, "(X) 先踢人 error", $Person_id);
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								return;
@@ -192,27 +192,27 @@
 							$data_input2['id']	= $meeting_id;
 							$url 				= $mainurl."delete/virtualmeeting/virtualmeeting/".$meeting_id;
 							$out 				= CallAPI4OptMeeting("POST", $url, $data_input2, $header);
-							wh_log($Insurance_no, $Remote_insurance_no, "呼叫關閉會議室 API", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "呼叫關閉會議室 API", $Person_id);
 							
 							//3. accesscode 更新deletecode 狀態  (deletecode = 1)
 							$sql = "update accesscode set deletecode = 1 where meetingid='".$meeting_id."'";
 							$result = mysqli_query($link, $sql);
-							wh_log($Insurance_no, $Remote_insurance_no, "accesscode 更新deletecode 狀態", $Person_id);	
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "accesscode 更新deletecode 狀態", $Person_id);	
 
 							//5. delete gomeeting
 							$sql = "delete from gomeeting where meetingid='".$meeting_id."'";
 							$result = mysqli_query($link, $sql);
-							wh_log($Insurance_no, $Remote_insurance_no, "delete gomeeting", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "delete gomeeting", $Person_id);
 							
 							//upate meetinglog status for stop meeting, 1:norma stop, 2:kick
 							$sql = "update meetinglog set bStop = 1, bookstoptime=NOW()  where meetingid='".$meeting_id."'";
 							$result = mysqli_query($link, $sql);
-							wh_log($Insurance_no, $Remote_insurance_no, "upate meetinglog status for stop meeting, 1:norma stop, 2:kick", $Person_id);					
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "upate meetinglog status for stop meeting, 1:norma stop, 2:kick", $Person_id);					
 
 							//4. 更新vminfo status (relese resouce, status = 0)	
 							$sql = "update vmrinfo set status = 0 , updatetime=NOW() where vid = '".$vmr."'";
 							$result = mysqli_query($link, $sql);
-							wh_log($Insurance_no, $Remote_insurance_no, "更新vminfo status", $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "更新vminfo status", $Person_id);
 							
 							//刪除前先釋放vmr
 							/*
@@ -236,26 +236,28 @@
 					}
 					catch (Exception $e)
 					{
-						$data = result_message("false", "0x0202", "Exception error [inner] :".$e->getMessage(), "");
+						$data = result_message("false", "0x0209", "Exception error !", "");
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 					}
 				}
 				else
 				{
-					$data = result_message("false", "0x0201", "不存在此要保流水序號的資料!", "");
+					$data = result_message("false", "0x0204", "無資料!", "");
 				}
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "SQL fail!", "");
+				$data = result_message("false", "0x0208", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error [outer] :".$e->getMessage(), "");
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
 				if ($link != null)
@@ -271,18 +273,17 @@
 			}
 			catch (Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

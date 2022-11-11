@@ -81,18 +81,18 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "save pdf entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "save pdf entry <-", $Person_id);
 	
 	// 驗證 security token
 	//$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Face_Compare", "save pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Save_Proposal_PDF", "save pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -112,7 +112,8 @@
 	}
 	
 	// start
-	if ($PDF_time 			 != '' &&
+	if ($token	 			 != '' &&
+		$PDF_time 			 != '' &&
 		$Person_id 		 	 != '' &&
 		$Insurance_no 		 != '' &&
 		$Remote_insurance_no != '')
@@ -132,39 +133,36 @@
 			$App_type2 				= trim(stripslashes($App_type)			 );
 			$token2 				= trim(stripslashes($token)				 );
 			
-			if ($token2 != '')
+			$pdf_subname = "insurance_".$PDF_time;
+			if ($base64pdf != "")
 			{
-				$pdf_subname = "insurance_".$PDF_time;
-				if ($base64pdf != "")
-				{
-					// 儲存PDF檔案
-					$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $pdf_subname, $base64pdf);
-					
-					// 紀錄至 pdf_log table
-					$status_code = $status_code_succeed;
-					$data_pdf = array();
-					$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $pdf_subname, $base64pdf, $pdf_path, $status_code, false);
-					
-					wh_log($Insurance_no, $Remote_insurance_no, "pdf operator result :". $data_pdf["responseMessage"]);
-				}
+				// 儲存PDF檔案
+				$pdf_path = wh_pdf($Insurance_no, $Remote_insurance_no, $pdf_subname, $base64pdf);
+				
+				// 紀錄至 pdf_log table
+				$status_code = $status_code_succeed;
+				$data_pdf = array();
+				$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $pdf_subname, $base64pdf, $pdf_path, $status_code, false);
+				
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "pdf operator result :". $data_pdf["responseMessage"], $Person_id);
 				
 				$data = result_message("true", "0x0200", "儲存PDF檔案成功", "");
 				$status_code = $status_code_succeed;
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "token fail", "");
-				$status_code = $status_code_failure;
+				$data = result_message("true", "0x0206", "無法儲存空白PDF檔案", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "系統異常", "");
-			$status_code = $status_code_failure;					
+			$data = result_message("false", "0x0209", "系統異常", "");
+			$status_code = $status_code_failure;
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -178,19 +176,18 @@
 					$link = null;
 				}
 			}
-			catch(Exception $e)
+			catch (Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."save pdf exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."save pdf exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

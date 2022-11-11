@@ -44,32 +44,23 @@
 					$json_data = fread($fp, filesize($json_path));
 					fclose($fp);
 					//echo $json_data."\r\n\r\n";
-					$data["status"]			="true";
-					$data["code"]			="0x0200";
-					$data["responseMessage"]="資料庫操作-query json資料成功!";
-					$data["json"]			= "";
+					$data = result_message("true", "0x0200", "資料庫操作-query json資料成功!", "");
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0200";
-					$data["responseMessage"]= "資料庫操作-找不到資料!";
-					$data["json"]			= "";
-					wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data not found", $Person_id);
+					$data = result_message("false", "0x0201", "資料庫操作-找不到資料!", "");
+					wh_log($dst_title, $dst_subtitle, "(!) ".$data["code"]." jsonlog - mysql jsonlog table that json data not found", $Person_id);
 				}
 			}
 			else
 			{
-				wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data not found", $Person_id);
+				wh_log($dst_title, $dst_subtitle, "(!) jsonlog - mysql jsonlog table that json data not found", $Person_id);
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "資料庫操作-Exception error!";
-			$data["json"]			= "";
-			wh_log($dst_title, $dst_subtitle, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			$data = result_message("false", "0x0209", "資料庫操作jsonlog - Exception error!", "");
+			wh_log($dst_title, $dst_subtitle, "(X) ".$data["code"]." write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 		}
 		finally
 		{
@@ -83,11 +74,8 @@
 			}
 			catch(Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "資料庫操作disconnect mysql-Exception error!";
-				$data["json"]			= "";
-				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+				$data = result_message("false", "0x0207", "資料庫操作jsonlog - disconnect mysql-Exception error!", "");
+				wh_log($dst_title, $dst_subtitle, "(X) jsonlog - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 			}
 		}
 		return $data;
@@ -120,31 +108,23 @@
 				{
 					$sql2 = "INSERT INTO `jsonlog` (`insurance_no`,`remote_insurance_no`,`json_path`,`order_status`,`createtime`,`updatetime`) VALUES ('$Insurance_no','$Remote_insurance_no','$json_path','$status_code',NOW(),NOW())";
 					mysqli_query($link,$sql2) or die(mysqli_error($link));
-					wh_log($dst_title, $dst_subtitle, "write json data to mysql jsonlog table succeed", $Person_id);
+					wh_log($dst_title, $dst_subtitle, "jsonlog - write json data to mysql jsonlog table succeed", $Person_id);
 				}
 				else
 				{
-					wh_log($dst_title, $dst_subtitle, "(!) mysql jsonlog table that json data had exists", $Person_id);
+					wh_log($dst_title, $dst_subtitle, "(!) jsonlog - mysql jsonlog table that json data had exists", $Person_id);
 				}
-				$data["status"]			= "true";
-				$data["code"]			= "0x0200";
-				$data["responseMessage"]= "資料庫操作-新增json資料成功!";
-				$data["json"]			= "";
+				$data = result_message("true", "0x0200", "資料庫操作jsonlog-新增資料成功!", "");
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0200";
-				$data["responseMessage"]= "資料庫操作-資料已存在!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0201", "資料庫操作jsonlog-資料已存在!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "資料庫操作-Exception error!";
-			wh_log($dst_title, $dst_subtitle, "(X) write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			$data = result_message("false", "0x0206", "資料庫操作jsonlog- Exception error!", "");
+			wh_log($dst_title, $dst_subtitle, "(X) ".$data["code"]." jsonlog - write json data to mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 		}
 		finally
 		{
@@ -158,7 +138,8 @@
 			}
 			catch(Exception $e)
 			{
-				wh_log($dst_title, $dst_subtitle, "(X) get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+				$data = result_message("false", "0x0207", "get sales_id memberinfo table - Exception error: disconnect!", "");
+				wh_log($dst_title, $dst_subtitle, "(X) jsonlog - get sales_id memberinfo table - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
 			}
 		}
 		return $data;
@@ -294,12 +275,8 @@
 	// 變更(Insert/Update)遠投保單狀態 public
 	function modify_order_state(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Status_code, $close_mysql = true, $UpdateAllStatus = false, $ChangeStatusAnyway = false, $log_title = "", $log_subtitle = "")
 	{
-		global $g_encrypt_id;
-		global $g_encrypt_mobile;
-		global $host;
-		global $user;
-		global $passwd;
-		global $database;
+		global $g_encrypt;
+		global $host, $user, $passwd, $database;
 			
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -334,8 +311,8 @@
 				$Role 		 			= trim(stripslashes($Role));
 				$Statuscode 		 	= trim(stripslashes($Status_code));
 				
-				$Personid = encrypt_string_if_not_empty($g_encrypt_id	 , $Personid);
-				$Mobileno = encrypt_string_if_not_empty($g_encrypt_mobile, $Mobileno);
+				$Personid = encrypt_string_if_not_empty($g_encrypt["id"] 	, $Personid);
+				$Mobileno = encrypt_string_if_not_empty($g_encrypt["mobile"], $Mobileno);
 				
 				$sql = "SELECT * FROM orderinfo where order_trash=0 ";
 				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
@@ -352,10 +329,7 @@
 						$mid = 0;
 						if ($Mobile_no == '')
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0203";
-							$data["responseMessage"]= "操作：新增狀態-手機號碼不可為空白!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0201", "操作：新增狀態-手機號碼不可為空白!", "");
 						}
 						else
 						{
@@ -368,67 +342,42 @@
 								$sql2 = "INSERT INTO `orderlog`  (`insurance_no`,`remote_insurance_no`,`sales_id`,`person_id`,`mobile_no`, `order_status`, `log_date`) VALUES ('$Insuranceno','$Remote_insuranceno','$Salesid','$Personid','$Mobileno','$Statuscode',NOW())";
 								mysqli_query($link, $sql2) or die(mysqli_error($link));
 								
-								//echo "user data change ok!";
-								$data["status"]="true";
-								$data["code"]="0x0200";
-								$data["responseMessage"]="操作：新增狀態-新增資料完成!";
-								$data["json"]			= "";
+								$data = result_message("true", "0x0200", "操作：新增狀態-新增資料完成!", "");
 							}
 							catch (Exception $e)
 							{
-								$data["status"]="false";
-								$data["code"]="0x0202";
-								$data["responseMessage"]="操作：新增狀態-Exception error!";
-								$data["json"]			= "";
+								$data = result_message("false", "0x0208", "操作：操作：新增狀態-Exception error!", "");
 							}
 						}
 					}
 					else
 					{
-						$data["status"]			="false";
-						$data["code"]			="0x0201";
-						$data["responseMessage"]="操作：新增狀態-已經有相同要保流水序號的資料!";
-						$data["json"]			= "";
+						$data = result_message("false", "0x0203", "操作：新增狀態-已經有相同要保流水序號的資料!", "");
 						$ret = 0;
 						
 						$ret = updateOrderState($link, $result, $Insuranceno, $Remote_insuranceno, $Salesid, $Personid, $Mobileno, $Role, $Statuscode, $UpdateAllStatus, $ChangeStatusAnyway);
 						switch ($ret)
 						{
 							case 0:
-								$data["status"]			 = "true";
-								$data["code"]			 = "0x0200";
-								$data["responseMessage"] = "操作：更新狀態-完成!";
-								$data["json"]			 = "";
+								$data = result_message("true", "0x0200", "操作：更新狀態-完成!", "");
 								break;
 							case 1:
-								$data["status"]			 = "false";
-								$data["code"]			 = "0x0202";
-								$data["responseMessage"] = "操作：更新狀態-Exception error!";
-								$data["json"]			 = "";
+								$data = result_message("false", "0x0208", "操作：更新狀態-Exception error!", "");
 								break;
 							case 2:
-								$data["status"]			 = "false";
-								$data["code"]			 = "0x0201";
-								$data["responseMessage"] = "操作：更新狀態-不存在此要保流水序號的資料!";
-								$data["json"]			 = "";
+								$data = result_message("false", "0x0204", "操作：更新狀態-不存在此要保流水序號的資料!", "");
 								break;
 						}
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0204";
-					$data["responseMessage"]= "操作：更新狀態-SQL fail!";
-					$data["json"]			= "";				
+					$data = result_message("false", "0x0208", "操作：更新狀態-SQL fail!", "");
 				}
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "操作：新增狀態-Exception error!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0209", "操作：新增狀態-Exception error!", "");
 			}
 			finally
 			{
@@ -442,6 +391,7 @@
 				}
 				catch(Exception $e)
 				{
+					$data = result_message("false", "0x0207", "操作：更新狀態 - disconnect mysql orderinfo table Exception error!", "");
 					wh_log($dst_title, $dst_subtitle, "(X) 操作：更新狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
 				}
 				return $data;
@@ -449,10 +399,7 @@
 		}
 		else
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0203";
-			$data["responseMessage"]= "操作：access status-API parameter is required!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "操作：更新狀態 - API parameter is required!", "");
 		}
 		return $data;
 	}
@@ -514,13 +461,8 @@
 	// 變更(Insert/Update)member public
 	function modify_member(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, &$status_code, $close_mysql = true)
 	{
-		global $g_encrypt_id;
-		global $g_encrypt_mobile;
-		global $g_encrypt_Membername;
-		global $host;
-		global $user;
-		global $passwd;
-		global $database;
+		global $g_encrypt;
+		global $host, $userm, $passwd, $database;
 		
 		wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 		try
@@ -544,9 +486,9 @@
 			$FCMToken 		= trim(stripslashes($FCM_Token)  );
 			$Role 			= trim(stripslashes($Role)  	 );
 			
-			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
-			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt_mobile		, $Mobileno);
-			$Membername = encrypt_string_if_not_empty($g_encrypt_Membername	, $Membername);
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt["id"]	 		, $Personid);
+			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt["mobile"]		, $Mobileno);
+			$Membername = encrypt_string_if_not_empty($g_encrypt["member_name"]	, $Membername);
 			
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -572,46 +514,32 @@
 						//echo $sql2."\r\n";
 						mysqli_query($link, $sql2) or die(mysqli_error($link));
 						//echo "user data change ok!";
-						$data["status"]			= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "身份資料建檔成功!";
-						$data["json"]			= "";
-						$status_code 			= "";
+						$data = result_message("true", "0x0200", "身份資料建檔成功!", "");
+						$status_code = "";
 					}
 					catch (Exception $e)
 					{
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= "Exception error!";
-						$data["json"]			= "";
-						$status_code 			= "";
+						$data = result_message("false", "0x0209", "access member Exception error!", "");
+						$status_code = "";
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "身份資料建檔-無法重複建立，已經有相同身份證資料!";
-					$data["json"]			= "";	
-					$status_code 			= "";
+					$data = result_message("false", "0x0203", "身份資料建檔-無法重複建立，已經有相同身份證資料!", "");
+					$status_code = "";
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0208", "access member SQL fail!", "");
 				$status_code 			= "";
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
-		}
+			$data = result_message("false", "0x0209", "access member Exception error!", "");
+			wh_log(Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+        }
 		finally
 		{
 			try
@@ -633,7 +561,7 @@
 	// Update idphoto public
 	function update_idphoto(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $Image_src, &$status_code, $close_mysql = true)
 	{
-		global $g_encrypt_id;
+		global $g_encrypt;
 		
 		try
 		{
@@ -646,7 +574,7 @@
 			$front  	= mysqli_real_escape_string($link, $front	 );
 			$Personid 	= trim(stripslashes($Person_id));
 			
-			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id, $Personid);
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt["id"], $Personid);
 			
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -703,59 +631,39 @@
 						}
 						else
 						{
-							wh_log($Insurance_no, $Remote_insurance_no, "save_image2nas Failed", $Person_id);
-							$data["status"]			= "false";
-							$data["code"]			= "0x0206";
-							$data["responseMessage"]= "寫入NAS 失敗! (".$retimg.")";
-							$data["json"]			= "";	
+							$data = result_message("false", "0x0208", "寫入NAS 失敗! (".$retimg.")", "");
+							wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." update_idphoto - save_image2nas Failed", $Person_id);
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));		
-							return;							
-							
+							return;
 						}
-						//echo "user data change ok!";
-						$data["status"]			= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "身分證圖檔".$front."上傳成功!";
-						$data["json"]			= "";
-						wh_log($Insurance_no, $Remote_insurance_no, $log."\r\n".$data["responseMessage"], $Person_id);
+						$data = result_message("true", "0x0200", "身分證圖檔".$front."上傳成功!", "");
+						wh_log($Insurance_no, $Remote_insurance_no, $data["code"].$data["responseMessage"]." ".$log, $Person_id);
 					}
 					catch (Exception $e)
 					{
-						wh_log($Insurance_no, $Remote_insurance_no, "Exception error!:".$e->getMessage(), $Person_id);
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= "Exception error!";
-						$data["json"]			= "";
+						$data = result_message("true", "0x0209", "Exception error!", "");
+						wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." Exception error :".$e->getMessage(), $Person_id);
 					}
 				}
 				else
 				{
-					wh_log($Insurance_no, $Remote_insurance_no, "無相同身份證資料,無法更新!".$Personid, $Person_id);
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "無相同身份證資料,無法更新!".$Personid;
-					$data["json"]			= "";
-					$status_code 			= "";
+					$data = result_message("false", "0x0204", "無相同身份證資料,無法更新!", "");
+					wh_log($Insurance_no, $Remote_insurance_no, "(!) ".$data["code"]." ".$data["responseMessage"].$Personid, $Person_id);
+					$status_code = "";
 				}
 			}
 			else
 			{
-				wh_log($Insurance_no, $Remote_insurance_no, "SQL fail!", $Person_id);
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0208", "SQL fail!", "");
+				wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"], $Person_id);
 				$status_code 			= "";
 			}
 		}
 		catch (Exception $e)
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "Exception error2!:".$e->getMessage(), $Person_id);
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." "."Exception error2!:".$e->getMessage(), $Person_id);
 			$status_code 			= "";
 		}
 		finally
@@ -768,7 +676,7 @@
 					$link = null;
 				}
 			}
-			catch(Exception $e)
+			catch (Exception $e)
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "(X) disconnect mysql idphoto table failure :".$e->getMessage(), $Person_id);
 			}
@@ -778,9 +686,7 @@
 	// Update member public
 	function update_member(&$link, $Insurance_no, $Remote_insurance_no, $image, $Person_id, $Member_name, $Mobile_no, $FCM_Token, &$status_code, $close_mysql = true)
 	{
-		global $g_encrypt_id;
-		global $g_encrypt_mobile;
-		global $g_encrypt_Membername;
+		global $g_encrypt;
 		
 		try
 		{
@@ -801,9 +707,9 @@
 			$FCMToken 		= trim(stripslashes($FCM_Token));
 			
 			// 加密處理
-			$Personid 	= encrypt_string_if_not_empty($g_encrypt_id	 		, $Personid);
-			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt_mobile		, $Mobileno);
-			$Membername = encrypt_string_if_not_empty($g_encrypt_Membername	, $Membername);
+			$Personid 	= encrypt_string_if_not_empty($g_encrypt["id"]	 		, $Personid);
+			$Mobileno 	= encrypt_string_if_not_empty($g_encrypt["mobile"]		, $Mobileno);
+			$Membername = encrypt_string_if_not_empty($g_encrypt["member_name"]	, $Membername);
 		
 			$sql = "SELECT * FROM memberinfo where insurance_no='".$Insurance_no."' and remote_insurance_no='".$Remote_insurance_no."' and member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
@@ -832,48 +738,33 @@
 						$sql2 = $sql2.", `updatedttime`=NOW() where mid=$mid;";
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 						
-						//echo "user data change ok!";
-						$data["status"]			= "true";
-						$data["code"]			= "0x0200";
-						$data["responseMessage"]= "更新身份證資料完成!";
-						$data["json"]			= "";
+						$data = result_message("true", "0x0200", "更新身份證資料完成!", "");
 					}
 					catch (Exception $e)
 					{
-						$log = "Exception2 error!:".$e->getMessage();
-						$data["status"]			= "false";
-						$data["code"]			= "0x0202";
-						$data["responseMessage"]= "Exception error!";
-						$data["json"]			= "";	
-						$status_code 			= "";						
+						$data = result_message("false", "0x0209", "Exception error!", "");
+						wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"].$e->getMessage(), $Person_id);
+						$status_code = "";
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0201";
-					$data["responseMessage"]= "無相同身份證資料,更新失敗!";
-					$data["json"]			= "";
+					$data = result_message("false", "0x0204", "無相同身份證資料,更新失敗!", "");
+					wh_log($Insurance_no, $Remote_insurance_no, "(!) ".$data["code"]." ".$data["responseMessage"].$e->getMessage(), $Person_id);
 					$status_code 			= "";
 				}
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0204";
-				$data["responseMessage"]= "SQL fail!";	
-				$data["json"]			= "";
-				$status_code 			= "";
+				$data = result_message("false", "0x0208", "SQL fail!", "");
+				wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"].$e->getMessage(), $Person_id);
+				$status_code = "";
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"], $Person_id);
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0202";
-			$data["responseMessage"]= "Exception error!";
-			$data["json"]			= "";
-			$status_code 			= "";
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			$status_code = "";
 			wh_log($Insurance_no, $Remote_insurance_no, "(X) Exception3 error :".$e->getMessage(), $Person_id);
 		}
 		finally
@@ -941,10 +832,7 @@
 						$mid = 0;
 						if ($Mobile_no == '')
 						{
-							$data["status"]			= "false";
-							$data["code"]			= "0x0203";
-							$data["responseMessage"]= "操作：儲存pdf-手機號碼不可為空白!";
-							$data["json"]			= "";
+							$data = result_message("false", "0x0206", "操作：儲存pdf-手機號碼不可為空白!", "");
 						}
 						else
 						{
@@ -967,43 +855,28 @@
 								
 								mysqli_query($link, $sql2) or die(mysqli_error($link));
 								//echo "user data change ok!";
-								$data["status"]="true";
-								$data["code"]="0x0200";
-								$data["responseMessage"]="操作：儲存pdf-新增資料完成!";
-								$data["json"]			= "";
+								$data = result_message("true", "0x0200", "操作：儲存pdf-新增資料完成!", "");
 							}
 							catch (Exception $e)
 							{
-								$data["status"]="false";
-								$data["code"]="0x0202";
-								$data["responseMessage"]="操作：儲存pdf-Exception error!";
-								$data["json"]			= "";
+								$data = result_message("false", "0x0208", "操作：儲存pdf-Exception error!", "");
 							}
 						}
 					}
 					else
 					{
-						$data["status"]			="false";
-						$data["code"]			="0x0201";
-						$data["responseMessage"]="操作：儲存pdf-已經有相同要保流水序號的資料!";	
-						$data["json"]			= "";
+						$data = result_message("false", "0x0203", "操作：儲存pdf-已經有相同要保流水序號的資料!", "");
 						$ret = 0;
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0204";
-					$data["responseMessage"]= "操作：儲存pdf-SQL fail!";
-					$data["json"]			= "";					
+					$data = result_message("false", "0x0208", "操作：儲存pdf-SQL fail!", "");
 				}
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "操作：儲存pdf-Exception error!";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0209", "操作：儲存pdf-Exception error!", "");
 			}
 			finally
 			{
@@ -1024,15 +897,12 @@
 		}
 		else
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0203";
-			$data["responseMessage"]= "操作：access status-API parameter is required!";
-			$data["json"]			= "";
+			$data = result_message("false", "0x0202", "操作：pdf parameter is required!", "");
 		}
 		return $data;
 	}
 	// 取得 pdf info
-	function get_pdflog_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Title, $close_mysql = true, $get_All_signature = false, $log_title = "", $log_subtitle = "")
+	function get_pdflog_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Title, $close_mysql = true, $get_All_signature = false, $log_title = "", $log_subtitle = "")
 	{
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
@@ -1081,34 +951,23 @@
 							$ret_data[$i]["pdf_data"] = $pdf_data->data;
 							$i++;
 						}
-						$data["status"]="true";
-						$data["code"]="0x0200";
-						$data["responseMessage"]="操作：查詢pdf完成!";
-						$data["json"]= json_encode($ret_data);
+						$data = result_message("true", "0x0200", "操作：查詢pdf完成!", json_encode($ret_data));
 					}
 					else
 					{
-						$data["status"]			="false";
-						$data["code"]			="0x0201";
-						$data["responseMessage"]="操作：查無pdf資料!";
-						$data["json"]= $ret_data;
+						$data = result_message("false", "0x0204", "操作：查無pdf資料!", "");
 						$ret = 0;
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0204";
-					$data["responseMessage"]= "操作：查詢pdf-SQL fail!";
-					$data["json"]= $ret_data;
+					$data = result_message("true", "0x0208", "查詢pdf-SQL fail!", "");
 				}
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "操作：查詢pdf-Exception error!";
-				$data["json"]			= $ret_data;
+				$data = result_message("false", "0x0209", "操作：查詢pdf-Exception error!", "");
+				wh_log($dst_title, $dst_subtitle, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
 			finally
 			{
@@ -1129,16 +988,15 @@
 		}
 		else
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0203";
-			$data["responseMessage"]= "操作：query pdflog status-API parameter is required!";
-			$data["json"]			= $ret_data;
+			$data = result_message("false", "0x0202", "操作：query pdflog status-API parameter is required!", "");
 		}
 		return $data;
 	}
 	// 取得對應的身份證正反面照片
 	function getpidpic2(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		global $g_encrypt;
+		
 		//0: front, 1: back
 		try
 		{
@@ -1173,7 +1031,7 @@
 									$fp = fopen($row2['frontpath'], "r");
 									$out = fread($fp, filesize($row2['frontpath']));
 									fclose($fp);
-									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $out); //decrypt($keys,$row2['front']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $out); //decrypt($keys,$row2['front']);
 								}
 								else
 								{
@@ -1187,7 +1045,7 @@
 									$fp = fopen($row2['backpath'], "r");
 									$out = fread($fp, filesize($row2['backpath']));
 									fclose($fp);
-									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $out);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $out);
 								}
 								else
 								{
@@ -1203,7 +1061,7 @@
 							{
 								if ($row2['front'] != null)
 								{
-									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['front']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $row2['front']);
 								}
 								else
 								{
@@ -1214,7 +1072,7 @@
 							{
 								if ($row2['back'] != null)
 								{
-									$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['back']);
+									$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $row2['back']);
 								}
 								else
 								{
@@ -1251,7 +1109,7 @@
 											$fp = fopen($row2['frontpath'], "r");
 											$out = fread($fp, filesize($row2['frontpath']));
 											fclose($fp);
-											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt_image, $out); //decrypt($keys,$row2['front']);
+											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt["image"], $out); //decrypt($keys,$row2['front']);
 										}
 										else
 										{
@@ -1265,7 +1123,7 @@
 											$fp=fopen($row2['backpath'], "r");
 											$out=fread($fp, filesize($row2['backpath']));
 											fclose($fp);
-											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt_image, $out);
+											$pidpic2 =  decrypt_string_if_not_empty($g_encrypt["image"], $out);
 										}
 										else
 										{
@@ -1281,7 +1139,7 @@
 									{
 										if ($row2['front'] != null)
 										{
-											$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['front']);
+											$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $row2['front']);
 										}
 										else
 										{
@@ -1292,7 +1150,7 @@
 									{
 										if ($row2['back'] != null)
 										{
-											$pidpic2 = decrypt_string_if_not_empty($g_encrypt_image, $row2['back']);
+											$pidpic2 = decrypt_string_if_not_empty($g_encrypt["image"], $row2['back']);
 										}
 										else
 										{
@@ -1379,37 +1237,24 @@
 						while ($row = mysqli_fetch_array($result))
 						{
 							$ret_data[$i]["attache_title"] = $row['attach_title'];
-							$ret_data[$i]["attach_graph"] = addslashes(decrypt_string_if_not_empty($g_encrypt_image, $row['attach_graph']));
+							$ret_data[$i]["attach_graph"] = addslashes(decrypt_string_if_not_empty($g_encrypt["image"], $row['attach_graph']));
 							$i++;
 						}
-						$data["status"]="true";
-						$data["code"]="0x0200";
-						$data["responseMessage"]="操作：查詢attachment完成!";
-						$data["json"]= json_encode($ret_data);
+						$data = result_message("true", "0x0200", "操作：查詢attachment完成!", json_encode($ret_data));
 					}
 					else
 					{
-						$data["status"]			="false";
-						$data["code"]			="0x0201";
-						$data["responseMessage"]="操作：查無attachment資料!";
-						$data["json"]= $ret_data;
-						$ret = 0;
+						$data = result_message("false", "0x0204", "操作：查無attachment資料!", "");
 					}
 				}
 				else
 				{
-					$data["status"]			= "false";
-					$data["code"]			= "0x0204";
-					$data["responseMessage"]= "操作：查詢attachment-SQL fail!";
-					$data["json"]= $ret_data;
+					$data = result_message("false", "0x0208", "操作：查詢attachment-SQL fail!", "");
 				}
 			}
 			catch (Exception $e)
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0202";
-				$data["responseMessage"]= "操作：查詢attachment-Exception error!";
-				$data["json"]			= $ret_data;
+				$data = result_message("false", "0x0209", "操作：查詢attachment-Exception error!", "");
 			}
 			finally
 			{
@@ -1430,10 +1275,7 @@
 		}
 		else
 		{
-			$data["status"]			= "false";
-			$data["code"]			= "0x0203";
-			$data["responseMessage"]= "操作：query attachment status-API parameter is required!";
-			$data["json"]			= $ret_data;
+			$data = result_message("false", "0x0202", "操作：query attachment status-API parameter is required!", "");
 		}
 		return $data;
 	}

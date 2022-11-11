@@ -28,7 +28,7 @@
 	$App_type  = isset($_POST['App_type'])  ? $_POST['App_type']  : ''; //$App_type = "0";//業務員
 
 	$remote_ip4filename = get_remote_ip_underline();
-	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json entry <-");
+	JTG_wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json entry <-");
 	if (($Sso_token  != '') &&
 		($App_type 	 != '') || true)
 	{
@@ -42,7 +42,7 @@
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
 			mysqli_query($link,"SET NAMES 'utf8'");
-			wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
 			
 			$App_type   = mysqli_real_escape_string($link,$App_type);	
 			$Sso_token  = mysqli_real_escape_string($link,$Sso_token);
@@ -50,7 +50,7 @@
 			$Sso_token2 = trim(stripslashes($Sso_token)); 
 			$App_type2  = trim(stripslashes($App_type));
 			
-			wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
 			$appId = "";
 			if($App_type2 == '0')
 				$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
@@ -69,7 +69,7 @@
 			else
 				$out = CallAPI("POST", $url, $jsondata, null, false); // 呼叫 API
 			
-			wh_log("SSO_Login", $remote_ip4filename, "sso api get response json succeed");
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "sso api get response json succeed");
 			//echo $out;
 			$ret = json_decode($out, true);
 			$cxInsurance = json_decode($out);
@@ -87,7 +87,7 @@
 				$agentMobile 	= $ret['data']['agentMobile'];
 				*/
 				$dueTime	 	= $cxInsurance->dueTime;
-				wh_log("SSO_Login", $remote_ip4filename, "dueTime = ".$dueTime);
+				JTG_wh_log("SSO_Login", $remote_ip4filename, "dueTime = ".$dueTime);
 				
 				//判斷 要保日 > 12H 或 要保日跨日 失敗：[A1] 成功：[A2]
 				$over_12Hr = over_insurance_duetime(date("Y-m-d H:i:s"), $dueTime, 12);
@@ -104,8 +104,8 @@
 						$responseMessage = "要保日 > 12H";
 					if ($over_day)
 						$responseMessage .= (strlen($responseMessage) > 0) ? "，且要保日跨日" : "要保日跨日";
-					$data = result_message("false", "0x0204", $responseMessage, "");
-					wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
+					$data = result_message("false", "0x0206", $responseMessage, "");
+					JTG_wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["code"]." ".$data["responseMessage"]);
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 					return;
@@ -114,7 +114,7 @@
 				{
 					$status_code = $status_code_succeed;
 				}
-				wh_log("SSO_Login", $remote_ip4filename, "pass time");
+				JTG_wh_log("SSO_Login", $remote_ip4filename, "pass time");
 				
 				// 紀錄json到檔案
 				if ($g_wjson2file_flag)
@@ -171,12 +171,15 @@
 								$data_pdf = array();
 								$data_pdf = modify_pdf_log($link, $Insurance_no, $Remote_insurance_no, $empty_Person_id, $Mobile_no, $pdf_subname, $pdf_data, $pdf_path, $status_code, false, "SSO_Login", $remote_ip4filename);
 								
-								wh_log("SSO_Login", $remote_ip4filename, "pdf operator result :". $data_pdf["responseMessage"]);
+								JTG_wh_log("SSO_Login", $remote_ip4filename, $data_pdf["code"]."pdf operator result :". $data_pdf["responseMessage"]);
 							}
 						}
 					}
 					catch (Exception $e)
-					{ }
+					{
+						$data = result_message("false", "0x0209", "儲存PDF檔案並紀錄資料發生 Exception", "");
+						JTG_wh_log("SSO_Login", $remote_ip4filename, "(x) ".$data["code"]." save pdf error :".$e->getMessage());
+					}
 				}
 				//echo $out;
 				// 儲存pdf到檔案 - 成功
@@ -185,22 +188,22 @@
 				{
 					$data = result_message("true", "0x0200", "json資料解析成功", $out);
 				}
-				wh_log("SSO_Login", $remote_ip4filename, $data["responseMessage"]);
+				JTG_wh_log("SSO_Login", $remote_ip4filename, $data["code"].$data["responseMessage"]);
 			}
 			else
 			{
-				wh_log("SSO_Login", $remote_ip4filename, "(X) read json data failure :".$out);
 				$data = result_message("false", "0x0201", "json資料解析異常", $out);
+				JTG_wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["code"]." read json data failure :".$out);
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "系統異常", "");
-			wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
+			$data = result_message("false", "0x0209", "系統異常 Exception", "");
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage());
         }
 		finally
 		{
-			wh_log("SSO_Login", $remote_ip4filename, "finally procedure");
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "finally procedure");
 			try
 			{
 				if ($link != null)
@@ -211,18 +214,19 @@
 			}
 			catch(Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log("SSO_Login", $remote_ip4filename, "(!)".$data["code"]." Exception error: disconnect :".$e->getMessage());
 			}
-			wh_log("SSO_Login", $remote_ip4filename, "finally complete - status:".$status_code);
+			JTG_wh_log("SSO_Login", $remote_ip4filename, "finally complete - status:".$status_code);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
-		wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["responseMessage"]);
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
+		JTG_wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["code"]." ".$data["responseMessage"]);
 	}
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
+	JTG_wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
 	
 ?>

@@ -67,17 +67,17 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "send otp entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "send otp entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Send_Policy_Code", "send otp exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Send_Policy", "send otp exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -114,7 +114,7 @@
 			$sql = "SELECT * FROM orderinfo where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and sales_id='$Salesid' and person_id='$Personid' and order_trash=0";
 			$sql = $sql.merge_sql_string_if_not_empty("mobile_no"	, $Mobileno);
 			
-			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
@@ -123,7 +123,7 @@
 					try
 					{
 						// 從pdflog table取得pdf資料
-						$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "", false, true);
+						$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, $Person_id, "", false, true);
 						if ($ret_pdflog["status"] == "true")
 						{
 							$pdflog_info  = json_decode($ret_pdflog["json"]);
@@ -133,8 +133,8 @@
 								$pdflog_content = $pdflog_info[$i]->pdf_data;
 								$cxPolicy->applicationData[$i]["attacheCode"] 	= $i;
 								$cxPolicy->applicationData[$i]["attacheName"] 	= $pdflog_name;
-								$cxPolicy->applicationData[$i]["attacheContent"] 	= $pdflog_content;
-								$cxPolicy->applicationData[$i]["agentFlag"] 		= "Y";
+								$cxPolicy->applicationData[$i]["attacheContent"]= $pdflog_content;
+								$cxPolicy->applicationData[$i]["agentFlag"] 	= "Y";
 							}
 						}
 						
@@ -180,7 +180,7 @@
 							curl_setopt($ch2,CURLOPT_RETURNTRANSFER, true); 
 							//execute post
 							$result2 = curl_exec($ch2);
-							wh_log($Insurance_no, $Remote_insurance_no, "sms result :".$result2, $Person_id);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "sms result :".$result2, $Person_id);
 							//1603.00,1,1,0,09c04df2-bb7b-4448-99eb-474660ec2af0
 						}
 						*/
@@ -199,7 +199,9 @@
 						}
 						catch (Exception $e)
 						{
+							$data = result_message("false", "0x0209", "parse json Exception error!", "");
 							$ret_error_msg = "";
+							JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 						}
 						
 						if ($ret_error_msg == "")
@@ -218,29 +220,31 @@
 					}
 					catch (Exception $e)
 					{
-						$data = result_message("false", "0x0201", "回傳保單資訊至雲端達人未完成!", "");
+						$data = result_message("false", "0x0209", "回傳保單資訊至雲端達人未完成!", "");
 						$status_code = $status_code_failure;
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 					}
 				}
 				else
 				{
-					$data = result_message("false", "0x0205", "回傳保單資訊至雲端達人錯誤!", "");
+					$data = result_message("false", "0x0204", "回傳保單資訊至雲端達人錯誤, 無相應資料!", "");
 					$status_code = $status_code_failure;
 				}
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "SQL fail!", "");
+				$data = result_message("false", "0x0208", "SQL fail!", "");
 				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error!", "");
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -256,18 +260,17 @@
 			}
 			catch (Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

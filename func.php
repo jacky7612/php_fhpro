@@ -50,16 +50,31 @@
 		return false;
 	}
 	
-	// 訊息中心 public
-	function result_message($status, $code, $responseMessage, $json)
+	// 驗證 security token - 看門狗 public
+	function get_error_symbol($val)
 	{
-		$data = array();
-		$data["status"]			= $status;
-		$data["code"]			= $code;
-		$data["responseMessage"]= $responseMessage;
-		$data["json"]			= $json;
-		return $data;
+		/*
+		0x0200	data parse succeed
+		0x0201	data parse error					(X)
+		0x0202	API parameter is required!			(!)
+		0x0203	data exists							(!)
+		0x0204	data not exists						(!)
+		0x0205	dog err								(X)
+		0x0206	other message - condiction			(!)
+		0x0207	Exception error: disconnect!		(!)
+		0x0208	SQL fail! please check query str	(!)
+		0x0209	Exception error!					(X)
+		*/
+		$ret = "";
+		
+		if ($val == "0x0202" || $val == "0x0203" || $val == "0x0204" ||
+			$val == "0x0206" || $val == "0x0207" || $val == "0x0208")
+			$ret = "(!) ";
+		else if ($val == "0x0201" || $val == "0x0205" || $val == "0x0209")
+			$ret = "(X) ";
+		return $ret;
 	}
+	
 	// 驗證 security token - 看門狗 public
 	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{
@@ -67,10 +82,7 @@
 		global $g_test_mode;
 		
 		$data = array();
-		$data["status"] 		= "true";
-		$data["code"]			= "0x0200";
-		$data["responseMessage"]= "succeed!";
-		$data["json"]			= "";
+		$data = result_message("true", "0x0200", "Succeed!", "");
 		if ($g_test_mode)
 		{
 			return $data;
@@ -79,31 +91,15 @@
 		//$token 	 = $headers['Authorization'];
 		if (check_header($key, $token) == true)
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token succeed", $Person_id);
+			wh_log_watch_dog($Insurance_no, $Remote_insurance_no, $func_name." security token succeed", $Person_id);
 		}
 		else
 		{
-			$data["status"]			="false";
-			$data["code"]			="0x0209";
-			$data["responseMessage"]="Invalid token!";
-			$data["json"]			= "";
-			wh_log($Insurance_no, $Remote_insurance_no, $func_name." security token failure", $Person_id);
-			wh_log($Insurance_no, $Remote_insurance_no, $g_exit_symbol.$out_str, $Person_id);
+			$data = result_message("false", "0x0205", "Invalid token!", "");
+			wh_log_watch_dog($Insurance_no, $Remote_insurance_no, $func_name."(X) security token failure \r\n".$g_exit_symbol.$out_str, $Person_id);
 		}
 		return $data;
 	}
-	/*
-	// 當資料不齊全時，從資料庫取得
-		$ret = get_sales_person_id_if_not_exists($Insurance_no, $Remote_insurance_no, $Person_id, $Sales_id, $Mobile_no, $Member_name
-		if (ret == false)
-		{
-			//echo "參數錯誤 !";
-			$data["status"]="false";
-			$data["code"]="0x0203";
-			$data["responseMessage"]="API parameter is required!";
-			return;
-		}
-	*/
 	
 	// 取的保單所有關係人員 public
 	function get_role_from_json(&$link, $Insurance_no, $Remote_insurance_no, &$Person_id, $close_mysql = true)
@@ -298,7 +294,7 @@
 	// 取得並儲存臉部照片
 	function get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, $update_member = false)
 	{
-		global $g_encrypt_image;
+		global $g_encrypt;
 		
 		$ret_image = null;
 		if ($base64image != '') 
@@ -326,13 +322,13 @@
 			
 			if (!$update_member)
 			{
-				$image = addslashes(encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file))));
+				$image = addslashes(encrypt_string_if_not_empty($g_encrypt["image"], base64_encode(file_get_contents($target_file))));
 				wh_log($Insurance_no, $Remote_insurance_no, "addslashes encode size:".strlen($image), $Person_id);
 			}
 			else
 			{
 				//encrypt
-				$image = encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file)));
+				$image = encrypt_string_if_not_empty($g_encrypt["image"], base64_encode(file_get_contents($target_file)));
 				wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image), $Person_id);
 			}
 			$ret_image = file_get_contents($target_file1);
@@ -351,7 +347,7 @@
 	// 取得並儲存臉部照片(含浮水印)
 	function get_image_content_watermark($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1, $target_file2)
 	{
-		global $g_encrypt_image;
+		global $g_encrypt;
 		global $g_watermark_src_url;
 		
 		if (base64ToImage($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file1, $imageFileType))
@@ -391,7 +387,7 @@
 				wh_log($Insurance_no, $Remote_insurance_no, "watermark ok", $Person_id);
 			}
 			
-			$image2 = (encrypt_string_if_not_empty($g_encrypt_image, base64_encode(file_get_contents($target_file2))));
+			$image2 = (encrypt_string_if_not_empty($g_encrypt["image"], base64_encode(file_get_contents($target_file2))));
 			wh_log($Insurance_no, $Remote_insurance_no, "AES encode size:".strlen($image2), $Person_id);
 			
 			unlink($target_file1);
@@ -414,10 +410,7 @@
 		global $g_verify_is_face_apiurl;
 		
 		$data = array();
-		$data["status"]			= "true";
-		$data["code"]			= "0x0200";
-		$data["responseMessage"]= "辨識人臉成功";
-		$data["json"]			= "";
+		$data = result_message("true", "0x0200", "辨識人臉成功", "");
 		if ($src_image != null)
 		{
 			$base64image = base64_encode($src_image);
@@ -445,10 +438,7 @@
 			}
 			else
 			{
-				$data["status"]			= "false";
-				$data["code"]			= "0x0205";
-				$data["responseMessage"]= "無法辨識為人臉, 請重新辨識";
-				$data["json"]			= "";
+				$data = result_message("false", "0x0206", "無法辨識為人臉, 請重新辨識", "");
 			}
 		}
 		return $data;
@@ -529,7 +519,7 @@
 	
 	function getuserList(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $close_mysql = true)
 	{
-		global $g_encrypt_Membername;
+		global $g_encrypt;
 		
 		try
 		{
@@ -556,7 +546,7 @@
 						$person_id = $row2['person_id'];
 						//$member_name = $row2['member_name'];
 						//$member_name = decrypt_string_if_not_empty($keys, stripslashes($row2['member_name']));
-						$member_name = decrypt_string_if_not_empty($g_encrypt_Membername, stripslashes($row2['member_name']));
+						$member_name = decrypt_string_if_not_empty($g_encrypt["member_name"], stripslashes($row2['member_name']));
 						
 						$Role 		= str_replace(",", "", $row2['role']);
 						$RoleName 	= get_role_name($Role);

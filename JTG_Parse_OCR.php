@@ -34,13 +34,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "OCR entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "OCR entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -56,5 +56,5 @@
 						
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	wh_log($Insurance_no, $Remote_insurance_no, "OCR exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "OCR exit ->"."\r\n", $Person_id);
 ?>

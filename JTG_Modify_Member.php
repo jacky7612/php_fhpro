@@ -58,13 +58,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -94,7 +94,7 @@
 			//$image = addslashes(file_get_contents($_FILES['Pid_Pic']['tmp_name'])); //SQL Injection defence!
 			//$image = file_get_contents($_FILES['Pid_Pic']['tmp_name']);
 			//frank ,先確認是否人臉, 若否回傳非人臉,請重拍
-			if ($g_Ignor_verify_face == false)
+			if ($g_encrypt["ignor_verify_face"] == false)
 			{
 				$data = verify_is_face($ret_image);
 				if ($data["status"] == "false")
@@ -102,7 +102,7 @@
 					$status_code = "";
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-					wh_log($Insurance_no, $Remote_insurance_no, "modify member exit ->", $Person_id);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify member exit ->", $Person_id);
 					return;
 				}
 			}
@@ -112,19 +112,19 @@
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);
 				mysqli_query($link,"SET NAMES 'utf8'");
-				wh_log($Insurance_no, $Remote_insurance_no, "connect mysql", $Person_id);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "connect mysql", $Person_id);
 			}
 			
 			// update mysql
 			$data = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $base64image, $status_code, false);
-			wh_log($Insurance_no, $Remote_insurance_no, "modify_member function complete result :".$data["responseMessage"], $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify_member function complete result :".$data["responseMessage"], $Person_id);
 			
 			// 操作：更新
 			if ($data["status"]				== "false" &&
 				$data["code"]				== "0x0201" &&
 				$data["responseMessage"]	== "身份資料建檔-無法重複建立，已經有相同身份證資料!")
 			{
-				wh_log($Insurance_no, $Remote_insurance_no, "will update_idphoto", $Person_id);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "will update_idphoto", $Person_id);
 				if ($Person_id 				!= '' &&
 					$front 					!= '' &&
 					$Insurance_no 			!= '' &&
@@ -138,7 +138,7 @@
 					$target_file1 = $target_dir . $file_name . "_1";//." . $imageFileType;
 					$target_file2 = $target_dir . $file_name . "_2";//." . $imageFileType;
 					$image2 = get_image_content_watermark($Insurance_no, $Remote_insurance_no, $Person_id, $base64imageID, $target_file, $target_file1, $target_file2);
-					wh_log($Insurance_no, $Remote_insurance_no, "get_image_content_watermark", $Person_id);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "get_image_content_watermark", $Person_id);
 					
 					// update mysql
 					$data = update_idphoto($link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $image2, $status_code, false);
@@ -146,7 +146,7 @@
 					{
 						$status_code = $status_code_succeed;
 					}
-					wh_log($Insurance_no, $Remote_insurance_no, "update_idphoto complete!", $Person_id);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "update_idphoto complete!", $Person_id);
 					
 					if (($Person_id != '') &&
 						($Mobile_no != '') &&
@@ -160,14 +160,14 @@
 						$target_file1 = $target_dir . $file_name."_1";//." . $imageFileType;
 						$image1 = get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1, true);
 						
-						if ($g_Ignor_verify_face == false)
+						if ($g_encrypt["ignor_verify_face"] == false)
 						{
 							$data = verify_is_face($image1);
 							if ($data["status"] == "false")
 							{
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-								wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
+								JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
 								return;
 							}
 						}
@@ -178,13 +178,13 @@
 					}
 					else
 					{
-						$data = result_message("false", "0x0203", "member - API parameter is required!", "");
+						$data = result_message("false", "0x0202", "member - API parameter is required!", "");
 						$status_code = "";
 					}
 				}
 				else
 				{
-					$data = result_message("false", "0x0203", "idphoto - API parameter is required!", "");
+					$data = result_message("false", "0x0202", "idphoto - API parameter is required!", "");
 					$status_code = "";
 					//option , so can skip
 				}
@@ -192,18 +192,19 @@
 		}
 		else
 		{
-			$data = result_message("false", "0x0203", "API parameter is required!", "");
+			$data = result_message("false", "0x0202", "API parameter is required!", "");
 			$status_code = "";
 		}
 	}
 	catch (Exception $e)
 	{
-		$data = result_message("false", "0x0202", "Exception error!", "");
+		$data = result_message("false", "0x0209", "Exception error!", "");
 		$status_code = "";
+		JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 	}
 	finally
 	{
-		wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 		try
 		{
 			if ($status_code != "")
@@ -219,13 +220,12 @@
 		}
 		catch(Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+			$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
-		wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."modify member exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."modify member exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

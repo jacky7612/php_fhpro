@@ -35,13 +35,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "upload attachment entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "upload attachment entry <-", $Person_id);
 
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -61,7 +61,7 @@
 	{
 		//$image = addslashes(file_get_contents($_FILES['Signature_pic']['tmp_name'])); //SQL Injection defence!
 		//$image = addslashes(encrypt($key,base64_encode(file_get_contents($_FILES['Signature_pic']['tmp_name'])))); //SQL Injection defence!		
-		$image = addslashes(encrypt_string_if_not_empty($g_encrypt_image, $attachment_pic)); //SQL Injection defence!
+		$image = addslashes(encrypt_string_if_not_empty($g_encrypt["image"], $attachment_pic)); //SQL Injection defence!
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
@@ -106,7 +106,8 @@
 					}
 					catch (Exception $e)
 					{
-						$data = result_message("false", "0x0202", "Exception error!", "");
+						$data = result_message("false", "0x0209", "Exception error!", "");
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 					}
 				}
 				else
@@ -119,16 +120,17 @@
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "SQL fail!", "");
+				$data = result_message("false", "0x0208", "SQL fail!", "");
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error!", "");
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -142,20 +144,19 @@
 					$link = null;
 				}
 			}
-			catch(Exception $e)
+			catch (Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."upload attachment exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."upload attachment exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

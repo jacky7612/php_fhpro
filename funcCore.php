@@ -1,4 +1,14 @@
 <?php
+	// 訊息中心 public
+	function result_message($status, $code, $responseMessage, $json)
+	{
+		$data = array();
+		$data["status"]			= $status;
+		$data["code"]			= $code;
+		$data["responseMessage"]= $responseMessage;
+		$data["json"]			= $json;
+		return $data;
+	}
 	function get_role_name($val)
 	{
 		$ret = "";

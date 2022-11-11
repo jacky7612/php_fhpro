@@ -52,13 +52,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "frsip info entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "frsip info entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -93,10 +93,10 @@
 
 			if ($Role != "agentOne") // 業務員
 			{
-				$data = result_message("false", "0x0204", "無此權限", "");
+				$data = result_message("false", "0x0206", "無此權限", "");
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-				wh_log($Insurance_no, $Remote_insurance_no, "(!) query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "(!) query result :".$data["responseMessage"]."\r\n"."frsip info exit ->", $Person_id);
 				return;
 			}
 			
@@ -105,7 +105,7 @@
 			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid				);
 			
-			wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
@@ -120,24 +120,25 @@
 				}
 				else
 				{
-					$data = result_message("false", "0x0205", "無此業務員", "");
+					$data = result_message("false", "0x0204", "無此業務員", "");
 					$status_code = $status_code_failure;
 				}
 			}
 			else
 			{
-				$data = result_message("false", "0x0202", "SQL Failed!", "");
+				$data = result_message("false", "0x0208", "SQL Failed!", "");
 				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0204", "Exception error!", "");
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			$status_code = $status_code_failure;
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -153,18 +154,17 @@
 			}
 			catch(Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
-			wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."frsip info exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."frsip info exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -36,7 +36,7 @@
 	if($App_type == '1')
 		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
 	
-	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 		: '';
+	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 			: '';
 	$PDF_time 			= check_special_char($PDF_time);
 		
 	switch ($PDF_time)
@@ -77,18 +77,18 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "get pdf entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "get pdf entry <-", $Person_id);
 	
 	// 驗證 security token
 	//$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Face_Compare", "get pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Get_Proposal_PDF", "get pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -126,7 +126,7 @@
 			if ($token2 != '')
 			{
 				// 從pdflog table取得pdf資料
-				$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, "insurance_".$PDF_time, false);
+				$ret_pdflog = get_pdflog_table_info($link, $Insurance_no, $Remote_insurance_no, $Person_id, "insurance_".$PDF_time, false);
 				
 				if ($contain_json == "true")
 				{
@@ -187,18 +187,19 @@
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "token fail", "");
+				$data = result_message("false", "0x0206", "token fail", "");
 				$status_code = $status_code_failure;
 			}
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "系統異常", "");
-			$status_code = $status_code_failure;					
+			$data = result_message("false", "0x0209", "系統異常", "");
+			$status_code = $status_code_failure;
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
-			wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
 				if ($status_code != "")
@@ -214,17 +215,16 @@
 			}
 			catch(Exception $e)
 			{
-				$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
 		}
 	}
 	else
 	{
-		$data = result_message("false", "0x0203", "API parameter is required!", "");
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."get pdf exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get pdf exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

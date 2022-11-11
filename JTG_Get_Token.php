@@ -8,7 +8,7 @@
 	$pwd 	= isset($_POST['pwd'])  ? $_POST['pwd']  : '';
 	$data	= array();
 	$remote_ip4filename = get_remote_ip_underline();
-	wh_log("GetToken", $remote_ip4filename, "Get Token Security entry <-");
+	JTG_wh_log("GetToken", $remote_ip4filename, "Get Token Security entry <-");
 	if (($user != '') &&
 		($pwd  != ''))
 	{
@@ -20,39 +20,27 @@
 				$array4json["token"]	 = $en;
 				$time 					 = date("Y-m-d H:i:s");
 				$en 					 = encrypt($key, $time);
-				$data["status"]			 = "true";
-				$data["code"]			 = "0x0200";
-				$data["responseMessage"] = "Succeed!";
-				$data["json"]			 = json_encode($array4json);
-				wh_log("GetToken", $remote_ip4filename, $data["responseMessage"]);	
+				$data = result_message("true", "0x0200", "Succeed!", json_encode($array4json));
+				JTG_wh_log("GetToken", $remote_ip4filename, $data["responseMessage"]);	
 			}
 			else
 			{
-				$data["status"]			 = "false";
-				$data["code"]			 = "0x0205";
-				$data["responseMessage"] = "Invalid user!";
-				$data["json"]			 = "";
-				wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);	
+				$data = result_message("false", "0x0206", "Invalid user!", "");
+				JTG_wh_log("GetToken", $remote_ip4filename, get_error_symbol($data["code"]).$data["responseMessage"]);	
 			}
 		}
 		catch (Exception $e)
 		{
-			$data["status"]			 = "false";
-			$data["code"]			 = "0x0204";
-			$data["responseMessage"] = "Exception error!";
-			$data["json"]			 = "";
-			wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);	
+			$data = result_message("false", "0x0209", "Exception error!", "");
+			JTG_wh_log_Exception("GetToken", $remote_ip4filename, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage());	
         }
 	}
 	else
 	{
-		$data["status"]			 = "false";
-		$data["code"]			 = "0x0203";
-		$data["responseMessage"] = "API parameter is required!";
-		$data["json"]			 = "";
-		wh_log("GetToken", $remote_ip4filename, "(X) ".$data["responseMessage"]);
+		$data = result_message("false", "0x0202", "API parameter is required!", "");
+		JTG_wh_log("GetToken", $remote_ip4filename, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]);
 	}
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	wh_log("GetToken", $remote_ip4filename, "Get Token Security exit ->");
+	JTG_wh_log("GetToken", $remote_ip4filename, "Get Token Security exit ->");
 ?>

@@ -38,13 +38,13 @@
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
 	{
-		$data = result_message("false", "0x0203", "get data failure", "");
+		$data = result_message("false", "0x0206", "map person data failure", "");
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
 	
-	wh_log($Insurance_no, $Remote_insurance_no, "notify entry <-", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, "notify entry <-", $Person_id);
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
@@ -103,11 +103,8 @@
 					$notificationToken = $row['notificationToken'];
 					if ($notificationToken == null || strlen($notificationToken) <= 2)
 					{
-						wh_log($Insurance_no, $Remote_insurance_no, "(X) send FCM message error :token invalid! ".$row["person_id"], $Person_id);
-						$data["status"]			= "false";
-						$data["code"]			= "0x0204";
-						$data["responseMessage"]= "notificationToken is NULL";
-						$data["json"]			= "";
+						$data = result_message("false", "0x0204", "notificationToken is NULL", "");
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])."send FCM message error :token invalid!", $Person_id);
 					}
 					
 					$send_data = array(
@@ -125,7 +122,7 @@
 								'Authorization: key='.$g_FCM_API_ACCESS_KEY,
 								'Content-Type: application/json',
 								);
-					wh_log($Insurance_no, $Remote_insurance_no, "send FCM message had ready", $Person_id);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "send FCM message had ready", $Person_id);
 					
 					// 呼叫FCM推播 API /*curl至firebase server發送到接收端*/
 					try
@@ -142,9 +139,9 @@
 					}
 					catch (Exception $e)
 					{
-						wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$row["person_id"]." call FCM exeception error : ".$e->getMessage(), $Person_id);
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$row["person_id"]." call FCM exeception error : ".$e->getMessage(), $Person_id);
 					}
-					wh_log($Insurance_no, $Remote_insurance_no, "FCM result :".$ret_fcm, $Person_id);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "FCM result :".$ret_fcm, $Person_id);
 					
 					// 紀錄發佈紀錄至notification log
 					$msg = $FCMtitle."-".$FCMcontent;
@@ -154,7 +151,7 @@
 			}
 			else
 			{
-				$data = result_message("false", "0x0205", "無此人員推播失敗", "");
+				$data = result_message("false", "0x0204", "無此人員推播失敗", "");
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 				return;				
@@ -162,7 +159,7 @@
 		}
 		else
 		{
-			$data = result_message("false", "0x0204", "SQL fail!", "");
+			$data = result_message("false", "0x0208", "SQL fail!", "");
 			header('Content-Type: application/json');
 			echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 			return;
@@ -172,11 +169,12 @@
 	}
 	catch (Exception $e)
 	{
-		$data = result_message("false", "0x0202", "系統異常", "");
+		$data = result_message("false", "0x0209", "系統異常", "");
+		JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 	}
 	finally
 	{
-		wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
 		try
 		{
 			if ($status_code != "")
@@ -192,13 +190,12 @@
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0202", "Exception error: disconnect!", "");
+			$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
-		wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 	}
-	$symbol_str = ($data["code"] == "0x0202" || $data["code"] == "0x0204") ? "(X)" : "(!)";
-	if ($data["code"] == "0x0200") $symbol_str = "";
-	wh_log($Insurance_no, $Remote_insurance_no, $symbol_str." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."notify exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."notify exit ->"."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

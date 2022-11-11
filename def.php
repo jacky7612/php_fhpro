@@ -14,14 +14,24 @@
 	
 	// 加密金鑰
 	//$key = "9Dcl8uXVFt/vSYaizaE+KkAgXtYO0807"; //prod	
-	$key = "YcL+NyCRl5FYMWhozdV5V8eu6qv3cLDL";	//uat
-	$g_iv  = "77215989@jotangi";
+	$key 	= "YcL+NyCRl5FYMWhozdV5V8eu6qv3cLDL";	//uat
+	$g_iv  	= "77215989@jotangi";
 	
-	$g_encrypt_id						= false;
-	$g_encrypt_mobile					= false;
-	$g_encrypt_Membername				= false;
-	$g_encrypt_image					= false;
-	$g_Ignor_verify_face				= true;
+	$g_encrypt = [
+					'id'       					=> false,
+					'mobile'      				=> false,
+					'member_name'   			=> false,
+					'image'    					=> false,
+					'ignor_verify_face'    		=> true
+				 ];
+	
+	$g_trace_log = [
+					'JTG_wh_log'       			=> true,
+					'JTG_wh_log_Exception'      => true,
+					'wh_log'   					=> true,
+					'wh_log_watch_dog'    		=> true,
+					'wh_log_Exception'    		=> true
+				   ];
 	
 	$g_insurance_sso_api_url 			= "https://localhost/test_fhpro/"					; // 取得保險公司相關資料 API url
 	
@@ -45,15 +55,13 @@
 	
 	$g_OTP_enable						= false;
 	$g_OTP_apiurl 						= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // OTP url
-	$g_OTP_UID_key						= "UID";
-	$g_OTP_UID_value					= "NBTAONLINE";
-	$g_OTP_PWD_key						= "PWD";
-	$g_OTP_PWD_value					= "zaq12wsx";
-	$g_OTP_subject_key					= "SB";
-	$g_OTP_subject_value				= "第一金OTP驗證碼";
-	$g_OTP_message_key					= "MSG";
-	$g_OTP_message_value				= "第一金遠距行動投保APP(一次性驗證碼簡訊),您的驗證碼為:";
-	$g_OTP_mobile_key					= "DEST";
+	$g_OTP_api_value 					= [
+											"UID"       			=> "NBTAONLINE",
+											"PWD"      				=> "zaq12wsx",
+											"SB"   					=> "第一金OTP驗證碼",
+											"MSG"    				=> "第一金遠距行動投保APP(一次性驗證碼簡訊),您的驗證碼為:",
+											"DEST"    				=> ""
+										  ];
 	
 	$g_PolicyNo_enable					= false															; // 雲端達人-取得保單號碼，並押上保單號碼
 	$g_PolicyNo_apiurl 					= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // 雲端達人-取得保單號碼 url

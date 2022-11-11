@@ -128,7 +128,7 @@ ps.每個步驟都要狀態API
 	09.JTG_Gov_ID				  				(O2) 2022.11.02  complete :2022.11.03,09 有基礎功能，未正式連到內政部
 	
 	10.JTG_Face_Compare		  					(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
-	11.JTG_JTG_Live_Compare	  					(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
+	11.JTG_Live_Compare	  						(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
 	12.JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	13.JTG_Verify_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
 	
@@ -148,7 +148,7 @@ ps.每個步驟都要狀態API
 	   JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.07
 	   JTG_Verify_OTP_Code			  			(V) 2022.11.01  complete :2022.11.07
 	
-	23.JTG_Get_AttachementInfo					(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	23.JTG_Get_Attachment						(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
 	24.JTG_Upload_Attachment		  			(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
 		
 	第二次JTG_Get_FrsipInfo		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，是否要串接影音系統API]
@@ -171,9 +171,11 @@ ps.每個步驟都要狀態API
 	29.JTG_Notify								(O) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
 	30.JTG_Get_AgentCase						(O) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
 	
-7、postman測試API								()
+7、postman測試API								(V) 2022.11.10  complete :2022.11.10
 
 8、重整API文件									()
+
+9、開發機測試									()
 
 修正一：要保日>12H或要保日跨日	[V]
 修正二：OCR						[缺]
