@@ -46,7 +46,7 @@
 	{
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
-		$Person_id 			 = "E123456789";
+		$Person_id 			 = "A123456789";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
@@ -90,11 +90,11 @@
 			$Remote_insurance_no = trim(stripslashes($Remote_insurance_no));
 			$Personid 			= trim(stripslashes($Person_id)			);
 			
-			$sql = "SELECT * FROM attachement where 1=1";
+			$sql = "SELECT * FROM attachment where 1=1";
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	  );
 			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no);
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			  );
-			
+			echo $sql."\r\n";
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
