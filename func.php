@@ -55,6 +55,7 @@
 	{
 		global $key;
 		global $g_test_mode;
+		global $g_exit_symbol;
 		
 		$data = array();
 		$data = result_message("true", "0x0200", "Succeed!", "");

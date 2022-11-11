@@ -139,7 +139,7 @@
 							}
 						}
 						
-						$ret_attachment = get_attachment_table_info($link, $Insurance_no, $Remote_insurance_no, "", false, true);
+						$ret_attachment = get_attachment_table_info($link, $Insurance_no, $Remote_insurance_no, $Person_id, "", false, true);
 						if ($ret_attachment["status"] == "true")
 						{
 							$attachment_info  = json_decode($ret_attachment["json"]);

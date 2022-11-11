@@ -11,15 +11,6 @@
 		else
 			return true;
 	}
-	function wh_log_anywhere($log_msg)
-	{
-		global $log_filename;
-		global $glogfile;
-		
-		echo $log_path;
-		create_folder($log_path);
-		file_put_contents($glogfile, date("Y-m-d H:i:s")."  ------  ".$log_msg."\n", FILE_APPEND);
-	}
 	
 	// write log for JTG_API
 	function JTG_wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")

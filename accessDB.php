@@ -9,10 +9,7 @@
 	// 取得json資料，讀取資料表 :jsonlog
 	function get_jsondata_from_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, &$json_data, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
-		global $host;
-		global $user;
-		global $passwd;
-		global $database;
+		global $host, $user, $passwd, $database;
 	
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -83,6 +80,8 @@
 	// 將資料寫入資料表 :jsonlog
 	function write_jsonlog_table(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $json_path, $status_code, $remote_ip4filename = "", $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		global $host, $user, $passwd, $database;
+
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
 		$data 			= array();
@@ -369,7 +368,7 @@
 				catch(Exception $e)
 				{
 					$data = result_message("false", "0x0207", "操作：取得狀態 - disconnect mysql orderinfo table Exception error!", "");
-					wh_log($dst_title, $dst_subtitle, get_error_symbol($data["code"])."操作：取得狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
+					wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])."操作：取得狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
 				}
 			}
 		}
@@ -551,7 +550,7 @@
 			catch (Exception $e)
 			{
 				$ret = 1;
-				wh_log($Insurance_no, $Remote_insurance_no, "(X) update order state - disconnect mysql orderlog table failure :".$e->getMessage(), $Person_id);
+				wh_log($Insuranceno, $Remote_insuranceno, "(X) update order state - disconnect mysql orderlog table failure :".$e->getMessage(), $Personid);
 			}
 		}
 		else
@@ -565,7 +564,7 @@
 	function modify_member(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, &$status_code, $close_mysql = true)
 	{
 		global $g_encrypt;
-		global $host, $userm, $passwd, $database;
+		global $host, $user, $passwd, $database;
 		
 		wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 		try
@@ -641,7 +640,7 @@
 		catch (Exception $e)
 		{
 			$data = result_message("false", "0x0209", "access member Exception error!", "");
-			wh_log(Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+			wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
         }
 		finally
 		{
@@ -665,6 +664,7 @@
 	function update_idphoto(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $front, $Image_src, &$status_code, $close_mysql = true)
 	{
 		global $g_encrypt;
+		global $host, $user, $passwd, $database;
 		
 		try
 		{
@@ -790,6 +790,7 @@
 	function update_member(&$link, $Insurance_no, $Remote_insurance_no, $image, $Person_id, $Member_name, $Mobile_no, $FCM_Token, &$status_code, $close_mysql = true)
 	{
 		global $g_encrypt;
+		global $host, $user, $passwd, $database;
 		
 		try
 		{
@@ -853,14 +854,14 @@
 				else
 				{
 					$data = result_message("false", "0x0204", "無相同身份證資料,更新失敗!", "");
-					wh_log($Insurance_no, $Remote_insurance_no, "(!) ".$data["code"]." ".$data["responseMessage"].$e->getMessage(), $Person_id);
+					wh_log($Insurance_no, $Remote_insurance_no, "(!) ".$data["code"]." ".$data["responseMessage"], $Person_id);
 					$status_code 			= "";
 				}
 			}
 			else
 			{
 				$data = result_message("false", "0x0208", "SQL fail!", "");
-				wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"].$e->getMessage(), $Person_id);
+				wh_log($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"], $Person_id);
 				$status_code = "";
 			}
 		}
@@ -891,6 +892,8 @@
 	// 變更(Insert/Update)pdflog public
 	function modify_pdf_log(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Mobile_no, $Title, $base64pdf, $pdf_path, $Status_code, $close_mysql = true, $log_title = "", $log_subtitle = "")
 	{
+		global $host, $user, $passwd, $database;
+
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -1007,6 +1010,8 @@
 	// 取得 pdf info
 	function get_pdflog_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Title, $close_mysql = true, $get_All_signature = false, $log_title = "", $log_subtitle = "")
 	{
+		global $host, $user, $passwd, $database;
+
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -1298,8 +1303,11 @@
 		return $pidpic2;	
 	}
 	// 取得 attachment 附件
-	function get_attachment_table_info(&$link, $Insurance_no, $Remote_insurance_no, $AttachName, $close_mysql = true, $get_All_signature = false, $log_title = "", $log_subtitle = "")
+	function get_attachment_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $AttachName, $close_mysql = true, $get_All_signature = false, $log_title = "", $log_subtitle = "")
 	{
+		global $g_encrypt;
+		global $host, $user, $passwd, $database;
+
 		$sql2 = "";
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
@@ -1327,7 +1335,7 @@
 				
 				$sql = "SELECT * FROM attachement where 1=1 ";
 				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	 );
-				$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no);
+				$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insurance_no);
 				
 				if ($AttachName == "")
 					$sql = $sql.merge_sql_string_if_not_empty("attach_title"	, $AttachName		 );

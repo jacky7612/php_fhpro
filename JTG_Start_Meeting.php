@@ -23,16 +23,16 @@
 	
 	$agent_id 				= "";
 	$agent_name 			= "";
-	$agent_gps_address 		= "";
+	$agent_gps_addr 		= "";
 	$proposer_id 			= "";
 	$proposer_name 			= "";
-	$proposer_gps_address 	= "";
+	$proposer_gps_addr 		= "";
 	$insured_id 			= "";
 	$insured_name 			= "";
-	$insured_gps_address 	= "";
+	$insured_gps_addr	 	= "";
 	$legalRep_id 			= "";
 	$legalRep_name 			= "";
-	$legalRep_gps_address 	= "";
+	$legalRep_gps_addr 		= "";
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@
 							case "insured":
 								$insured_name 			= $roleInfo[$j]["name"];
 								$insured_id 			= $roleInfo[$j]["idcard"];
-								$insured_gps_address 	= $Addr;
+								$insured_gps_addr	 	= $Addr;
 								break;
 							case "legalRepresentative":
 								$legalRep_name 			= $roleInfo[$j]["name"];
@@ -248,7 +248,7 @@
 									$sql = "update gomeeting SET count=count+$countp  where Insurance_no='".$Insurance_no."'";
 									$sql = $sql.merge_sql_string_if_not_empty("remote_Insurance_no", $Remote_insurance_no);
 									$ret = mysqli_query($link, $sql);
-									JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meeting person count = ".countp, $Person_id);
+									JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meeting person count = ".$countp, $Person_id);
 								
 									
 									//update GPS

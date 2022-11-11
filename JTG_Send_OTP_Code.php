@@ -163,8 +163,8 @@
 								$ret_array = explode(",", $result2);
 								if (count($ret_array) == 2)
 								{
-									if ($ret_json->Status)
-										$ret_error_msg = $ret_json->Msg;
+									//if ($ret_json->Status)
+									//	$ret_error_msg = $ret_json->Msg;
 								}
 							}
 							catch (Exception $e)
