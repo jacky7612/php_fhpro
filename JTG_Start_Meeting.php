@@ -33,6 +33,7 @@
 	$legalRep_id 			= "";
 	$legalRep_name 			= "";
 	$legalRep_gps_address 	= "";
+	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	//2022/5/5, 第二階段不同角色, 視訊同框 
@@ -184,8 +185,6 @@
 				if (mysqli_num_rows($result) > 0)
 				{
 					//$mid=0;
-					$order_status = "";
-					
 					//客戶區域-實際上只有一筆，因有對應身份證id-jacky
 					while ($row = mysqli_fetch_array($result))
 					{
@@ -288,6 +287,9 @@
 									$array4json["meetingid"]		= $meeting_id;
 									$data = result_message("true", "0x0200", "OK", json_encode($array4json));
 									$status_code = $status_code_succeed;
+									$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+									$data["order_status"] = $order_status;
+									
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 									JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01\r\n", $Person_id);								
@@ -301,6 +303,9 @@
 								{
 									$data = result_message("false", "0x0206", "尚未到視訊會議室時間!", "");
 									$status_code = $status_code_failure;
+									$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+									$data["order_status"] = $order_status;
+									
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 									JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["responseMessage"]." exit step 01\r\n", $Person_id);
@@ -321,6 +326,9 @@
 						{
 							$data["responseMessage"] = $data["responseMessage"]."\r\n非業務員無法進行往後動作!";
 						}
+						$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+						$data["order_status"] = $order_status;
+						
 						header('Content-Type: application/json');
 						echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 						JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit step 01\r\n", $Person_id);
@@ -364,6 +372,9 @@
 							}
 							$data = result_message("false", "0x0206", "Get Token Failed!".((strlen($err) > 0) ? " except".$err : ""), "");
 							$status_code = $status_code_failure;
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["responseMessage"]." exit step 02.2\r\n", $Person_id);	
@@ -383,6 +394,9 @@
 						{
 							$data = result_message("false", "0x0206", "超過會議室人數上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["responseMessage"]." exit step 03\r\n", $Person_id);
@@ -460,6 +474,9 @@
 							{
 								$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 								$status_code = $status_code_failure;
+								$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+								$data["order_status"] = $order_status;
+							
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								// $sql = "commit"; 			// [怪]mark這段很奇怪-jacky
@@ -472,6 +489,9 @@
 						{
 							$data = result_message("false", "0x0206", "會議室目前都在使用中", "");
 							$status_code = $status_code_failure;
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 04.1\r\n", $Person_id);
@@ -484,6 +504,9 @@
 						{
 							$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 05\r\n", $Person_id);
@@ -494,6 +517,9 @@
 						if ($agent_id == '') // 只有業務能開啟新會議室
 						{
 							$data = result_message("false", "0x0205", "客戶無權限發起會議!", "");
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 06\r\n", $Person_id);
@@ -523,6 +549,9 @@
 							$ret  					 = mysqli_query($link, $sql);
 							$data = result_message("false", "0x0206", "系統忙碌,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
+							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 07\r\n", $Person_id);
@@ -633,13 +662,16 @@
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
+				if ($status_code != "")
+				{
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
+					if (count($data_status) > 0 && $data_status["status"] == "false")
+						$data = $data_status;
+				}
+				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+				
 				if ($link != null)
 				{
-					if ($status_code != "")
-						$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-					if ($data["status"] == "true" && count($data_status) > 0 && $data_status["status"] == "false")
-						$data = $data_status;
-				
 					mysqli_close($link);
 					$link = null;
 				}
@@ -655,8 +687,10 @@
 	else
 	{
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
+		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."start meeting exit ->"."\r\n", $Person_id);
+	$data["order_status"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -51,31 +51,6 @@
 	}
 	
 	// 驗證 security token - 看門狗 public
-	function get_error_symbol($val)
-	{
-		/*
-		0x0200	data parse succeed
-		0x0201	data parse error					(X)
-		0x0202	API parameter is required!			(!)
-		0x0203	data exists							(!)
-		0x0204	data not exists						(!)
-		0x0205	dog err								(X)
-		0x0206	other message - condiction			(!)
-		0x0207	Exception error: disconnect!		(!)
-		0x0208	SQL fail! please check query str	(!)
-		0x0209	Exception error!					(X)
-		*/
-		$ret = "";
-		
-		if ($val == "0x0202" || $val == "0x0203" || $val == "0x0204" ||
-			$val == "0x0206" || $val == "0x0207" || $val == "0x0208")
-			$ret = "(!) ";
-		else if ($val == "0x0201" || $val == "0x0205" || $val == "0x0209")
-			$ret = "(X) ";
-		return $ret;
-	}
-	
-	// 驗證 security token - 看門狗 public
 	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{
 		global $key;

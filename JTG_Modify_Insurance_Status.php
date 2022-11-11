@@ -15,6 +15,7 @@
 	$Mobile_no 				= "";
 	$Member_name 			= "";
 	$Role 				 	= "";
+	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		:  '';
@@ -73,14 +74,23 @@
 	if ($Status_code != "")
 	{
 		// 更新狀態
-		$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Status_code, true, ($UpdateAllStatus == "true"), ($ChangeStatusAnyway == "true"));
+		$data = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Status_code, false, ($UpdateAllStatus == "true"), ($ChangeStatusAnyway == "true"));
 	}
 	else
 	{
 		$data = result_message("false", "0x0206", "Status_code is empty!", "");
 	}
+	// 取得狀態
+	$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
+	/*
+	if ($get_data["status"] == "false")
+	{
+		$data = get_data;
+	}
+	*/
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." Modify orderlog sop finish :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."Modify insurance status exit ->"."\r\n", $Person_id);
 	
+	$data["order_status"]	= $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

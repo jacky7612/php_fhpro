@@ -19,6 +19,7 @@
 	$base64image			= "";
 	$Role 					= "";
 	$jsonlog_info			= "";
+	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$App_type 			= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';	
@@ -203,9 +204,12 @@
 			try
 			{
 				if ($status_code != "")
+				{
 					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-				if (count($data_status) > 0 && $data_status["status"] == "false")
-					$data = $data_status;
+					if (count($data_status) > 0 && $data_status["status"] == "false")
+						$data = $data_status;
+				}
+				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
 				
 				if ($link != null)
 				{
@@ -223,9 +227,11 @@
 	else
 	{
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
+		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get pdf exit ->"."\r\n", $Person_id);
 	
+	$data["order_status"] = $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

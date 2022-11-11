@@ -273,6 +273,109 @@
 		return $data;
 	}
 	// 變更(Insert/Update)遠投保單狀態 public
+	function get_order_state(&$link, &$status_code, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $close_mysql = true)
+	{
+		global $g_encrypt;
+		global $host, $user, $passwd, $database;
+		
+		$order_status = "";
+		$data = array();
+		if ($Insurance_no 			!= '' &&
+			$Remote_insurance_no 	!= '' &&
+			$Person_id 				!= '' )
+		{
+			try
+			{
+				if ($link == null)
+				{
+					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				}
+				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
+				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
+				$Sales_id  				= mysqli_real_escape_string($link, $Sales_id			);
+				$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
+				$Mobile_no  			= mysqli_real_escape_string($link, $Mobile_no			);
+				$Role  					= mysqli_real_escape_string($link, $Role				);
+				
+				$Insuranceno 		 	= trim(stripslashes($Insurance_no));
+				$Remote_insuranceno 	= trim(stripslashes($Remote_insurance_no));
+				$Salesid 			 	= trim(stripslashes($Sales_id));
+				$Personid 			 	= trim(stripslashes($Person_id));
+				$Mobileno 			 	= trim(stripslashes($Mobile_no));
+				$Role 		 			= trim(stripslashes($Role));
+				
+				$Personid = encrypt_string_if_not_empty($g_encrypt["id"] 	, $Personid);
+				$Mobileno = encrypt_string_if_not_empty($g_encrypt["mobile"], $Mobileno);
+				
+				$sql = "SELECT * FROM orderinfo where order_trash=0 ";
+				$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insuranceno			);
+				$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
+				$sql = $sql.merge_sql_string_if_not_empty("sales_id"			, $Sales_id 			);
+				$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id 			);
+				$sql = $sql.merge_sql_string_if_not_empty("mobile_no"			, $Mobileno 			);
+				$sql = $sql.merge_sql_string_if_not_empty("role"				, $Role					);
+				
+				wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
+				if ($result = mysqli_query($link, $sql))
+				{
+					if (mysqli_num_rows($result) > 0)
+					{
+						//$mid=0;
+						while ($row = mysqli_fetch_array($result))
+						{
+							//$mid = $row['mid'];
+							$order_status = $row['order_status'];
+						}
+						$order_status = str_replace(",", "", $order_status);
+						try
+						{
+							//echo "user data change ok!";
+							$status_code = $order_status;
+							$array4json["order_status"] = $order_status;
+							$data = result_message("true", "0x0200", "取得保單目前狀態成功", json_encode($array4json));
+						}
+						catch (Exception $e)
+						{
+							$data = result_message("false", "0x0209", "取得保單目前狀態 - Exception error!", "");
+							JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+						}
+					}
+					else
+					{
+						$data = result_message("false", "0x0204", "無資料!", "");
+					}
+				}
+				else
+				{
+					$data = result_message("false", "0x0208", "SQL fail!", "");
+				}
+			}
+			catch (Exception $e)
+			{
+				$data = result_message("false", "0x0209", "Exception error!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+			}
+			finally
+			{
+				try
+				{
+					if ($link != null && $close_mysql)
+					{
+						mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+						$link = null;
+					}
+				}
+				catch(Exception $e)
+				{
+					$data = result_message("false", "0x0207", "操作：取得狀態 - disconnect mysql orderinfo table Exception error!", "");
+					wh_log($dst_title, $dst_subtitle, get_error_symbol($data["code"])."操作：取得狀態 - disconnect mysql orderinfo table failure :".$e->getMessage(), $Person_id);
+				}
+			}
+		}
+		return $data;
+	}
+	// 變更(Insert/Update)遠投保單狀態 public
 	function modify_order_state(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Status_code, $close_mysql = true, $UpdateAllStatus = false, $ChangeStatusAnyway = false, $log_title = "", $log_subtitle = "")
 	{
 		global $g_encrypt;

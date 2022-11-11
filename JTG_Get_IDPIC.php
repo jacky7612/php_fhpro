@@ -2,7 +2,7 @@
 	include("func.php");
 	
 	// initial
-	$status_code_succeed 	= "D2"; // 成功狀態代碼
+	$status_code_succeed 	= "D4"; // 成功狀態代碼
 	$status_code_failure 	= "";   // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
@@ -20,6 +20,7 @@
 	$status_code 			= "";
 	$Member_name			= "";
 	$Role 					= "";
+	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -123,10 +124,13 @@
 			try
 			{
 				if ($status_code != "")
+				{
 					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-				if (count($data_status) > 0 && $data_status["status"] == "false")
-					$data = $data_status;
-			
+					if (count($data_status) > 0 && $data_status["status"] == "false")
+						$data = $data_status;
+				}
+				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+				
 				if ($link != null)
 				{
 					mysqli_close($link);
@@ -144,8 +148,10 @@
 	{
 		$array4json["insuredDate"]	= date('Ymd');
 		$data = result_message("false", "0x0202", "API parameter is required!", json_encode($array4json));
+		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get idpic exit ->"."\r\n", $Person_id);
+	$data["order_status"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -18,6 +18,7 @@
 	$base64pdf			 = "";
 	$Title				 = "";
 	$Role 				 = "";
+	$order_status 		 = "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	
@@ -206,6 +207,8 @@
 			JTG_wh_log("SSO_Login", $remote_ip4filename, "finally procedure");
 			try
 			{
+				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+				
 				if ($link != null)
 				{
 					mysqli_close($link);
@@ -224,9 +227,11 @@
 	{
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
 		JTG_wh_log("SSO_Login", $remote_ip4filename, "(X) ".$data["code"]." ".$data["responseMessage"]);
+		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
+	JTG_wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
+	$data["order_status"] = $order_status;
+	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	JTG_wh_log("SSO_Login", $remote_ip4filename, "SSO Login for get insurance json exit ->"."\r\n");
-	
 ?>

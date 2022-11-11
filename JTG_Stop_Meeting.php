@@ -24,6 +24,7 @@
 	$base64image			= "";
 	$Role 					= "";
 	$imageFileType 			= "jpg";
+	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -115,7 +116,6 @@
 				if (mysqli_num_rows($result) > 0)
 				{
 					//$mid=0;
-					$order_status = "";
 					while ($row = mysqli_fetch_array($result))
 					{
 						//$mid = $row['mid'];
@@ -130,6 +130,8 @@
 							$data = result_message("true", "0x0200", "更新線上人數成功", "");
 							$status_code = $status_code_succeed;
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
+							$data["order_status"] = $order_status;
+							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 							return;
@@ -181,6 +183,8 @@
 							{
 								$data = result_message("false", "0x0206", "呼叫踢人 API error token invalid", "");
 								JTG_wh_log($Insurance_no, $Remote_insurance_no, "(X) 先踢人 error", $Person_id);
+								
+								$data["order_status"]	= $order_status;
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								return;
@@ -260,13 +264,16 @@
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
 			try
 			{
+				if ($status_code != "")
+				{
+					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
+					if (count($data_status) > 0 && $data_status["status"] == "false")
+						$data = $data_status;
+				}
+				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+				
 				if ($link != null)
 				{
-					if ($status_code != "")
-						$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-					if ($data["status"] == "true" && count($data_status) > 0 && $data_status["status"] == "false")
-						$data = $data_status;
-				
 					mysqli_close($link);
 					$link = null;
 				}
@@ -282,8 +289,10 @@
 	else
 	{
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
+		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
+	$data["order_status"]	= $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

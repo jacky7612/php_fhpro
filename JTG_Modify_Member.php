@@ -20,6 +20,7 @@
 	$base64image			= "";
 	$Role 					= "";
 	$imageFileType 			= "";
+	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
@@ -91,6 +92,14 @@
 			$target_file1 	= $target_dir.$file_name. "_1";//.".".$imageFileType;
 			$ret_image = get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1);
 			
+			// connect mysql
+			if ($link == null)
+			{
+				$link = mysqli_connect($host, $user, $passwd, $database);
+				mysqli_query($link,"SET NAMES 'utf8'");
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "connect mysql", $Person_id);
+			}
+			
 			//$image = addslashes(file_get_contents($_FILES['Pid_Pic']['tmp_name'])); //SQL Injection defence!
 			//$image = file_get_contents($_FILES['Pid_Pic']['tmp_name']);
 			//frank ,先確認是否人臉, 若否回傳非人臉,請重拍
@@ -100,19 +109,14 @@
 				if ($data["status"] == "false")
 				{
 					$status_code = "";
+					$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+					$data["order_status"] = $order_status;
+					
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 					JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify member exit ->", $Person_id);
 					return;
 				}
-			}
-			
-			// connect mysql
-			if ($link == null)
-			{
-				$link = mysqli_connect($host, $user, $passwd, $database);
-				mysqli_query($link,"SET NAMES 'utf8'");
-				JTG_wh_log($Insurance_no, $Remote_insurance_no, "connect mysql", $Person_id);
 			}
 			
 			// update mysql
@@ -165,6 +169,9 @@
 							$data = verify_is_face($image1);
 							if ($data["status"] == "false")
 							{
+								$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+								$data["order_status"] = $order_status;
+								
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]."\r\n"."update member exit ->", $Person_id);
@@ -208,9 +215,14 @@
 		try
 		{
 			if ($status_code != "")
+			{
 				$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-			if (count($data_status) > 0 && $data_status["status"] == "false")
-				$data = $data_status;
+			
+				if (count($data_status) > 0 && $data_status["status"] == "false")
+					$data = $data_status;
+			}
+			$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
+				
 			
 			if ($link != null)
 			{
@@ -227,6 +239,7 @@
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."modify member exit ->"."\r\n", $Person_id);
 	
+	$data["order_status"] = $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>
