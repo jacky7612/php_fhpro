@@ -23,18 +23,26 @@
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
+	$Remote_insurance_no = isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] 	: '';
 	$Sales_id 			= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$Mobile_no 			= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
 	$Role 				= isset($_POST['Role']) 				? $_POST['Role'] 				: '';
 
 	$Insurance_no 		= check_special_char($Insurance_no		);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
+	$Remote_insurance_no = check_special_char($Remote_insurance_no);
 	$Sales_id 			= check_special_char($Sales_id			);
 	$Person_id 			= check_special_char($Person_id			);
 	$Mobile_no 			= check_special_char($Mobile_no			);
 	$Role 				= check_special_char($Role				);
+
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
+	}
 
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
@@ -57,10 +65,10 @@
 		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
 		return;
 	}
-	
+	 				
 	// start
 	if ($Insurance_no 			!= '' &&
-		$Remote_insuance_no 	!= '' &&
+		$Remote_insurance_no 	!= '' &&
 		$Person_id 				!= '' &&
 		$Mobile_no 				!= '' &&
 		$Role 					!= '')
@@ -71,18 +79,18 @@
 			mysqli_query($link,"SET NAMES 'utf8'");
 
 			$Insurance_no  		= mysqli_real_escape_string($link, $Insurance_no		);
-			$Remote_insuance_no = mysqli_real_escape_string($link, $Remote_insuance_no	);
+			$Remote_insurance_no = mysqli_real_escape_string($link, $Remote_insurance_no	);
 			$Person_id  		= mysqli_real_escape_string($link, $Person_id			);
 			$Mobile_no  		= mysqli_real_escape_string($link, $Mobile_no			);
 			$Role  				= mysqli_real_escape_string($link, $Role				);
 
 			$Insuranceno 		= trim(stripslashes($Insurance_no)		);
-			$Remoteinsuanceno 	= trim(stripslashes($Remote_insuance_no));
+			$Remoteinsuanceno 	= trim(stripslashes($Remote_insurance_no));
 			$Personid 			= trim(stripslashes($Person_id)			);
 			$Mobileno 			= trim(stripslashes($Mobile_no)			);
 			$Role 				= trim(stripslashes($Role)				);
 			
-			$sql = "SELECT * FROM memberinfo where insurance_no='$Insuranceno' and remote_insuance_no='$Remote_insuance_no' and person_id='$Personid' and mobile_no='$Mobileno' and role=$Role and order_trash=0 ";
+			$sql = "SELECT * FROM memberinfo where insurance_no='$Insuranceno' and Remote_insurance_no='$Remoteinsuanceno' and person_id='$Personid' and mobile_no='$Mobileno' and role='$Role' and member_trash=0 ";
 			
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))

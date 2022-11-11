@@ -35,6 +35,16 @@
 	$FCM_title 			= check_special_char($FCM_title			);
 	$FCM_content 		= check_special_char($FCM_content		);
 	
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
+		$FCM_title 		 	 = "FCM_title";
+		$FCM_content 		 = "FCM_content";
+	}
+	
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)

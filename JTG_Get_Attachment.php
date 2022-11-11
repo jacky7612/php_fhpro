@@ -73,7 +73,7 @@
 	
 	// start
 	if ($Insurance_no 			!= '' &&
-		$Remote_insuance_no 	!= '' &&
+		$Remote_insurance_no 	!= '' &&
 		$Person_id 				!= '' &&
 		strlen($Person_id) 		 > 1 )
 	{
@@ -83,18 +83,18 @@
 			mysqli_query($link,"SET NAMES 'utf8'");
 
 			$Insurance_no  		= mysqli_real_escape_string($link, $Insurance_no		);
-			$Remote_insuance_no = mysqli_real_escape_string($link, $Remote_insuance_no	);
+			$Remote_insurance_no = mysqli_real_escape_string($link, $Remote_insurance_no	);
 			$Person_id  		= mysqli_real_escape_string($link, $Person_id			);
 			
 			$Insurance_no 		= trim(stripslashes($Insurance_no)		);
-			$Remote_insuance_no = trim(stripslashes($Remote_insuance_no));
+			$Remote_insurance_no = trim(stripslashes($Remote_insurance_no));
 			$Personid 			= trim(stripslashes($Person_id)			);
 			
-			$sql = "SELECT * FROM attachement where ";
-			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	 );
-			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no);
-			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			 );
-
+			$sql = "SELECT * FROM attachement where 1=1";
+			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	  );
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no);
+			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			  );
+			
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{

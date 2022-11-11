@@ -20,27 +20,27 @@
 	$base64image			= "";
 	$Role 					= "";
 	$order_status			= "";
+	$appId 					= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$App_type 			= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: ''; // update order_start use
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: ''; // update order_start use
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$token 				= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';
+	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: ''; // update order_start use
+	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] 	: ''; // update order_start use
+	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$token 					= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';
 
-	$token 				= check_special_char($token);
-	$Insurance_no 		= check_special_char($Insurance_no);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$App_type 			= check_special_char($App_type);
-	$Person_id 			= check_special_char($Person_id);
+	$token 					= check_special_char($token);
+	$Insurance_no 			= check_special_char($Insurance_no);
+	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
+	$Person_id 				= check_special_char($Person_id);
 
-	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
-	//$App_type = "0";//業務員
-	if ($App_type == '0')
-		$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-	if ($App_type == '1')
-		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
-	
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$Insurance_no 		 = "Ins1996";
+		$Remote_insurance_no = "appl2022";
+		$Person_id 			 = "A123456789";
+	}
+
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
 	if (!$ret_code)
@@ -50,6 +50,11 @@
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
 	}
+	
+	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
+	//$App_type = "0";//業務員
+	$appId = ($Role == 'agentOne') ? "Q3RRdLWTwYo8fVtP" : "HKgWyfYQv30ZE6AM";
+	
 	
 	wh_log($Insurance_no, $Remote_insurance_no, "get agent case entry <-", $Person_id);
 	
@@ -63,9 +68,15 @@
 		return;
 	}
 	
+	// 模擬資料
+	if ($g_test_mode)
+	{
+		$token 		 = "FCM_content";
+	}
+
 	// start
 	if ($Insurance_no 			!= '' &&
-		$Remote_insuance_no 	!= '' &&
+		$Remote_insurance_no 	!= '' &&
 		$Person_id 				!= '')
 	{
 		try
@@ -74,11 +85,9 @@
 			mysqli_query($link,"SET NAMES 'utf8'");
 				
 			$Person_id  = mysqli_real_escape_string($link, $Person_id);
-			$App_type  	= mysqli_real_escape_string($link, $App_type );	
 			$token  	= mysqli_real_escape_string($link, $token	 );
 			
 			$Person_id2 = trim(stripslashes($Person_id)	);
-			$App_type2 	= trim(stripslashes($App_type)	);
 			$token2 	= trim(stripslashes($token)		);
 			
 			if (1) // if ($result = mysqli_query($link, $sql))
@@ -92,8 +101,10 @@
 					$data_input['appId']= $appId ;					
 					$jsondata 			= json_encode($data_input);
 					$out 				= CallAPI("POST", $url, $jsondata, $token2, false);
-					
-					$data = result_message("true", "0x0200", "succeed", $out);
+					if (strlen($out) > 0)
+						$data = result_message("true", "0x0200", "succeed", $out);
+					else
+						$data = result_message("false", "0x0201", "failure", $out);
 				}
 				else
 				{
