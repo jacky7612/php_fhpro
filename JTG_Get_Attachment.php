@@ -94,7 +94,7 @@
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no	  	  );
 			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no);
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid			  );
-			echo $sql."\r\n";
+			
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))
 			{
