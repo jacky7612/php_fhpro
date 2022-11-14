@@ -20,9 +20,7 @@
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		:  '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] :  '';
-	$Sales_id 				= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			:  '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			:  '';
-	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			:  '';
 	$Status_code 			= isset($_POST['Status_code']) 			? $_POST['Status_code'] 		:  '';
 	$UpdateAllStatus 		= isset($_POST['UpdateAllStatus']) 		? $_POST['UpdateAllStatus'] 	:  'false';
 	$ChangeStatusAnyway		= isset($_POST['ChangeStatusAnyway']) 	? $_POST['ChangeStatusAnyway'] 	:  'false';
@@ -92,7 +90,7 @@
 	*/
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." Modify orderlog sop finish :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."Modify insurance status exit ->"."\r\n", $Person_id);
 	
-	$data["order_status"]	= $order_status;
+	$data["orderStatus"]	= $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

@@ -23,15 +23,11 @@
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Sales_id 			= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Mobile_no 			= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
 	
 	$Insurance_no 		= check_special_char($Insurance_no		);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Sales_id 			= check_special_char($Sales_id			);
 	$Person_id 			= check_special_char($Person_id			);
-	$Mobile_no 			= check_special_char($Mobile_no			);
 
 	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 		: '';
 	$OTP_time 			= check_special_char($OTP_time);
@@ -264,7 +260,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	if ($g_return_OTP_code_enable) $data["OTP_code"] = $user_code;
 	
 	header('Content-Type: application/json');

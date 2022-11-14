@@ -5,7 +5,7 @@
 		$data = array();
 		$data["status"]			= $status;
 		$data["code"]			= $code;
-		$data["order_status"]	= "";
+		$data["orderStatus"]	= "";
 		$data["responseMessage"]= $responseMessage;
 		$data["json"]			= $json;
 		return $data;

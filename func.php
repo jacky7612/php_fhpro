@@ -377,6 +377,10 @@
 			{
 				wh_log($Insurance_no, $Remote_insurance_no, "save_decode_image failed", $Person_id);
 			}
+			else
+			{
+				wh_log($Insurance_no, $Remote_insurance_no, "save_decode_image not be null or empty image data", $Person_id);
+			}
 		}
 		return $image2;
 	}
@@ -416,6 +420,10 @@
 			{
 				$data = result_message("false", "0x0206", "無法辨識為人臉, 請重新辨識", "");
 			}
+		}
+		else
+		{
+			$data = result_message("false", "0x0206", "無法辨識為人臉, 請重新辨識", "");
 		}
 		return $data;
 	}

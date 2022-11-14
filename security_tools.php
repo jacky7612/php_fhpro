@@ -30,6 +30,6 @@
 		$str = str_replace(htmlspecialchars_decode("&alt"), "", $str);	
 		return trim($str);
 	}
-	$vuser="dGdsdXNlcg==";
-	$vpwd="VGdsQDIwMjI=";
+	$vuser="Zmh1c2Vy";
+	$vpwd="ZmhAMjAyMg==";
 ?>

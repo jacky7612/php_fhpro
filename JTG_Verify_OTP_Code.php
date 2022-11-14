@@ -23,16 +23,12 @@
 	
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Sales_id 			= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Mobile_no 			= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
-	$Verification_Code 	= isset($_POST['Verification_Code']) 	? $_POST['Verification_Code'] 	: '1'; //Verification_Code
+	$Verification_Code 	= isset($_POST['Verification_Code']) 	? $_POST['Verification_Code'] 	: ''; //Verification_Code
 	
 	$Insurance_no 		= check_special_char($Insurance_no);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Sales_id 			= check_special_char($Sales_id);
 	$Person_id 			= check_special_char($Person_id);
-	$Mobile_no 			= check_special_char($Mobile_no);
 	$Verification_Code 	= check_special_char($Verification_Code);
 	
 	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 		: '';
@@ -201,7 +197,7 @@
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."verify otp exit ->"."\r\n", $Person_id);
 	
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

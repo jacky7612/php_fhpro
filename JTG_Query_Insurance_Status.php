@@ -23,17 +23,11 @@
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Sales_id 				= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
-	$Role 					= isset($_POST['Role']) 				? $_POST['Role'] 				: '1';
 
 	$Insurance_no 			= check_special_char($Insurance_no);
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Sales_id 				= check_special_char($Sales_id);
 	$Person_id 				= check_special_char($Person_id);
-	$Mobile_no 				= check_special_char($Mobile_no);
-	$Role 					= check_special_char($Role);
 	
 	// 當資料不齊全時，從資料庫取得
 	$ret_code = get_salesid_personinfo_if_not_exists($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $Member_name);
@@ -115,7 +109,7 @@
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."query insurance status exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

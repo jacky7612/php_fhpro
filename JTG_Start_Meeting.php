@@ -46,8 +46,6 @@
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$Lat 					= isset($_POST['Lat']) 					? $_POST['Lat'] 				: '';
 	$Lon 					= isset($_POST['Lon']) 					? $_POST['Lon'] 				: '';
-	$Role 					= isset($_POST['Role']) 				? $_POST['Role'] 				: '';
-	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
 	$Addr 					= isset($_POST['Addr']) 				? $_POST['Addr'] 				: '';
 	
 	//echo $out['insurance_no'];
@@ -298,7 +296,7 @@
 									$data = result_message("true", "0x0200", "OK", json_encode($array4json));
 									$status_code = $status_code_succeed;
 									$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-									$data["order_status"] = $order_status;
+									$data["orderStatus"] = $order_status;
 									
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -314,7 +312,7 @@
 									$data = result_message("false", "0x0206", "尚未到視訊會議室時間!", "");
 									$status_code = $status_code_failure;
 									$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-									$data["order_status"] = $order_status;
+									$data["orderStatus"] = $order_status;
 									
 									header('Content-Type: application/json');
 									echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -337,7 +335,7 @@
 							$data["responseMessage"] = $data["responseMessage"]."\r\n非業務員無法進行往後動作!";
 						}
 						$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-						$data["order_status"] = $order_status;
+						$data["orderStatus"] = $order_status;
 						
 						header('Content-Type: application/json');
 						echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -383,7 +381,7 @@
 							$data = result_message("false", "0x0206", "Get Token Failed!".((strlen($err) > 0) ? " except".$err : ""), "");
 							$status_code = $status_code_failure;
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -405,7 +403,7 @@
 							$data = result_message("false", "0x0206", "超過會議室人數上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -485,7 +483,7 @@
 								$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 								$status_code = $status_code_failure;
 								$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-								$data["order_status"] = $order_status;
+								$data["orderStatus"] = $order_status;
 							
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -500,7 +498,7 @@
 							$data = result_message("false", "0x0206", "會議室目前都在使用中", "");
 							$status_code = $status_code_failure;
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -515,7 +513,7 @@
 							$data = result_message("false", "0x0206", "超過會議室上限,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -528,7 +526,7 @@
 						{
 							$data = result_message("false", "0x0205", "客戶無權限發起會議!", "");
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));	
@@ -560,7 +558,7 @@
 							$data = result_message("false", "0x0206", "系統忙碌,請稍後再開啟視訊會議", "");
 							$status_code = $status_code_failure;
 							$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -700,7 +698,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."start meeting exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -9,6 +9,7 @@
 	
 	$g_exit_symbol						= "---------------------------  ";
 	$g_test_mode						= true;
+	$g_skip_over_12hr_day				= false;
 	$g_wjson2file_flag					= true;
 	$g_wpdf2file_flag					= true;
 	

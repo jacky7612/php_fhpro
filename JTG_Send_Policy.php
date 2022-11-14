@@ -29,35 +29,15 @@
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Sales_id 			= isset($_POST['Sales_id']) 			? $_POST['Sales_id'] 			: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Mobile_no 			= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
 	
 	$Insurance_no 		= check_special_char($Insurance_no		);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Sales_id 			= check_special_char($Sales_id			);
 	$Person_id 			= check_special_char($Person_id			);
-	$Mobile_no 			= check_special_char($Mobile_no			);
-
-	$Policy_time 			= isset($_POST['Policy_time']) 			? $_POST['Policy_time'] 		: '';
-	$Policy_time 			= check_special_char($Policy_time);
-	
-	switch($Policy_time)
-	{
-		case "2":
-			$status_code_succeed = "J1"; // 成功狀態代碼
-			$status_code_failure = "J0"; // 失敗狀態代碼
-			break;
-		case "3":
-			$status_code_succeed = "O1"; // 成功狀態代碼
-			$status_code_failure = "O0"; // 失敗狀態代碼
-			break;
-	}
 	
 	// 模擬資料
 	if ($g_test_mode)
 	{
-		$Policy_time 			 = "1";
 		$Policy_no 				 = "Ins1996";
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
@@ -92,8 +72,7 @@
 		$Remote_insurance_no 	!= '' &&
 		$Sales_id 				!= '' &&
 		$Person_id 				!= '' &&
-		$Mobile_no 				!= '' &&
-		$Policy_time 				!= '')
+		$Mobile_no 				!= '')
 	{
 		try 
 		{
@@ -289,7 +268,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send policy exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

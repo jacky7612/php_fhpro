@@ -26,21 +26,17 @@
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Mobile_no 				= isset($_POST['Mobile_no']) 			? $_POST['Mobile_no'] 			: '';
-	$Member_name 			= isset($_POST['Member_name']) 			? $_POST['Member_name'] 		: '';
 	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: '';
-	$base64image 			= isset($_POST['Pid_Pic']) 				? $_POST['Pid_Pic'] 			: '';
+	$base64image 			= isset($_POST['Pid_Pic_face']) 		? $_POST['Pid_Pic_face']		: '';
 	
 	$Insurance_no 			= check_special_char($Insurance_no		 );
 	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
 	$Person_id 				= check_special_char($Person_id	 		 );
-	$Mobile_no 				= check_special_char($Mobile_no	 		 );
-	$Member_name 			= check_special_char($Member_name		 );
 	$FCM_Token 				= check_special_char($FCM_Token	 		 );
 	
 	//另外一組 for 身分證圖檔存檔 update section
-	$front 			= isset($_POST['front']) 	 ? $_POST['front'] 		: ''; // update section 0: front, 1: back
-	$base64imageID 	= isset($_POST['Pid_PicID']) ? $_POST['Pid_PicID']  : ''; // update section
+	$front 			= isset($_POST['Front4save']) 	  ? $_POST['Front4save'] 		: ''; // update section 0: front, 1: back
+	$base64imageID 	= isset($_POST['Pid_PicID4save']) ? $_POST['Pid_PicID4save']    : ''; // update section
 	$front 			= trim(stripslashes($front)); // update section
 	$front 			= check_special_char($front); // update section
 	
@@ -120,7 +116,7 @@
 				{
 					$status_code = "";
 					$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-					$data["order_status"] = $order_status;
+					$data["orderStatus"] = $order_status;
 					
 					header('Content-Type: application/json');
 					echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -180,7 +176,7 @@
 							if ($data["status"] == "false")
 							{
 								$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-								$data["order_status"] = $order_status;
+								$data["orderStatus"] = $order_status;
 								
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -249,7 +245,7 @@
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."modify member exit ->"."\r\n", $Person_id);
 	
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

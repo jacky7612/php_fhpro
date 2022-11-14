@@ -22,22 +22,18 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$App_type 			= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';	
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_Insuance_no = isset($_POST['Remote_Insuance_no']) 	? $_POST['Remote_Insuance_no'] 	: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$contain_json		= isset($_POST['contain_json']) 		? $_POST['contain_json'] 		: 'false';
 
-	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
-	//$Sso_token = "u0K2w1L0roUR8p1k3UJgZtlRbR6DD9BZHyXkDNvCALSY4zea11svxYSjoYP4iURR";
-	//$App_type = "0";//業務員
-	//$Apply_no="7300000022SN001";
-	if($App_type == '0')
-		$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-	if($App_type == '1')
-		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
 	
-	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 			: '';
+	//if($App_type == '0')
+	//	$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
+	//if($App_type == '1')
+	//	$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
+	
+	$PDF_time 			= isset($_POST['PDF_code']) 			? $_POST['PDF_code'] 			: '';
 	$PDF_time 			= check_special_char($PDF_time);
 		
 	switch ($PDF_time)
@@ -45,16 +41,16 @@
 		case "1": // 客戶-要保書
 			$status_code_succeed = "I1"; // 成功狀態代碼
 			$status_code_failure = "I0"; // 失敗狀態代碼
-		case "2": // 客戶-要保書
+		case "2": // 客戶-要保書for簽名
 			$status_code_succeed = "M1"; // 成功狀態代碼
 			$status_code_failure = "M0"; // 失敗狀態代碼
 			$PDF_time = "1";
 			break;
-		case "3": // 業務員-要保書
+		case "3": // 業務員-要保書for簽名
 			$status_code_succeed = "S1"; // 成功狀態代碼
 			$status_code_failure = "S0"; // 失敗狀態代碼
 			break;
-		case "4": // 業務員-業報書
+		case "4": // 業務員-業報書for簽名
 			$status_code_succeed = "T1"; // 成功狀態代碼
 			$status_code_failure = "T0"; // 失敗狀態代碼
 			break;
@@ -89,8 +85,8 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "get pdf entry <-", $Person_id);
 	
 	// 驗證 security token
-	//$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
+	//$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
 	$ret = protect_api("JTG_Get_Proposal_PDF", "get pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -126,12 +122,10 @@
 			
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
-			$App_type  				= mysqli_real_escape_string($link, $App_type			);	
 			$token  				= mysqli_real_escape_string($link, $token				);
 			
 			$Insurance_no2 			= trim(stripslashes($Insurance_no)		 );
 			$Remote_Insuance_no2 	= trim(stripslashes($Remote_insurance_no));
-			$App_type2 				= trim(stripslashes($App_type)			 );
 			$token2 				= trim(stripslashes($token)				 );
 			
 			if ($token2 != '')
@@ -241,7 +235,7 @@
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get pdf exit ->"."\r\n", $Person_id);
 	
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

@@ -25,12 +25,12 @@
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 																											 //0:業務員  1:要保人 2:被保人 3: 法定代理人
-	$Role 				= isset($_POST['Role']) 	 			? $_POST['Role'] 	   			: 'proposer';//proposer：要保人, insured：被保人, legalRepresentative：法定代理人, agentOne：業務員一
+	//$Role 				= isset($_POST['Role']) 	 			? $_POST['Role'] 	   			: 'proposer';//proposer：要保人, insured：被保人, legalRepresentative：法定代理人, agentOne：業務員一
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 
 	$Insurance_no 		= check_special_char($Insurance_no);
 	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Role 				= check_special_char($Role);
+	//$Role 				= check_special_char($Role);
 	$Person_id 			= check_special_char($Person_id);
 
 	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
@@ -100,7 +100,7 @@
 			{
 				$data = result_message("false", "0x0206", "無此權限", "");
 				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-				$data["order_status"] = $order_status;
+				$data["orderStatus"] = $order_status;
 				
 				header('Content-Type: application/json');
 				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -186,7 +186,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get meeting info exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

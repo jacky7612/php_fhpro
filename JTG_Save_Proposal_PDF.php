@@ -21,21 +21,16 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$App_type	 		= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';
+	//$App_type	 		= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';
 	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
 	$Remote_Insuance_no = isset($_POST['Remote_Insuance_no']) 	? $_POST['Remote_Insuance_no'] 	: '';
 	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$pdf_title 			= isset($_POST['Pdf_title']) 			? $_POST['Pdf_title'] 			: '';
 	$base64pdf	 		= isset($_POST['Base64_pdf']) 			? $_POST['Base64_pdf'] 			: '';
 
-	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
-	//$Sso_token = "u0K2w1L0roUR8p1k3UJgZtlRbR6DD9BZHyXkDNvCALSY4zea11svxYSjoYP4iURR";
-	//$App_type = "0";//業務員
-	//$Apply_no="7300000022SN001";
-	if($App_type == '0')
-		$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-	if($App_type == '1')
-		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
+	//if($App_type == '0')
+	//	$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
+	//if($App_type == '1')
+	//	$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
 	
 	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 		: '';
 	$PDF_time 			= check_special_char($PDF_time);
@@ -136,12 +131,10 @@
 			
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
-			$App_type  				= mysqli_real_escape_string($link, $App_type			);	
 			$token  				= mysqli_real_escape_string($link, $token				);
 			
 			$Insurance_no2 			= trim(stripslashes($Insurance_no)		 );
 			$Remote_Insuance_no2 	= trim(stripslashes($Remote_insurance_no));
-			$App_type2 				= trim(stripslashes($App_type)			 );
 			$token2 				= trim(stripslashes($token)				 );
 			
 			$pdf_subname = "insurance_".$PDF_time;
@@ -203,7 +196,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."save pdf exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

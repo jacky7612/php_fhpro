@@ -21,6 +21,8 @@
 	$SSO_json = json_encode($SSO_info);
 	$SSO_token = encrypt($key, $SSO_json);
 	echo $SSO_token."<br><br>";
+	echo "user :".base64_encode("fhuser")."<br>";
+	echo "pwd :".base64_encode("fh@2022")."<br>";
 	
 	$dec_SSO_token = decrypt($key, $SSO_token);
 	echo $dec_SSO_token."<br><br>";

@@ -24,7 +24,7 @@
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: ''; // update order_start use
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] 	: ''; // update order_start use
+	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : ''; // update order_start use
 	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$token 					= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';
 
@@ -61,7 +61,6 @@
 	wh_log($Insurance_no, $Remote_insurance_no, "get agent case entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
 	$ret = protect_api("JTG_Get_AgentCase", "get agent case exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -162,7 +161,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."get agent case exit ->"."\r\n", $Person_id);
-	$data["order_status"] = $order_status;
+	$data["orderStatus"] = $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

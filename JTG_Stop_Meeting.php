@@ -27,12 +27,11 @@
 	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no = isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Role 				= isset($_POST['Role']) 				? $_POST['Role'] 				: '';
-	$Meeting_id 		= isset($_POST['Meeting_id']) 			? $_POST['Meeting_id'] 			: '';
-	//$bSaved 			= isset($_POST['bSaved']) 				? $_POST['bSaved'] 				: '';
+	$Insurance_no 		 = isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
+	$Remote_insurance_no = isset($_POST['Remote_insurance_no']) ? $_POST['Remote_insurance_no'] : '';
+	$Person_id 			 = isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	$Meeting_id 		 = isset($_POST['Meeting_id']) 			? $_POST['Meeting_id'] 			: '';
+	//$bSaved 			 = isset($_POST['bSaved']) 				? $_POST['bSaved'] 				: '';
 
 	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
 	$MEETING_time 			= check_special_char($MEETING_time);
@@ -140,7 +139,7 @@
 							$data = result_message("true", "0x0200", "更新線上人數成功", "");
 							$status_code = $status_code_succeed;
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." 更新線上人數", $Person_id);
-							$data["order_status"] = $order_status;
+							$data["orderStatus"] = $order_status;
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -194,7 +193,7 @@
 								$data = result_message("false", "0x0206", "呼叫踢人 API error token invalid", "");
 								JTG_wh_log($Insurance_no, $Remote_insurance_no, "(X) 先踢人 error", $Person_id);
 								
-								$data["order_status"]	= $order_status;
+								$data["orderStatus"]	= $order_status;
 								header('Content-Type: application/json');
 								echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 								return;
@@ -302,7 +301,7 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
-	$data["order_status"]	= $order_status;
+	$data["orderStatus"]	= $order_status;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
