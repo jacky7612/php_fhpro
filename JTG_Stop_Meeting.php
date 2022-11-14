@@ -70,7 +70,7 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "stop meeting entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Stop_Meeting", "stop meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

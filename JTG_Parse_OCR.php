@@ -48,8 +48,8 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "OCR entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Send_Policy_Code", "OCR exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
+	$ret = protect_api("JTG_Parse_OCR", "OCR exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -119,5 +119,4 @@
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-	JTG_wh_log($Insurance_no, $Remote_insurance_no, "OCR exit ->"."\r\n", $Person_id);
 ?>

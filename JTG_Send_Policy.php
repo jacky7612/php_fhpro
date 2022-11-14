@@ -59,7 +59,7 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "send policy entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Send_Policy", "send policy exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

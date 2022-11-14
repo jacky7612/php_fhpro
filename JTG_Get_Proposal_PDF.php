@@ -86,7 +86,6 @@
 	
 	// 驗證 security token
 	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
-	//$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
 	$ret = protect_api("JTG_Get_Proposal_PDF", "get pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -234,8 +233,8 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get pdf exit ->"."\r\n", $Person_id);
-	
 	$data["orderStatus"] = $order_status;
+	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

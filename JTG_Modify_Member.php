@@ -66,7 +66,7 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Modify_Member_Code", "modify member exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -244,8 +244,8 @@
 		JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."modify member exit ->"."\r\n", $Person_id);
-	
 	$data["orderStatus"] = $order_status;
+	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

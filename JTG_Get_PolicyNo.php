@@ -55,8 +55,8 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "get policy no entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Send_PolicyNo_Code", "get policy no exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
+	$ret = protect_api("JTG_Send_PolicyNo", "get policy no exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');

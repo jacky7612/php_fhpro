@@ -71,7 +71,7 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "verify otp entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Verify_OTP_Code", "verify otp exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -196,8 +196,8 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."verify otp exit ->"."\r\n", $Person_id);
-	
 	$data["orderStatus"] = $order_status;
+	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>

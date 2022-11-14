@@ -62,8 +62,8 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "frsip info entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Face_Compare", "frsip info exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
+	$ret = protect_api("JTG_Get_FrsipInfo", "frsip info exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');

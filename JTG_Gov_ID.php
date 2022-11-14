@@ -89,6 +89,17 @@
 		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
 	//$Apply_no = "7300000022SN001";
 
+	// 驗證 security token
+	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
+	$ret = protect_api("JTG_Gov_ID", "gov exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	if ($ret["status"] == "false")
+	{
+		header('Content-Type: application/json');
+		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
+		return;
+	}
+	
+	// start
 	if ($Person_id 				!= '' &&
 		$Insurance_no  			!= '' &&
 		$Remote_insurance_no  	!= '' &&
@@ -225,8 +236,8 @@
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"].$g_exit_symbol."\r\n"."gov exit ->"."\r\n", $Person_id);
-	
 	$data["orderStatus"] = $order_status;
+	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 ?>
