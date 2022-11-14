@@ -54,6 +54,7 @@
 	$g_NAS_dir 							= "/dis_app/dis_idphoto/"							; // NAS 路徑
 	
 	$g_OTP_enable						= false;
+	$g_return_OTP_code_enable			= true;
 	$g_OTP_apiurl 						= "http://biz3.every8d.com.tw/firstlife/API21/HTTP/sendSMS.ashx"; // OTP url
 	$g_OTP_api_value 					= [
 											"UID"       			=> "NBTAONLINE",

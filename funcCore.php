@@ -17,6 +17,10 @@
 		{
 			$data = result_message("false", "0x0206", "連接錯誤：".mysqli_connect_error(), "");
 		}
+		else
+		{
+			$data = result_message("true", "0x0200", "連接成功", "");
+		}
 		return $data;
 	}
 	// 取得訊息符號

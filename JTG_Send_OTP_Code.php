@@ -1,6 +1,6 @@
 <?php
 	include("func.php");
-	global $g_OTP_enable, $g_OTP_apiurl, $g_OTP_api_value;
+	global $g_return_OTP_code_enable, $g_OTP_enable, $g_OTP_apiurl, $g_OTP_api_value;
 	
 	// initial
 	$status_code_succeed 	= "H1"; // 成功狀態代碼
@@ -265,6 +265,7 @@
 	}
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n", $Person_id);
 	$data["order_status"] = $order_status;
+	if ($g_return_OTP_code_enable) $data["OTP_code"] = $user_code;
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));

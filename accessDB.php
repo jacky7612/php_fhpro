@@ -23,9 +23,9 @@
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
-			if ($data["status"] == "false") return $data;
 			
 			$sql = "SELECT * FROM jsonlog where 1=1 ";
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
@@ -98,9 +98,9 @@
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky// 检查连接
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
-			if ($data["status"] == "false") return $data;
 			
 			$sql = "SELECT * FROM jsonlog where 1=1 ";
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
@@ -155,6 +155,8 @@
 		global $passwd;
 		global $database;
 		
+		$data = array();
+		$data["status"] = "true";
 		$ret = true;
 		try
 		{
@@ -162,9 +164,9 @@
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $ret;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
-			if ($data["status"] == "false") return $data;
 			
 			$sql = "SELECT * FROM memberinfo where member_trash=0 and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."'";
 			$sql = $sql.merge_sql_string_if_not_empty("role", "agentOne");
@@ -230,7 +232,7 @@
 				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
-			if ($data["status"] == "false") return $data;
+			
 			$sql = "SELECT * FROM memberinfo where member_trash=0 and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."'";
 			$sql_person = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
 			if ($result = mysqli_query($link, $sql_person))
@@ -298,9 +300,9 @@
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$data = result_connect_error ($link);
+					if ($data["status"] == "false") return $data;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
-				if ($data["status"] == "false") return $data;
 
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
@@ -408,9 +410,9 @@
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$data = result_connect_error ($link);
+					if ($data["status"] == "false") return $data;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
-				if ($data["status"] == "false") return $data;
 
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
@@ -581,6 +583,7 @@
 		global $g_encrypt;
 		global $host, $user, $passwd, $database;
 		
+		$data = array();
 		wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 		try
 		{
@@ -589,9 +592,9 @@
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
-			if ($data["status"] == "false") return $data;
 
 			$Person_id  	= mysqli_real_escape_string($link, $Person_id	);
 			$Mobile_no  	= mysqli_real_escape_string($link, $Mobile_no	);
@@ -683,15 +686,16 @@
 		global $g_encrypt;
 		global $host, $user, $passwd, $database;
 		
+		$data = array();
 		try
 		{
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");
 			}
-			if ($data["status"] == "false") return $data;
 
 			$Person_id  = mysqli_real_escape_string($link, $Person_id);
 			$front  	= mysqli_real_escape_string($link, $front	 );
@@ -812,15 +816,16 @@
 		global $g_encrypt;
 		global $host, $user, $passwd, $database;
 		
+		$data = array();
 		try
 		{
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);
 				$data = result_connect_error ($link);
+				if ($data["status"] == "false") return $data;
 				mysqli_query($link,"SET NAMES 'utf8'");
 			}
-			if ($data["status"] == "false") return $data;
 
 			$Person_id  	= mysqli_real_escape_string($link, $Person_id);
 			$Mobile_no  	= mysqli_real_escape_string($link, $Mobile_no);
@@ -932,9 +937,9 @@
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$data = result_connect_error ($link);
+					if ($data["status"] == "false") return $data;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
-				if ($data["status"] == "false") return $data;
 
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
@@ -1054,9 +1059,9 @@
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$data = result_connect_error ($link);
+					if ($data["status"] == "false") return $data;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
-				if ($data["status"] == "false") return $data;
 
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
@@ -1352,9 +1357,9 @@
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 					$data = result_connect_error ($link);
+					if ($data["status"] == "false") return $data;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
-				if ($data["status"] == "false") return $data;
 				
 				$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 				$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
