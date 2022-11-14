@@ -52,6 +52,8 @@
 	if (!$ret_code)
 	{
 		$data = result_message("false", "0x0206", "map person data failure", "");
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get meeting info exit ->"."\r\n", $Person_id);
+		
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -61,7 +63,7 @@
 	
 	// 驗證 security token
 	$token = isset($_POST['Authorization']) ? $_POST['Authorization'] : '';
-	$ret = protect_api("JTG_Face_MeetingInfo", "face compare exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$ret = protect_api("JTG_Face_MeetingInfo", "get meeting info exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
 		header('Content-Type: application/json');
@@ -78,6 +80,14 @@
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
+			$data = result_connect_error ($link);
+			if ($data["status"] == "false")
+			{
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get meeting info exit ->"."\r\n", $Person_id);
+				header('Content-Type: application/json');
+				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+				return;
+			}
 			mysqli_query($link,"SET NAMES 'utf8'");
 
 			$Role  		= mysqli_real_escape_string($link,$Role);
@@ -175,7 +185,7 @@
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
-	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."meeting info exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."get meeting info exit ->"."\r\n", $Person_id);
 	$data["order_status"] = $order_status;
 	
 	header('Content-Type: application/json');

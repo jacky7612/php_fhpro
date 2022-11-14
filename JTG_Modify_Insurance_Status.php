@@ -54,6 +54,8 @@
 	if (!$ret_code)
 	{
 		$data = result_message("false", "0x0206", "map person data failure", "");
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." Modify orderlog sop finish :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."Modify insurance status exit ->"."\r\n", $Person_id);
+		
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;

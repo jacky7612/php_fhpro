@@ -48,6 +48,8 @@
 	if (!$ret_code)
 	{
 		$data = result_message("false", "0x0206", "get data failure", "");
+		JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."face compare exit ->"."\r\n", $Person_id);
+		
 		header('Content-Type: application/json');
 		echo (json_encode($data, JSON_UNESCAPED_UNICODE));
 		return;
@@ -85,6 +87,14 @@
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
+			$data = result_connect_error ($link);
+			if ($data["status"] == "false")
+			{
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."face compare exit ->"."\r\n", $Person_id);
+				header('Content-Type: application/json');
+				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+				return;
+			}
 			mysqli_query($link,"SET NAMES 'utf8'");
 
 			$Person_id  = mysqli_real_escape_string($link,$Person_id);

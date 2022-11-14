@@ -10,7 +10,15 @@
 		$data["json"]			= $json;
 		return $data;
 	}
-	
+	function result_connect_error($link)
+	{
+		$data = array();
+		if (!$link)
+		{
+			$data = result_message("false", "0x0206", "連接錯誤：".mysqli_connect_error(), "");
+		}
+		return $data;
+	}
 	// 取得訊息符號
 	function get_error_symbol($val)
 	{

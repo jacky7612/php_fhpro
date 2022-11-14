@@ -42,6 +42,14 @@
 		try
 		{
 			$link = mysqli_connect($host, $user, $passwd, $database);
+			$data = result_connect_error ($link);
+			if ($data["status"] == "false")
+			{
+				JTG_wh_log("SSO_Login", $remote_ip4filename, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."SSO Login for get insurance json exit ->"."\r\n");
+				header('Content-Type: application/json');
+				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+				return;
+			}
 			mysqli_query($link,"SET NAMES 'utf8'");
 			JTG_wh_log("SSO_Login", $remote_ip4filename, "connect mysql succeed");
 			
