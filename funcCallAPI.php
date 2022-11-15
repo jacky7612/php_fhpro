@@ -170,4 +170,36 @@
 
 		return $result;
 	}
+	
+	function CallAPI_viaFormData($method, $url, $data)
+	{
+		$url 		= trim(stripslashes($url));
+		$method2 	= trim(stripslashes($method));
+		$curl 		= curl_init($url);
+		curl_setopt($curl, CURLOPT_URL, $url);
+		switch ($method2)
+		{
+			case "POST":
+				$headers = array(
+				   "Content-Type: application/x-www-form-urlencoded",
+				);
+				curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+				curl_setopt($curl, CURLOPT_POST, true);
+				break;
+			case "GET":
+				break;
+			case "PUT":
+				break;
+			default:
+				if ($data)
+					$url = sprintf("%s?%s", $url, http_build_query($data));
+		}
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		$result = curl_exec($curl);
+		curl_close($curl);
+
+		return $result;
+	}
 ?>

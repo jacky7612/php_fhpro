@@ -18,18 +18,11 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		:  '';
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] :  '';
-	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			:  '';
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$Status_code 			= isset($_POST['Status_code']) 			? $_POST['Status_code'] 		:  '';
 	$UpdateAllStatus 		= isset($_POST['UpdateAllStatus']) 		? $_POST['UpdateAllStatus'] 	:  'false';
 	$ChangeStatusAnyway		= isset($_POST['ChangeStatusAnyway']) 	? $_POST['ChangeStatusAnyway'] 	:  'false';
 
-	$Insurance_no 			= check_special_char($Insurance_no);
-	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Sales_id 				= check_special_char($Sales_id);
-	$Person_id 				= check_special_char($Person_id);
-	$Mobile_no 				= check_special_char($Mobile_no);
 	$Status_code 			= check_special_char($Status_code);
 	$UpdateAllStatus 		= check_special_char($UpdateAllStatus);
 	$ChangeStatusAnyway 	= check_special_char($ChangeStatusAnyway);
@@ -62,7 +55,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "Modify insurance status entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Modify_Insurance_Status", "Modify insurance status exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

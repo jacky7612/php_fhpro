@@ -22,16 +22,11 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Person_id 				= isset($_POST["Person_id"])			? $_POST["Person_id"]			: '';
-	$Front 					= isset($_POST["Front"])				? $_POST["Front"]				: '';//0: front, 1: back
-	$PicId 					= isset($_POST["Pid_PicID"])			? $_POST["Pid_PicID"]			: '';
-
-	$Insurance_no 			= check_special_char($Insurance_no);
-	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Person_id 				= check_special_char($Person_id);
-	$Front 					= check_special_char($Front);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$Front	= isset($_POST["Front"])		? $_POST["Front"]		: '';//0: front, 1: back
+	$PicId	= isset($_POST["Pid_PicID"])	? $_POST["Pid_PicID"]	: '';
+	$Front = check_special_char($Front);
+	
 	if ($Front == "1")
 	{
 		$status_code_succeed 	= "D2"; // 成功狀態代碼
@@ -63,7 +58,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "save idphoto entry <-", $Person_id);
 
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Save_IDPhoto", "save idphoto exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

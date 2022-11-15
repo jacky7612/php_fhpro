@@ -18,15 +18,9 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Country_code 			= isset($_POST['Country_code']) 		? $_POST['Country_code'] 		: '';
-
-	$Insurance_no 			= check_special_char($Insurance_no);
-	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Person_id 				= check_special_char($Person_id);
-	$Country_code 			= check_special_char($Country_code);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$Country_code = isset($_POST['Country_code']) ? $_POST['Country_code'] : '';
+	$Country_code = check_special_char($Country_code);
 
 	// 模擬資料
 	if ($g_test_mode)
@@ -54,7 +48,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "Country Code entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Modify_Country_Code", "Country Code exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

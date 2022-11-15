@@ -23,15 +23,7 @@
 	$appId 					= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: ''; // update order_start use
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : ''; // update order_start use
-	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$token 					= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';
-
-	$token 					= check_special_char($token);
-	$Insurance_no 			= check_special_char($Insurance_no);
-	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Person_id 				= check_special_char($Person_id);
+	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 
 	// 模擬資料
 	if ($g_test_mode)
@@ -39,6 +31,7 @@
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
 		$Person_id 			 = "A123456789";
+		$token 		 		 = "FCM_content";
 	}
 
 	// 當資料不齊全時，從資料庫取得
@@ -69,12 +62,6 @@
 		return;
 	}
 	
-	// 模擬資料
-	if ($g_test_mode)
-	{
-		$token 		 = "FCM_content";
-	}
-
 	// start
 	if ($Insurance_no 			!= '' &&
 		$Remote_insurance_no 	!= '' &&

@@ -23,16 +23,9 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-
-	$Insurance_no 		= check_special_char($Insurance_no		);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Person_id 			= check_special_char($Person_id			);
-
-	$MEETING_time 		= isset($_POST['MEETING_time']) 		? $_POST['MEETING_time'] 		: '';
-	$MEETING_time 		= check_special_char($MEETING_time);
+	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$MEETING_time = isset($_POST['MEETING_time']) ? $_POST['MEETING_time'] : '';
+	$MEETING_time = check_special_char($MEETING_time);
 	/*
 	proposer：要保人
 	insured：被保人  
@@ -62,7 +55,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "frsip info entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Get_FrsipInfo", "frsip info exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

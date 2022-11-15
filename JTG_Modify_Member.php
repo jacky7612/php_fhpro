@@ -23,16 +23,10 @@
 	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$FCM_Token 				= isset($_POST['FCM_Token']) 			? $_POST['FCM_Token'] 			: '';
-	$base64image 			= isset($_POST['Pid_Pic_face']) 		? $_POST['Pid_Pic_face']		: '';
-	
-	$Insurance_no 			= check_special_char($Insurance_no		 );
-	$Remote_insurance_no 	= check_special_char($Remote_insurance_no);
-	$Person_id 				= check_special_char($Person_id	 		 );
-	$FCM_Token 				= check_special_char($FCM_Token	 		 );
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$FCM_Token 	 = isset($_POST['FCM_Token'])    ? $_POST['FCM_Token'] 	  : '';
+	$base64image = isset($_POST['Pid_Pic_face']) ? $_POST['Pid_Pic_face'] : '';
+	$FCM_Token = check_special_char($FCM_Token);
 	
 	//另外一組 for 身分證圖檔存檔 update section
 	$front 			= isset($_POST['Front4save']) 	  ? $_POST['Front4save'] 		: ''; // update section 0: front, 1: back
@@ -66,7 +60,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify member entry <-", $Person_id);
 
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Modify_Member_Code", "modify member exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

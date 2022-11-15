@@ -26,13 +26,9 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: ''; // for update status
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: ''; // for update status
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Action_id 			= isset($_POST['Action_id']) 			? $_POST['Action_id'] 			: '';
-	$base64image 		= isset($_POST['Action_Pic']) 			? $_POST['Action_Pic'] 			: '';
-
-	$Person_id = check_special_char($Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$Action_id   = isset($_POST['Action_id'])  ? $_POST['Action_id']  : '';
+	$base64image = isset($_POST['Action_Pic']) ? $_POST['Action_Pic'] : '';
 	$Action_id = check_special_char($Action_id);
 
 	// 模擬資料
@@ -60,7 +56,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "live compare entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Live_Compare", "live compare exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

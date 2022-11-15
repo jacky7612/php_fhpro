@@ -22,24 +22,7 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-
-	$Insurance_no 		= check_special_char($Insurance_no);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Person_id 			= check_special_char($Person_id);
-
-	//$Mobile_no = isset($_POST['Mobile_no']) ? $_POST['Mobile_no'] : '';
-	//$Member_name = isset($_POST['Member_name']) ? $_POST['Member_name'] : '';
-
-	//$Person_id = "{$_REQUEST["Person_id"]}";
-
-	//$image_name = addslashes($_FILES['image']['name']);
-	//$sql = "INSERT INTO `product_images` (`id`, `image`, `image_name`) VALUES ('1', '{$image}', '{$image_name}')";
-	//if (!mysql_query($sql)) { // Error handling
-	//    echo "Something went wrong! :("; 
-	//}
+	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	
 	// 模擬資料
 	if ($g_test_mode)
@@ -64,7 +47,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "get attachement entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Get_Attachment", "get attachement exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

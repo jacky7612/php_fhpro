@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-11 05:29:19
+-- 產生時間： 2022-11-15 06:37:23
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -233,7 +233,6 @@ CREATE TABLE `orderinfo` (
   `verification_code` varchar(10) DEFAULT NULL,
   `order_status` varchar(5) NOT NULL DEFAULT '0',
   `notificationToken` varchar(255) DEFAULT NULL,
-  `access_token` varchar(500) DEFAULT NULL,
   `order_trash` tinyint(1) NOT NULL DEFAULT 0,
   `inputdttime` datetime DEFAULT NULL,
   `updatedttime` datetime DEFAULT NULL
@@ -254,8 +253,7 @@ CREATE TABLE `orderlog` (
   `mobile_no` varchar(255) DEFAULT NULL,
   `role` varchar(100) NOT NULL,
   `order_status` varchar(5) NOT NULL DEFAULT '0',
-  `log_date` datetime DEFAULT NULL,
-  `access_token` varchar(500) DEFAULT NULL
+  `log_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -274,24 +272,6 @@ CREATE TABLE `pdflog` (
   `pdf_path` varchar(256) DEFAULT NULL,
   `order_status` varchar(5) NOT NULL,
   `updatetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- 資料表結構 `salesinfo`
---
-
-CREATE TABLE `salesinfo` (
-  `sid` int(11) NOT NULL,
-  `person_id` varchar(10) DEFAULT NULL,
-  `mobile_no` varchar(255) DEFAULT NULL,
-  `sales_id` varchar(32) DEFAULT NULL,
-  `sales_name` varchar(255) DEFAULT NULL,
-  `notificationToken` varchar(255) DEFAULT NULL,
-  `sales_trash` tinyint(1) NOT NULL DEFAULT 0,
-  `inputdttime` datetime DEFAULT NULL,
-  `updatedttime` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -416,13 +396,6 @@ ALTER TABLE `pdflog`
   ADD PRIMARY KEY (`id`);
 
 --
--- 資料表索引 `salesinfo`
---
-ALTER TABLE `salesinfo`
-  ADD PRIMARY KEY (`sid`),
-  ADD KEY `sales_no` (`person_id`,`mobile_no`,`sales_id`);
-
---
 -- 資料表索引 `sysuser`
 --
 ALTER TABLE `sysuser`
@@ -515,12 +488,6 @@ ALTER TABLE `orderlog`
 --
 ALTER TABLE `pdflog`
   MODIFY `id` int(20) NOT NULL AUTO_INCREMENT;
-
---
--- 使用資料表自動遞增(AUTO_INCREMENT) `salesinfo`
---
-ALTER TABLE `salesinfo`
-  MODIFY `sid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `sysuser`

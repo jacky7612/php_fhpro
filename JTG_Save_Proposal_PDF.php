@@ -21,19 +21,10 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	//$App_type	 		= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_Insuance_no = isset($_POST['Remote_Insuance_no']) 	? $_POST['Remote_Insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$base64pdf	 		= isset($_POST['Base64_pdf']) 			? $_POST['Base64_pdf'] 			: '';
-
-	//if($App_type == '0')
-	//	$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-	//if($App_type == '1')
-	//	$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
-	
-	$PDF_time 			= isset($_POST['PDF_time']) 			? $_POST['PDF_time'] 		: '';
-	$PDF_time 			= check_special_char($PDF_time);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$base64pdf = isset($_POST['Base64_pdf']) ? $_POST['Base64_pdf'] : '';
+	$PDF_time  = isset($_POST['PDF_time']) 	 ? $_POST['PDF_time'] 	: '';
+	$PDF_time  = check_special_char($PDF_time);
 	
 	// 模擬資料
 	if ($g_test_mode)
@@ -88,7 +79,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "save pdf entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Save_Proposal_PDF", "save pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

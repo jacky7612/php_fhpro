@@ -2,6 +2,7 @@
 	include("def.php");
 	include("policyclass.php");
 	include("log.php");
+	include("parse.php");
 	include("wjson.php");
 	include("wpdf.php");
 	include("funcCallAPI.php");
@@ -48,6 +49,20 @@
 			return true;
 		}
 		return false;
+	}
+	// 通用 API - 基本參數 public
+	function api_get_post_param(&$token, &$Insurance_no, &$Remote_insurance_no, &$Person_id)
+	{
+		$token 					= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';
+		$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
+		$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
+		$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+		
+		$token				= check_special_char($token);
+		$Insurance_no 		= check_special_char($Insurance_no);
+		$Remote_insurance_no = check_special_char($Remote_insurance_no);
+		$Person_id 			= check_special_char($Person_id);
+		// echo $token.", ".$Insurance_no.", ".$Remote_insurance_no.", ".$Person_id."\r\n";
 	}
 	
 	// 驗證 security token - 看門狗 public

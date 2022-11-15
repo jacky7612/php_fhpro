@@ -27,14 +27,11 @@
 	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		 = isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no = isset($_POST['Remote_insurance_no']) ? $_POST['Remote_insurance_no'] : '';
-	$Person_id 			 = isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Meeting_id 		 = isset($_POST['Meeting_id']) 			? $_POST['Meeting_id'] 			: '';
-	//$bSaved 			 = isset($_POST['bSaved']) 				? $_POST['bSaved'] 				: '';
-
-	$MEETING_time 			= isset($_POST['MEETING_time']) 			? $_POST['MEETING_time'] 		: '';
-	$MEETING_time 			= check_special_char($MEETING_time);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$Meeting_id	  = isset($_POST['Meeting_id'])	  ? $_POST['Meeting_id']	: '';
+	//$bSaved	  = isset($_POST['bSaved'])		  ? $_POST['bSaved']		: '';
+	$MEETING_time = isset($_POST['MEETING_time']) ? $_POST['MEETING_time']  : '';
+	$MEETING_time = check_special_char($MEETING_time);
 	
 	/*
 	proposer：要保人
@@ -70,7 +67,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "stop meeting entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Stop_Meeting", "stop meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

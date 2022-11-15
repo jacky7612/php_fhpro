@@ -22,19 +22,12 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_Insuance_no = isset($_POST['Remote_Insuance_no']) 	? $_POST['Remote_Insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$contain_json		= isset($_POST['contain_json']) 		? $_POST['contain_json'] 		: 'false';
-
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$contain_json = isset($_POST['contain_json']) ? $_POST['contain_json'] : 'false';
+	$PDF_time 	  = isset($_POST['PDF_code']) 	  ? $_POST['PDF_code'] 	   : ''		;
+	$PDF_time = check_special_char($PDF_time);
 	
-	//if($App_type == '0')
-	//	$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
-	//if($App_type == '1')
-	//	$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
-	
-	$PDF_time 			= isset($_POST['PDF_code']) 			? $_POST['PDF_code'] 			: '';
-	$PDF_time 			= check_special_char($PDF_time);
+	$contain_json = strtolower($contain_json);
 		
 	switch ($PDF_time)
 	{
@@ -67,7 +60,8 @@
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
 		$Person_id 			 = "A123456789";
-		//$contain_json 		 = "true";
+		$token 				 = "any";
+		//$contain_json 	  = "true";
 	}
 	
 	// 當資料不齊全時，從資料庫取得
@@ -85,7 +79,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "get pdf entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Get_Proposal_PDF", "get pdf exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{
@@ -93,12 +86,6 @@
 		echo (json_encode($ret, JSON_UNESCAPED_UNICODE));
 		return;
 	}
-	// 模擬資料
-	if ($g_test_mode)
-	{
-		$token = "any";
-	}
-	$contain_json = strtolower($contain_json);
 	
 	// start
 	if ($PDF_time 			 != '' &&

@@ -40,23 +40,14 @@
 	//$postdata 				= file_get_contents("php://input",'r'); 
 	//echo $postdata;
 	//$out 					= json_decode($postdata, true);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$Lat 	= isset($_POST['Lat'])	? $_POST['Lat']		: '';
+	$Lon	= isset($_POST['Lon'])	? $_POST['Lon']		: '';
+	$Addr	= isset($_POST['Addr'])	? $_POST['Addr']	: '';
 	
-	$Insurance_no 			= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no']) 	? $_POST['Remote_insurance_no'] : '';
-	$Person_id 				= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$Lat 					= isset($_POST['Lat']) 					? $_POST['Lat'] 				: '';
-	$Lon 					= isset($_POST['Lon']) 					? $_POST['Lon'] 				: '';
-	$Addr 					= isset($_POST['Addr']) 				? $_POST['Addr'] 				: '';
-	
-	//echo $out['insurance_no'];
-	$Insurance_no 			= trim(stripslashes($Insurance_no));
-	$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
-	$Person_id 				= trim(stripslashes($Person_id));
-	$Lat 					= trim(stripslashes($Lat));
-	$Lon 					= trim(stripslashes($Lon));
-	$Role 					= trim(stripslashes($Role));
-	$Mobile_no 				= trim(stripslashes($Mobile_no));
-	$Addr 					= trim(stripslashes($Addr));
+	$Lat	= trim(stripslashes($Lat));
+	$Lon	= trim(stripslashes($Lon));
+	$Addr	= trim(stripslashes($Addr));
 	
 	/*
 	proposer：要保人
@@ -96,7 +87,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "start meeting entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Start_Meeting", "start meeting exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

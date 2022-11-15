@@ -25,15 +25,9 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
-	$base64image 		= isset($_POST['Pid_Pic']) 				? $_POST['Pid_Pic'] 			: '';
-
-	$Insurance_no 		= check_special_char($Insurance_no);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Person_id 			= check_special_char($Person_id);
-
+	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	$base64image = isset($_POST['Pid_Pic']) ? $_POST['Pid_Pic'] : '';
+	
 	// 模擬資料
 	if ($g_test_mode)
 	{
@@ -58,7 +52,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "face compare entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Face_Compare", "face compare exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

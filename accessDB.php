@@ -22,8 +22,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 			
@@ -97,8 +97,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky// 检查连接
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 			
@@ -163,8 +163,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $ret;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 			
@@ -228,14 +228,15 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 			
 			$sql = "SELECT * FROM memberinfo where member_trash=0 and insurance_no= '".$Insurance_no."' and remote_insurance_no= '".$Remote_insurance_no."'";
-			$sql_person = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
-			if ($result = mysqli_query($link, $sql_person))
+			$sql = $sql.merge_sql_string_if_not_empty("person_id", $Person_id);
+			
+			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
@@ -299,8 +300,8 @@
 				if ($link == null)
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$data = result_connect_error ($link);
-					if ($data["status"] == "false") return $data;
+					$data_conn = result_connect_error($link);
+					if ($data_conn["status"] == "false") return $data_conn;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
 
@@ -409,8 +410,8 @@
 				if ($link == null)
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$data = result_connect_error ($link);
-					if ($data["status"] == "false") return $data;
+					$data_conn = result_connect_error($link);
+					if ($data_conn["status"] == "false") return $data_conn;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
 
@@ -591,8 +592,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 			}
 
@@ -692,8 +693,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");
 			}
 
@@ -822,8 +823,8 @@
 			if ($link == null)
 			{
 				$link = mysqli_connect($host, $user, $passwd, $database);
-				$data = result_connect_error ($link);
-				if ($data["status"] == "false") return $data;
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
 				mysqli_query($link,"SET NAMES 'utf8'");
 			}
 
@@ -936,8 +937,8 @@
 				if ($link == null)
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$data = result_connect_error ($link);
-					if ($data["status"] == "false") return $data;
+					$data_conn = result_connect_error($link);
+					if ($data_conn["status"] == "false") return $data_conn;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
 
@@ -1058,8 +1059,8 @@
 				if ($link == null)
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$data = result_connect_error ($link);
-					if ($data["status"] == "false") return $data;
+					$data_conn = result_connect_error($link);
+					if ($data_conn["status"] == "false") return $data_conn;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
 
@@ -1356,8 +1357,8 @@
 				if ($link == null)
 				{
 					$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$data = result_connect_error ($link);
-					if ($data["status"] == "false") return $data;
+					$data_conn = result_connect_error($link);
+					if ($data_conn["status"] == "false") return $data_conn;
 					mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
 				}
 				

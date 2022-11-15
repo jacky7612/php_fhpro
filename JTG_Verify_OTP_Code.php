@@ -20,20 +20,12 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
-	$Person_id 			= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
+	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$Verification_Code 	= isset($_POST['Verification_Code']) 	? $_POST['Verification_Code'] 	: ''; //Verification_Code
-	
-	$Insurance_no 		= check_special_char($Insurance_no);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
-	$Person_id 			= check_special_char($Person_id);
+	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 			: '';
 	$Verification_Code 	= check_special_char($Verification_Code);
-	
-	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 		: '';
 	$OTP_time 			= check_special_char($OTP_time);
-
+	
 	switch($OTP_time)
 	{
 		case "2":
@@ -71,7 +63,6 @@
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "verify otp entry <-", $Person_id);
 	
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Verify_OTP_Code", "verify otp exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

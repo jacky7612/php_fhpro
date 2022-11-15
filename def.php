@@ -1,5 +1,5 @@
 <?php
-	$g_mpost_url 						= "https://localhost/test_fhpro/";//PROD不明，可能需去除，全球行投API
+	$g_OCR_apiurl 						= "https://mposuat.transglobe.com.tw:1443/global-server2/";//PROD不明，可能需去除，全球行投API
 	
 	
 	$g_db_ip							= "127.0.0.1";
@@ -9,7 +9,7 @@
 	
 	$g_exit_symbol						= "---------------------------  ";
 	$g_test_mode						= true;
-	$g_skip_over_12hr_day				= false;
+	$g_skip_over_12hr_day				= true;
 	$g_wjson2file_flag					= true;
 	$g_wpdf2file_flag					= true;
 	
@@ -98,5 +98,13 @@
 	$g_create_meeting_user				= "administrator";
 	$g_create_meeting_hash				= "CheFR63r";
 	
-	$g_PDF_apiurl 						= $g_mpost_url. "ldi/getPdf"									; // PDF url
+	$g_OCR_apiurl 						= "https://disuat.transglobe.com.tw:1443/jotangi/api/"			; // gov url
+	$g_OCR_front_type_code				= "5"; // 正面
+	$g_OCR_back_type_code				= "4"; // 背面
+	$g_OCR_get_token_param 				= "id=Jotangi01&psw=Jotangi01";
+	$g_OCR_get_info_param				= "token=%s&file=%s&type=%s";
+	$g_OCR_get_head_graph_param			= [
+											"token"       			=> "",
+											"file"      			=> "",
+										  ];
 ?>

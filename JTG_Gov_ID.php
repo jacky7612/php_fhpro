@@ -23,24 +23,17 @@
 	$order_status 			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	$token 		 		= isset($_POST['accessToken']) 			? $_POST['accessToken'] 		: '';		
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$App_type 	 		= isset($_POST['App_type']) 			? $_POST['App_type'] 			: '';
-	$Insurance_no 		= isset($_POST['Insurance_no']) 		? $_POST['Insurance_no'] 		: '';
-	$Remote_insuance_no = isset($_POST['Remote_insuance_no']) 	? $_POST['Remote_insuance_no'] 	: '';
 	$systemCode  		= isset($_POST['systemCode']) 			? $_POST['systemCode'] 			: '';
 	$userId 	 		= isset($_POST['userId']) 				? $_POST['userId'] 				: '';
-	$personId 	 		= isset($_POST['Person_id']) 			? $_POST['Person_id'] 			: '';
 	$applyCode   		= isset($_POST['applyCode']) 			? $_POST['applyCode'] 			: '';
 	$applyDate 	 		= isset($_POST['applyDate']) 			? $_POST['applyDate'] 			: '';
 	$issueSiteId 		= isset($_POST['issueSiteId']) 			? $_POST['issueSiteId'] 		: '';
 	
-	$token 		 		= check_special_char($token				);
 	$App_type 	 		= check_special_char($App_type			);
-	$Insurance_no 	 	= check_special_char($Insurance_no		);
-	$Remote_insuance_no = check_special_char($Remote_insuance_no);
 	$systemCode  		= check_special_char($systemCode		);
 	$userId 	 		= check_special_char($userId			);
-	$personId 	 		= check_special_char($personId			);
 	$applyCode 	 		= check_special_char($applyCode			);
 	$applyDate 	 		= check_special_char($applyDate			);
 	$issueSiteId 		= check_special_char($issueSiteId		);
@@ -80,17 +73,12 @@
 
 	JTG_wh_log($Insurance_no, $Remote_insurance_no, "gov entry <-", $Person_id);
 	
-	//$Sso_token = "Vfa4BO83/86F9/KEiKsQ0EHbpiIUruFn0/kiwNguXXGY4zea11svxYSjoYP4iURR";
-	//$App_type = "0";//業務員
-	//$Person_id = "Y120446048";
 	if($App_type == '0')
 		$appId = "Q3RRdLWTwYo8fVtP"; //此 API 為業務呼叫
 	if($App_type == '1')
 		$appId = "HKgWyfYQv30ZE6AM"; //此 API 為客戶呼叫
-	//$Apply_no = "7300000022SN001";
 
 	// 驗證 security token
-	$token = isset($_POST['accessToken']) ? $_POST['accessToken'] : '';
 	$ret = protect_api("JTG_Gov_ID", "gov exit ->"."\r\n", $token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	if ($ret["status"] == "false")
 	{

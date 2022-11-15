@@ -1,8 +1,8 @@
 <?php
 	include("func.php");
 
-	$data 					= array();
-	$array4json				= array();
+	$data 		= array();
+	$array4json	= array();
 	
 	$user 	= isset($_POST['user']) ? $_POST['user'] : '';
 	$pwd 	= isset($_POST['pwd'])  ? $_POST['pwd']  : '';
@@ -15,8 +15,8 @@
 	}
 	$remote_ip4filename = get_remote_ip_underline();
 	JTG_wh_log("GetToken", $remote_ip4filename, "Get Token Security entry <-");
-	if (($user != '') &&
-		($pwd  != ''))
+	if ($user != '' &&
+		$pwd  != '')
 	{
 		try
 		{
