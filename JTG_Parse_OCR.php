@@ -24,6 +24,7 @@
 	$order_status			= "";
 	$Base64_image			= "";
 	$Id_Type				= "";
+	$api_ret_json			= "";
 	$apiret_code			= true;
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
@@ -98,13 +99,24 @@
 			
 			// get token
 			$out = CallAPI_viaFormData("POST", $g_OCR_apiurl."requestToken.php", $g_OCR_get_token_param, null, false);
-			$object_token = json_decode($out);
-			if ($object_token->result < 0)
+			try
+			{
+				$api_ret_json = $out;
+				$object_token = json_decode($out);
+				if ($object_token->result < 0)
+				{
+					$apiret_code = false;
+					$data = result_message("false", "0x0206", "get token failure!", $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+				}
+			}
+			catch (Exception $e)
 			{
 				$apiret_code = false;
-				$data = result_message("false", "0x0206", "get token failure!", "");
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+				$data = result_message("false", "0x0209", "token - Exception error!", "");
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 			}
+			
 			// parse identity
 			if ($apiret_code)
 			{
@@ -113,32 +125,58 @@
 				$out = CallAPI_viaFormData("POST", $API_command, $input_data, null, false);
 				//$data = parse_OCR($out);
 				$log_str = "";
-				
-				if ($object_token->result < 0)
+				try
+				{
+					$api_ret_json = $out;
+					$object_id = json_decode($out);
+					if (strlen($object_id->ticket) == 0)
+					{
+						$apiret_code = false;
+						switch ($Id_Type)
+						{
+							case $g_OCR_back_type_code : $log_str = "背面"; break;
+							case $g_OCR_front_type_code: $log_str = "正面"; break;
+						}
+						$apiret_code = false;
+						$data = result_message("false", "0x0206", "uploadAndWait - parse identity failure! [".$log_str."]", $api_ret_json);
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+					}
+				}
+				catch (Exception $e)
 				{
 					$apiret_code = false;
-					switch ($Id_Type)
-					{
-						case $g_OCR_back_type_code : $log_str = "背面"; break;
-						case $g_OCR_front_type_code: $log_str = "正面"; break;
-					}
-					$apiret_code = false;
-					$data = result_message("false", "0x0206", "parse identity failure! [".$log_str."]", "");
-					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+					$data = result_message("false", "0x0209", "Exception error!", $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 				}
 			}
 			
 			// get head
 			if ($apiret_code && $Id_Type == $g_OCR_front_type_code)
 			{
-				$API_command = $g_OCR_apiurl."requestHeadImage.php";
-				$OCR_get_head_graph_param = $g_OCR_get_head_graph_param;
-				$OCR_get_head_graph_param["token"] = $object_token->token;
-				$OCR_get_head_graph_param["file"]  = $Base64_image;
-				$out = CallAPI_viaFormData("POST", $API_command, $input_data, null, false);
+				try
+				{
+					$API_command = $g_OCR_apiurl."requestHeadImage.php";
+					$OCR_get_head_graph_param = $g_OCR_get_head_graph_param;
+					$OCR_get_head_graph_param["token"] = $object_token->token;
+					$OCR_get_head_graph_param["file"]  = $Base64_image;
+					$out = CallAPI_viaFormData("POST", $API_command, $input_data, null, false);
+					$api_ret_json = $out;
+					$object_head = json_decode($out);
+					if ($object_head->result < 0)
+					{
+						$apiret_code = false;
+						$data = result_message("false", "0x0206", "get head image failure!", $out);
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+					}
+				}
+				catch (Exception $e)
+				{
+					$apiret_code = false;
+					$data = result_message("false", "0x0209", "requestHeadImage - Exception error!", $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+				}
 			}
-			
-			if ($apiret_code) $data = result_message("true", "0x0200", "Succeed!", "");
+			if ($apiret_code) $data = result_message("true", "0x0200", "Succeed!", $api_ret_json);
 		}
 		catch (Exception $e)
 		{
