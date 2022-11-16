@@ -34,7 +34,7 @@
 	$g_insurance_sso_api_url 			= "https://localhost/fhpro/"						; // 取得保險公司相關資料 API url
 	
 	$g_root_url			 				= $g_insurance_sso_api_url							;
-	$g_root_dir			 				= $_SERVER["DOCUMENT_ROOT"]."/fhpro/api/"				; // 網站根目錄	"/var/www/html/fhpro/"
+	$g_root_dir			 				= $_SERVER["DOCUMENT_ROOT"]."/fhpro/api/"			; // 網站根目錄	"/var/www/html/fhpro/"
 	$g_log_path		  	 				= $g_root_dir."log/"								; // log directory
 	$g_json_path	  	 				= $g_root_dir."json/"								; // json directory
 	$g_pdf_path		  	 				= $g_root_dir."pdf/"								; // pdf directory
