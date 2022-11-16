@@ -25,7 +25,7 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$base64image = isset($_POST['Pid_Pic']) ? $_POST['Pid_Pic'] : '';
 	
 	// 模擬資料
@@ -96,7 +96,7 @@
 			$sql = "SELECT * FROM memberinfo where member_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid				);
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
-			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
 
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 			if ($result = mysqli_query($link, $sql))

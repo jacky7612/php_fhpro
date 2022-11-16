@@ -23,7 +23,7 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$MEETING_time = isset($_POST['MEETING_time']) ? $_POST['MEETING_time'] : '';
 	$MEETING_time = check_special_char($MEETING_time);
 	/*
@@ -82,15 +82,15 @@
 			}
 			mysqli_query($link,"SET NAMES 'utf8'");
 
-			$Insurance_no  		= mysqli_real_escape_string($link, $Insurance_no		);
-			$Remote_insuance_no = mysqli_real_escape_string($link, $Remote_insuance_no	);
-			$Role  				= mysqli_real_escape_string($link, $Role				);
-			$Person_id  		= mysqli_real_escape_string($link, $Person_id			);
+			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
+			$Remote_insurance_no 	= mysqli_real_escape_string($link, $Remote_insurance_no	);
+			$Role  					= mysqli_real_escape_string($link, $Role				);
+			$Person_id  			= mysqli_real_escape_string($link, $Person_id			);
 
-			$Insurance_no 		= trim(stripslashes($Insurance_no)		);
-			$Remote_insuance_no = trim(stripslashes($Remote_insuance_no));
-			$Role 				= trim(stripslashes($Role)				);
-			$Personid 			= trim(stripslashes($Person_id)			);
+			$Insurance_no 			= trim(stripslashes($Insurance_no)		);
+			$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
+			$Role 					= trim(stripslashes($Role)				);
+			$Personid 				= trim(stripslashes($Person_id)			);
 
 			if ($Role != "agentOne") // 業務員
 			{
@@ -106,7 +106,7 @@
 			
 			$sql = "SELECT * FROM memberinfo where role='agentOne' and member_trash=0 "; // get sales $sql = "SELECT * FROM salesinfo where sales_trash=0 ";
 			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
-			$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
 			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Personid				);
 			
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);

@@ -20,7 +20,7 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$Verification_Code 	= isset($_POST['Verification_Code']) 	? $_POST['Verification_Code'] 	: ''; //Verification_Code
 	$OTP_time 			= isset($_POST['OTP_time']) 			? $_POST['OTP_time'] 			: '';
 	$Verification_Code 	= check_special_char($Verification_Code);

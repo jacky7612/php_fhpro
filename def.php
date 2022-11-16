@@ -1,10 +1,7 @@
 <?php
-	$g_OCR_apiurl 						= "https://mposuat.transglobe.com.tw:1443/global-server2/";//PROD不明，可能需去除，全球行投API
-	
-	
 	$g_db_ip							= "127.0.0.1";
 	$g_db_user							= "root";
-	$g_db_pwd							= "";
+	$g_db_pwd							= "JTG@1qaz@WSX";
 	$g_db_name							= "fhmemberdb";
 	
 	$g_exit_symbol						= "---------------------------  ";
@@ -34,24 +31,25 @@
 					'wh_log_Exception'    		=> true
 				   ];
 	
-	$g_insurance_sso_api_url 			= "https://localhost/test_fhpro/"					; // 取得保險公司相關資料 API url
+	$g_insurance_sso_api_url 			= "https://localhost/fhpro/"						; // 取得保險公司相關資料 API url
 	
-	$g_root_url			 				= $_SERVER['DOCUMENT_ROOT']."/test_fhpro"			; // 網站根目錄	"/var/www/html/fhpro/"
-	$g_log_path		  	 				= $g_root_url."/log/"								; // log directory
-	$g_json_path	  	 				= $g_root_url."/json/"								; // json directory
-	$g_pdf_path		  	 				= $g_root_url."/pdf/"								; // pdf directory
-	$g_images_dir 						= $g_root_url."/images/"							; // 照片 directory
-	$g_live_dir 						= $g_root_url."/live/"								; // 照片 directory
-	$g_attachment_dir 					= $g_root_url."/attachment/"						; // 附件照片 directory
-	$g_watermark_src_url 				= $g_root_url."/watermark.png"						; // 浮水印來源
-	$g_verify_is_face_apiurl 			= $g_root_url."/faceengine/api/faceDetect.php"		; // 辨別是否為人臉API url
+	$g_root_url			 				= $g_insurance_sso_api_url							;
+	$g_root_dir			 				= $_SERVER["DOCUMENT_ROOT"]."/fhpro/api/"				; // 網站根目錄	"/var/www/html/fhpro/"
+	$g_log_path		  	 				= $g_root_dir."log/"								; // log directory
+	$g_json_path	  	 				= $g_root_dir."json/"								; // json directory
+	$g_pdf_path		  	 				= $g_root_dir."pdf/"								; // pdf directory
+	$g_images_dir 						= $g_root_dir."images/"								; // 照片 directory
+	$g_live_dir 						= $g_root_dir."live/"								; // 照片 directory
+	$g_attachment_dir 					= $g_root_dir."attachment/"							; // 附件照片 directory
+	$g_watermark_src_url 				= $g_root_url."watermark.png"						; // 浮水印來源
+	$g_verify_is_face_apiurl 			= $g_root_url."faceengine/api/faceDetect.php"		; // 辨別是否為人臉API url
 											// 'http://3.37.63.32/faceengine/api/faceDetect.php';
-	$g_face_compare_apiurl 				= $g_root_url."/faceengine/api/faceCompare.php"		; // 比對人臉API url
+	$g_face_compare_apiurl 				= $g_root_url."faceengine/api/faceCompare.php"		; // 比對人臉API url
 											// 'http://3.37.63.32/faceengine/api/faceCompare.php';
-	$g_live_compare_eyes_apiurl			= $g_root_url."/faceengine/api/faceEyeState.php"	; // 遮掩/眨眼辨識
-	$g_live_compare_face_pose_apiurl01 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
-	$g_live_compare_face_pose_apiurl02 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
-	$g_live_compare_face_pose_apiurl00 	= $g_root_url."/faceengine/api/facePosState.php"	; // 臉部角度辨識
+	$g_live_compare_eyes_apiurl			= $g_root_url."faceengine/api/faceEyeState.php"	; // 遮掩/眨眼辨識
+	$g_live_compare_face_pose_apiurl01 	= $g_root_url."faceengine/api/facePosState.php"	; // 臉部角度辨識
+	$g_live_compare_face_pose_apiurl02 	= $g_root_url."faceengine/api/facePosState.php"	; // 臉部角度辨識
+	$g_live_compare_face_pose_apiurl00 	= $g_root_url."faceengine/api/facePosState.php"	; // 臉部角度辨識
 	$g_NAS_dir 							= "/dis_app/dis_idphoto/"							; // NAS 路徑
 	
 	$g_OTP_enable						= false;
@@ -107,4 +105,6 @@
 											"token"       			=> "",
 											"file"      			=> "",
 										  ];
+										  
+	$g_gov_id_url						= "https://ldi.transglobe.com.tw"; // 內政部
 ?>

@@ -28,7 +28,7 @@
 	$apiret_code			= true;
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	$Base64_image	= isset($_POST['Image'])	? $_POST['Image']	: '';
 	$Id_Type		= isset($_POST['Type'])		? $_POST['Type']	: '';
 	

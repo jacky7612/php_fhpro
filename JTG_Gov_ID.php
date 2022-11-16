@@ -1,6 +1,8 @@
 <?php
 	include("func.php");
 	
+	global $g_gov_id_url;
+	
 	// initial
 	$status_code_succeed 	= "E1"; // 成功狀態代碼
 	$status_code_failure 	= "E0"; // 失敗狀態代碼
@@ -150,7 +152,7 @@
 				{
 					//return;
 					//LDI-016
-					$url = $g_mpost_url. "ldi/check-idno";
+					$url = $g_gov_id_url. "ldi/check-idno";
 					$input_data = array();
 					//$data['appId']= $appId ;
 					$input_data['systemCode']			= $systemCode2;
