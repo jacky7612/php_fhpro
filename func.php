@@ -65,6 +65,140 @@
 		// echo $token.", ".$Insurance_no.", ".$Remote_insurance_no.", ".$Person_id."\r\n";
 	}
 	
+	// OCR - 基本參數 public
+	function ocr_error_code($result)
+	{
+		$err_msg = "";
+		try
+		{
+			switch ($result)
+			{
+				case "-200001": $err_msg = "token 失效"		; break;
+				case "-200002": $err_msg = "參數不正確"		; break;
+				case "-200003": $err_msg = "取得檔案失敗"	; break;
+				case "-200004": $err_msg = "移動檔案失敗"	; break;
+				case "-200005": $err_msg = "旋轉影像失敗"	; break;
+				case "-200006": $err_msg = "路徑不存在"		; break;
+				case "-200010": $err_msg = "資料庫連結失敗"	; break;
+				case "-200011": $err_msg = "資料庫查詢失敗"	; break;
+				case "-200012": $err_msg = "資料庫登入失敗"	; break;
+				case "-200013": $err_msg = "資料庫沒有結果"	; break;
+				case "-200014": $err_msg = "資料辨識中"		; break;
+				case "-200020": $err_msg = "帳號失效"		; break;
+				case "-200030": $err_msg = "無法辨識種類"	; break;
+				case "-200031": $err_msg = "資料已被刪除"	; break;
+				default		  : $err_msg = "其他錯誤"		; break;
+			}
+		}
+		catch (Exception $e)
+		{
+			$err_msg = "辨識失敗";
+		}
+		return $err_msg;
+    }
+	
+	function ocr_result_check_token($object_token, $Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, &$apiret_code)
+	{
+		$data = array();
+		$data = result_message("true", "0x0200", "Succeed!", "");
+		$msg  = "";
+		try
+		{
+			if (strpos($api_ret_json, "\"result\"") != false)
+			{
+				$msg = ocr_error_code($object_token->result);
+				if ($object_token->result < 0)
+				{
+					$apiret_code = false;
+					$data = result_message("false", "0x0206", "get token failure!".$msg, $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			$apiret_code = false;
+			$data = result_message("false", "0x0209", "token - Exception error!", "");
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		return $data;
+	}
+	function ocr_result_parse_identity($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $Id_Type, &$apiret_code)
+	{
+		global $g_OCR_back_type_code, $g_OCR_front_type_code;
+		
+		$data = array();
+		$data = result_message("true", "0x0200", "Succeed!", "");
+		$msg  = "";
+		try
+		{
+			$object_id = json_decode($api_ret_json);
+			
+			if (strpos($api_ret_json, "\"result\"") != false)
+			{
+				if ($object_id->result < 0)
+					$msg = ocr_error_code($object_id->result);
+			}
+			
+			if (strlen($object_id->ticket) == 0)
+			{
+				$apiret_code = false;
+				switch ($Id_Type)
+				{
+					case $g_OCR_back_type_code : $log_str = "背面"; break;
+					case $g_OCR_front_type_code: $log_str = "正面"; break;
+				}
+				$apiret_code = false;
+				$data = result_message("false", "0x0206", "uploadAndWait - parse identity failure! [".$log_str."]".$msg, $api_ret_json);
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+			}
+		}
+		catch (Exception $e)
+		{
+			$apiret_code = false;
+			$data = result_message("false", "0x0209", "Exception error!", $api_ret_json);
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		return $data;
+	}
+	
+	function ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, &$apiret_code)
+	{
+		$data = array();
+		$data = result_message("true", "0x0200", "Succeed!", "");
+		try
+		{
+			$object_head = json_decode($api_ret_json);
+			if (strpos($api_ret_json, "\"result\"") != false)
+			{
+				if ($object_head->result < 0)
+				{
+					$apiret_code = false;
+					$msg = ocr_error_code($object_head->result);
+					$data = result_message("false", "0x0206", "get head image failure!"." ".$msg, $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+				}
+				else
+				{
+					if (strlen($object_head->imageData) == 0)
+					{
+						$apiret_code = false;
+						$msg = ocr_error_code($object_head->result);
+						$data = result_message("false", "0x0206", "head image is empty!"." ".$msg, $api_ret_json);
+						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					}
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			$apiret_code = false;
+			$data = result_message("false", "0x0209", "requestHeadImage - Exception error!", $api_ret_json);
+			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		return $data;
+	}
+	
 	// 驗證 security token - 看門狗 public
 	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{

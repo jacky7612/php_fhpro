@@ -126,7 +126,7 @@ ps.每個步驟都要狀態API
 	05.JTG_Modify_Member		  				(V) 2022.11.02  complete :2022.11.03 [modify_member、update_idphoto、update_member、get_image_content、get_image_content_watermark]
 	06.JTG_Save_IDPhoto		  					(V) 2022.11.02  complete :2022.11.03
 	07.JTG_Get_IDPIC			  				(V) 2022.11.02  complete :2022.11.03 [getpidpic2、getuserList]
-	08.JTG_Parse_OCR  							(O2) 2022.11.02  complete :2022.11.03,09 尚未確定廠商，目前是空的
+	08.JTG_Parse_OCR  							(O2) 2022.11.02  complete :2022.11.03,09
 	09.JTG_Gov_ID				  				(O2) 2022.11.02  complete :2022.11.03,09 有基礎功能，未正式連到內政部
 	
 	10.JTG_Face_Compare		  					(O2) 2022.11.04  complete :2022.11.04,09 程式已調整，要結合實際測試
@@ -168,8 +168,8 @@ ps.每個步驟都要狀態API
 	
 	25.JTG_Get_PolicyNo		  					(O2) 2022.11.01  complete :2022.11.09 雲端達人-取得保單號碼，並押上保單號碼
 	26.JTG_Send_Policy			  				(O2) 2022.11.01  complete :2022.11.08,09 
-	27.JTG_Get_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試，需建假資料測試]
-	28.JTG_Save_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試，需建假資料測試]
+	27.JTG_Get_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試]
+	28.JTG_Save_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試]
 	29.JTG_Notify								(O2) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
 	30.JTG_Get_AgentCase						(O2) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
 	
@@ -179,7 +179,7 @@ ps.每個步驟都要狀態API
 
 9、重整API文件									(V) 2022.11.14	complete :2022.11.14
 
-10、開發機測試									()
+10、開發機測試									(V) 2022.11.15	complete :2022.11.16
 
 修正一：要保日>12H或要保日跨日	[V]
 修正二：OCR						[V]

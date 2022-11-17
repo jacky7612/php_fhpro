@@ -1,6 +1,5 @@
 <?php
 	include("func.php");
-		
 	
 	// initial
 	$status_code_succeed 	= "K1"; // 成功狀態代碼
