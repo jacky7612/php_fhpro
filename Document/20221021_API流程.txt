@@ -187,3 +187,8 @@ ps.每個步驟都要狀態API
 修正四：視訊					[]
 修正五：內政部					[缺]
 修正六：回傳					[V]
+
+Q01.Get_FrsipInfo及JTG_Get_MeetingInfo沒有呼叫API
+Q02.JTG_Start_Meeting url:	1. GET Token  					[POST] => 	post/api/token/request
+							2. 得到目前線上的所有參與者vid 	[GET]  => get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list
+Q03.OCR廠商API，timeout問題							

@@ -11,6 +11,7 @@
 	include("db_tools.php");
 	include("funcCore.php");
 	include("accessDB.php");
+	
 	/*
 	proposer：要保人
 	insured：被保人  
@@ -111,7 +112,7 @@
 				{
 					$apiret_code = false;
 					$data = result_message("false", "0x0206", "get token failure!".$msg, $api_ret_json);
-					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$out, $Person_id);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				}
 			}
 		}
@@ -128,11 +129,19 @@
 		global $g_OCR_back_type_code, $g_OCR_front_type_code;
 		
 		$data = array();
-		$data = result_message("true", "0x0200", "Succeed!", "");
+		$data = result_message("true", "0x0200", "parse identity Succeed!", $apiret_code);
 		$msg  = "";
+		$log_str = "";
 		try
 		{
 			$object_id = json_decode($api_ret_json);
+			if (strpos($api_ret_json, "\"ErrorNo\"") != false)
+			{
+				$apiret_code = false;
+				$data = result_message("false", "0x0206", "parse identity error", $api_ret_json);
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+				return $data;
+			}
 			
 			if (strpos($api_ret_json, "\"result\"") != false)
 			{
@@ -142,7 +151,6 @@
 			
 			if (strlen($object_id->ticket) == 0)
 			{
-				$apiret_code = false;
 				switch ($Id_Type)
 				{
 					case $g_OCR_back_type_code : $log_str = "背面"; break;
@@ -162,13 +170,21 @@
 		return $data;
 	}
 	
-	function ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, &$apiret_code)
+	function ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, &$apiret_code, &$Base64image)
 	{
 		$data = array();
-		$data = result_message("true", "0x0200", "Succeed!", "");
+		$data = result_message("true", "0x0200", "head image Succeed!", "");
 		try
 		{
 			$object_head = json_decode($api_ret_json);
+			if (strpos($api_ret_json, "\"ErrorNo\"") != false)
+			{
+				$apiret_code = false;
+				$data = result_message("false", "0x0206", "parse head image error", $api_ret_json);
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+				return $data;
+			}
+			
 			if (strpos($api_ret_json, "\"result\"") != false)
 			{
 				if ($object_head->result < 0)
@@ -186,6 +202,10 @@
 						$msg = ocr_error_code($object_head->result);
 						$data = result_message("false", "0x0206", "head image is empty!"." ".$msg, $api_ret_json);
 						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					}
+					else
+					{
+						$Base64image = $object_head->imageData;
 					}
 				}
 			}

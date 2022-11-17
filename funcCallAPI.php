@@ -197,9 +197,14 @@
 		}
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($curl,CURLOPT_TIMEOUT, 10);
 		$result = curl_exec($curl);
+		$curl_errno = curl_errno($curl);
+		$curl_error = curl_error($curl);
 		curl_close($curl);
-
+		if ($curl_errno > 0)
+			return "{\"ErrorNo\":\"$curl_errno\",\"ErrorMsg\":\"$curl_error\"}";
+		
 		return $result;
 	}
 ?>

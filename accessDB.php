@@ -579,7 +579,7 @@
 	}
 	
 	// 變更(Insert/Update)member public
-	function modify_member(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, &$status_code, $close_mysql = true)
+	function modify_member(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Image_pid_pic, &$status_code, $close_mysql = true, $enable_update_member = false)
 	{
 		global $g_encrypt;
 		global $host, $user, $passwd, $database;
@@ -648,7 +648,10 @@
 				}
 				else
 				{
-					$data = result_message("false", "0x0203", "身份資料建檔-無法重複建立，已經有相同身份證資料!", "");
+					if ($enable_update_member)
+						$data = update_member($link, $Insurance_no, $Remote_insurance_no, $Image_pid_pic, $Person_id, $Membername, $Mobileno, $FCMToken, $status_code, $close_mysql);
+					else
+						$data = result_message("false", "0x0203", "身份資料建檔-無法重複建立，已經有相同身份證資料!", "");
 					$status_code = "";
 				}
 			}
@@ -860,7 +863,7 @@
 
 						$sql2 = "update `memberinfo` set `mobile_no`='$Mobileno',`member_name`='$Membername'";
 						$sql2 = $sql2."";
-						if ($FCMToken  != ""){
+						if ($FCMToken != ""){
 							$sql2 = $sql2.",`notificationToken`='$FCMToken'";
 						}
 						if ($image != null){ 

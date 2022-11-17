@@ -23,9 +23,11 @@
 	$Role 					= "";
 	$order_status			= "";
 	$Base64_image			= "";
+	$Base64_head_image		= "";
 	$Id_Type				= "";
 	$api_ret_json			= "";
 	$apiret_code			= true;
+	$data = result_message("false", "0x020A", "default!", "");
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
@@ -99,24 +101,32 @@
 			
 			// get token
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - get token", $Person_id);
-			$api_ret_json = CallAPI_viaFormData("POST", $g_OCR_apiurl."requestToken.php", $g_OCR_get_token_param, null, false);
+			$api_ret_json = CallAPI_viaFormData("POST", $g_OCR_apiurl."requestToken.php", $g_OCR_get_token_param, null);
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - get token", $Person_id);
 			
 			$object_token = json_decode($api_ret_json);
-			$data = ocr_result_check_token($object_token, $Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $apiret_code);
+			if (strpos($api_ret_json, "\"ErrorNo\"") != false)
+			{
+				$apiret_code = false;
+				$data = result_message("false", "0x0206", "get token error", $api_ret_json);
+				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$apiret_code, $Person_id);
+			}
+			else
+			{
+				$data = ocr_result_check_token($object_token, $Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $apiret_code);
+			}
 			
 			// parse identity
 			if ($apiret_code)
 			{
 				$API_command = $g_OCR_apiurl."uploadAndWait_base64.php";
-				$input_data = sprintf($g_OCR_get_info_param, $object_token->token, $Base64_image, $Id_Type);
+				$input_data = sprintf($g_OCR_get_info_param, $object_token->token, $Base64_image, intval($Id_Type));
 				
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - parse identity", $Person_id);
-				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null, false);
+				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null);
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - parse identity", $Person_id);
 				
 				//$data = parse_OCR($out);
-				$log_str = "";
 				$data = ocr_result_parse_identity($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $Id_Type, $apiret_code);
 			}
 			
@@ -129,15 +139,29 @@
 				$OCR_get_head_graph_param["file"]  = $Base64_image;
 				
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - get head", $Person_id);
-				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null, false);
+				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null);
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - get head", $Person_id);
 				
-				$data = ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $apiret_code);
+				$data_head_image = ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $apiret_code, $Base64_head_image);
+				//if ($data_head_image["status"] == "false")
+				//	$data = $data_head_image;
+				
+				if ($Base64_head_image != "")
+				{
+					// update mysql
+					$data_modify = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Base64_head_image, $status_code, false, true);
+					JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify_member function complete result :".$data_modify["responseMessage"], $Person_id);
+					if (data_modify["status"] == "false")
+					{
+						$data = $data_modify;
+					}
+				}
 			}
 			if ($apiret_code)
 			{
 				$status_code = $status_code_succeed;
 				$data = result_message("true", "0x0200", "Succeed!", $api_ret_json);
+				// add code for save id info here
 			}
 			else
 			{
@@ -146,7 +170,7 @@
 		}
 		catch (Exception $e)
 		{
-			$data = result_message("false", "0x0209", "Exception error!", "");
+			$data = result_message("false", "0x0209", "Exception error!", $api_ret_json);
 			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
 		finally
@@ -181,8 +205,10 @@
 		$data = result_message("false", "0x0202", "API parameter is required!", "");
 		$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, true);
 	}
-	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."OCR exit ->"."\r\n", $Person_id);
+	JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]." ".$data["json"]."\r\n".$g_exit_symbol."OCR exit ->"."\r\n", $Person_id);
+	//JTG_wh_log($Insurance_no, $Remote_insurance_no, "will set orderStatus", $Person_id);
 	$data["orderStatus"] = $order_status;
+	//JTG_wh_log($Insurance_no, $Remote_insurance_no, "complete set orderStatus ".$data["status"].", ".$data["code"].", ".$data["orderStatus"].", ".$data["responseMessage"].", ".$data["json"]."\r\n", $Person_id);
 	
 	header('Content-Type: application/json');
 	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
