@@ -128,10 +128,10 @@
 			$object_id = json_decode($ret_data);
 			if (strlen($object_id->ticket) > 0)
 			{
-				echo count($object_id->pageList)."\r\n";
+				//echo count($object_id->pageList)."\r\n";
 				for ($i = 0; $i < count($object_id->pageList); $i++)
 				{
-					$page_data = $object_id->pageList[i];
+					$page_data = $object_id->pageList[$i];
 					if (strlen($page_data->page) > 0)
 					{
 						for ($j = 0; $j < count($page_data->photoList); $j++)
@@ -173,5 +173,34 @@
 			$data = result_message("false", "0x0206", "parse ocr failure!", "");
 		}
 		return $data;
+	}
+	function OCR_get_photo_id($ret_data)
+	{
+		$photo_id = "";
+		try
+		{
+			$object_id = json_decode($ret_data);
+			if (strlen($object_id->ticket) > 0)
+			{
+				for ($i = 0; $i < count($object_id->pageList); $i++)
+				{
+					$page_data = $object_id->pageList[$i];
+					if (strlen($page_data->page) > 0)
+					{
+						for ($j = 0; $j < count($page_data->photoList); $j++)
+						{
+							$photoList = $page_data->photoList[$j];
+							if (strlen($photoList->photo) > 0)
+							{
+								$photo_id = $photoList->photo;
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception $e)
+		{ }
+		return $photo_id;
 	}
 ?>

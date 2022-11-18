@@ -99,11 +99,18 @@
 	$g_OCR_apiurl 						= "https://disuat.transglobe.com.tw:1443/jotangi/api/"			; // gov url
 	$g_OCR_front_type_code				= "5"; // 正面
 	$g_OCR_back_type_code				= "4"; // 背面
-	$g_OCR_get_token_param 				= "id=Jotangi01&psw=Jotangi01";
-	$g_OCR_get_info_param				= "token=%s&file=%s&type=%s";
-	$g_OCR_get_head_graph_param			= [
+	$g_OCR_get_token_param 				= [
+											"id"	=>	"Jotangi01",
+											"psw"	=>	"Jotangi01"
+										  ];
+	$g_OCR_get_info_param				= [
 											"token"       			=> "",
 											"file"      			=> "",
+											"type"					=> ""
+										  ];
+	$g_OCR_get_head_graph_param			= [
+											"token"       			=> "",
+											"id"      				=> ""
 										  ];
 										  
 	$g_gov_id_url						= "https://ldi.transglobe.com.tw"; // 內政部

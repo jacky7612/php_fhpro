@@ -97,7 +97,17 @@
 		}
 		return $err_msg;
     }
-	
+	function ocr_merge_iden_param($val01, $val02, $val03)
+	{
+		global $g_OCR_get_info_param;
+		
+		$data = array();
+		$data = $g_OCR_get_info_param;
+		$data["token"]	= $val01;
+		$data["file"]	= $val02;
+		$data["type"]	= $val03;
+		return $data;
+	}
 	function ocr_result_check_token($object_token, $Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, &$apiret_code)
 	{
 		$data = array();
@@ -129,7 +139,7 @@
 		global $g_OCR_back_type_code, $g_OCR_front_type_code;
 		
 		$data = array();
-		$data = result_message("true", "0x0200", "parse identity Succeed!", $apiret_code);
+		$data = result_message("true", "0x0200", "parse identity Succeed!", $api_ret_json);
 		$msg  = "";
 		$log_str = "";
 		try
@@ -142,23 +152,26 @@
 				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				return $data;
 			}
-			
-			if (strpos($api_ret_json, "\"result\"") != false)
+			$api_start_str = substr($api_ret_json, 0, 30);
+			if (strpos($api_start_str, "\"result\"") != false)
 			{
 				if ($object_id->result < 0)
 					$msg = ocr_error_code($object_id->result);
 			}
 			
-			if (strlen($object_id->ticket) == 0)
+			if (strpos($api_start_str, "\"ticket\"") != false)
 			{
-				switch ($Id_Type)
+				if (strlen($object_id->ticket) == 0)
 				{
-					case $g_OCR_back_type_code : $log_str = "背面"; break;
-					case $g_OCR_front_type_code: $log_str = "正面"; break;
+					switch ($Id_Type)
+					{
+						case $g_OCR_back_type_code : $log_str = "背面"; break;
+						case $g_OCR_front_type_code: $log_str = "正面"; break;
+					}
+					$apiret_code = false;
+					$data = result_message("false", "0x0206", "uploadAndWait - parse identity failure! [".$log_str."]".$msg, $api_ret_json);
+					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				}
-				$apiret_code = false;
-				$data = result_message("false", "0x0206", "uploadAndWait - parse identity failure! [".$log_str."]".$msg, $api_ret_json);
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 			}
 		}
 		catch (Exception $e)
@@ -205,7 +218,8 @@
 					}
 					else
 					{
-						$Base64image = $object_head->imageData;
+						$image_data = $object_head->imageData;
+						$Base64image = "data:".str_replace('charset=utf8', 'base64', $object_head->imageType).",".$image_data;
 					}
 				}
 			}

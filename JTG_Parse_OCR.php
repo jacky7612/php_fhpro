@@ -101,7 +101,7 @@
 			
 			// get token
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - get token", $Person_id);
-			$api_ret_json = CallAPI_viaFormData("POST", $g_OCR_apiurl."requestToken.php", $g_OCR_get_token_param, null);
+			$api_ret_json = CallAPI_viaFormData("POST", $g_OCR_apiurl."requestToken.php", $g_OCR_get_token_param);
 			JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - get token", $Person_id);
 			
 			$object_token = json_decode($api_ret_json);
@@ -120,38 +120,38 @@
 			if ($apiret_code)
 			{
 				$API_command = $g_OCR_apiurl."uploadAndWait_base64.php";
-				$input_data = sprintf($g_OCR_get_info_param, $object_token->token, $Base64_image, intval($Id_Type));
+				$input_data = ocr_merge_iden_param($object_token->token, $Base64_image, $Id_Type);
 				
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - parse identity", $Person_id);
-				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null);
+				$api_ret_json = CallAPI_pars_iden("POST", $API_command, $input_data, null);
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - parse identity", $Person_id);
 				
-				//$data = parse_OCR($out);
 				$data = ocr_result_parse_identity($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $Id_Type, $apiret_code);
 			}
 			
 			// get head
 			if ($apiret_code && $Id_Type == $g_OCR_front_type_code)
 			{
+				$photo_id = OCR_get_photo_id($api_ret_json);
 				$API_command = $g_OCR_apiurl."requestHeadImage.php";
-				$OCR_get_head_graph_param = $g_OCR_get_head_graph_param;
-				$OCR_get_head_graph_param["token"] = $object_token->token;
-				$OCR_get_head_graph_param["file"]  = $Base64_image;
+				$OCR_get_head_graph_param 			= $g_OCR_get_head_graph_param;
+				$OCR_get_head_graph_param["token"] 	= $object_token->token;
+				$OCR_get_head_graph_param["id"]  	= $photo_id;
 				
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "call api - get head", $Person_id);
-				$api_ret_json = CallAPI_viaFormData("POST", $API_command, $input_data, null);
+				$api_ret_json_image = CallAPI_viaFormData("POST", $API_command, $OCR_get_head_graph_param);
 				JTG_wh_log($Insurance_no, $Remote_insurance_no, "result api - get head", $Person_id);
 				
-				$data_head_image = ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json, $apiret_code, $Base64_head_image);
-				//if ($data_head_image["status"] == "false")
-				//	$data = $data_head_image;
+				$data_head_image = ocr_result_get_headimage($Insurance_no, $Remote_insurance_no, $Person_id, $api_ret_json_image, $apiret_code, $Base64_head_image);
+				if ($data_head_image["status"] == "false")
+					$data = $data_head_image;
 				
 				if ($Base64_head_image != "")
 				{
 					// update mysql
-					$data_modify = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, $FCM_Token, $Base64_head_image, $status_code, false, true);
+					$data_modify = modify_member($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Member_name, $Mobile_no, "", $Base64_head_image, $status_code, false, true);
 					JTG_wh_log($Insurance_no, $Remote_insurance_no, "modify_member function complete result :".$data_modify["responseMessage"], $Person_id);
-					if (data_modify["status"] == "false")
+					if ($data_modify["status"] == "false")
 					{
 						$data = $data_modify;
 					}

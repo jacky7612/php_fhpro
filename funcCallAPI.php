@@ -180,12 +180,12 @@
 		switch ($method2)
 		{
 			case "POST":
+				curl_setopt($curl, CURLOPT_POST, true);
 				$headers = array(
 				   "Content-Type: application/x-www-form-urlencoded",
 				);
 				curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-				curl_setopt($curl, CURLOPT_POST, true);
+				curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
 				break;
 			case "GET":
 				break;
@@ -204,6 +204,36 @@
 		curl_close($curl);
 		if ($curl_errno > 0)
 			return "{\"ErrorNo\":\"$curl_errno\",\"ErrorMsg\":\"$curl_error\"}";
+		
+		return $result;
+	}
+	
+	function CallAPI_pars_iden($method, $url, $data)
+	{
+		$url 		= trim(stripslashes($url));
+		$method2 	= trim(stripslashes($method));
+		
+		$curl = curl_init();
+		switch ($method2)
+		{
+			case "POST":
+				curl_setopt_array($curl, array(
+				  CURLOPT_URL 				=> $url,
+				  CURLOPT_RETURNTRANSFER 	=> true,
+				  CURLOPT_ENCODING 			=> '',
+				  CURLOPT_MAXREDIRS 		=> 10,
+				  CURLOPT_TIMEOUT 			=> 10,
+				  CURLOPT_FOLLOWLOCATION 	=> true,
+				  CURLOPT_HTTP_VERSION 		=> CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST 	=> 'POST',
+				  CURLOPT_POSTFIELDS 		=> $data,
+				  CURLOPT_HTTPHEADER 		=> array('Cookie: PHPSESSID=ta0htvm1u9d6moo918nvmh4l1s; PHPSESSID=ta0htvm1u9d6moo918nvmh4l1s; TS01187d2c=01c9d935c8b042d806aaa165a1f42cd18c9632e6e18bd58eac8d95b07de7bb97c7c10e1e2ef6b785c5d660f7c0a91dab80355009d3'),
+				));
+				break;
+		}
+
+		$result = curl_exec($curl);
+		curl_close($curl);
 		
 		return $result;
 	}
