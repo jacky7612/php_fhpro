@@ -1430,4 +1430,104 @@
 		}
 		return $data;
 	}
+
+	function save_idphoto_table_info(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Id_Type, $image, $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		global $g_OCR_front_type_code, $g_OCR_back_type_code;
+
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data 		= array();
+		try
+		{
+			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);
+			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no);
+			$Person_id  			= mysqli_real_escape_string($link, $Person_id);
+			$Id_Type  				= mysqli_real_escape_string($link, $Id_Type);
+			
+			$Insurance_no 			= trim(stripslashes($Insurance_no));
+			$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
+			$Personid 				= trim(stripslashes($Person_id));
+			
+			$sql = "SELECT * FROM memberinfo where member_trash=0 ";
+			$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
+			$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
+			$sql = $sql.merge_sql_string_if_not_empty("person_id"			, $Person_id			);
+			
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "save idphoto table prepare", $Person_id);
+			if ($result = mysqli_query($link, $sql))
+			{
+				if (mysqli_num_rows($result) > 0)
+				{
+					$mid = 0;
+					while ($row = mysqli_fetch_array($result))
+					{
+						$mid = $row['mid'];
+					}
+					$mid = (int)str_replace(",", "", $mid);
+					try
+					{
+						$subWhere = "";
+						$subWhere = $subWhere.merge_sql_string_if_not_empty("insurance_no"		 , $Insurance_no		);
+						$subWhere = $subWhere.merge_sql_string_if_not_empty("remote_insurance_no", $Remote_insurance_no	);
+						
+						$sql = "SELECT * from `idphoto` where person_id = '".$Personid."'".$subWhere;
+						$ret = mysqli_query($link, $sql);
+						if (mysqli_num_rows($ret) > 0)
+						{
+							if ($Id_Type == $g_OCR_front_type_code)
+								$sql2 = "UPDATE  `idphoto` set `front` = '{$image}', `updatedtime` = NOW() where `person_id`='".$Personid."'".$subWhere;
+							else
+								$sql2 = "UPDATE  `idphoto` set `back` = '{$image}', `updatedtime` = NOW() where `person_id`='".$Personid."'".$subWhere;
+								
+						} else {
+							if ($Id_Type == $g_OCR_front_type_code)
+								$sql2 = "INSERT INTO  `idphoto` ( `insurance_no`, `remote_insurance_no`, `person_id`, `front`, `updatedtime`) VALUES ('$Insurance_no', '$Remote_insurance_no', '$Personid', '{$image}', NOW()) ";
+							else
+								$sql2 = "INSERT INTO  `idphoto` ( `insurance_no`, `remote_insurance_no`, `person_id`, `back` , `updatedtime`)  VALUES ('$Insurance_no', '$Remote_insurance_no', '$Personid', '{$image}', NOW()) ";
+						}
+
+						mysqli_query($link, $sql2) or die(mysqli_error($link));
+						
+						//echo "user data change ok!";
+						$data = result_message("true", "0x0200", "身分證上傳成功!", "");
+					}
+					catch (Exception $e)
+					{
+						$data = result_message("false", "0x0209", "access idphoto - Exception error!", "");
+						wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+					}
+				}
+				else
+				{
+					$data = result_message("false", "0x0204", "無相同身份證資料,無法更新!", "");
+				}
+			}
+			else
+			{
+				$data = result_message("false", "0x0208", "SQL fail!", "");
+			}
+		}
+		catch (Exception $e)
+		{
+			$data = result_message("false", "0x0209", "[save_idphoto_table_info] Exception error!", "");
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		finally
+		{
+			try
+			{
+				if ($link != null && $close_mysql)
+				{
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				wh_log($dst_title, $dst_subtitle, "(X) [save_idphoto_table_info] - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			}
+		}
+		return $data;
+	}
 ?>

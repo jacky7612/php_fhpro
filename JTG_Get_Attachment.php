@@ -22,7 +22,7 @@
 	$order_status			= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
-	common_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
+	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
 	
 	// 模擬資料
 	if ($g_test_mode)
