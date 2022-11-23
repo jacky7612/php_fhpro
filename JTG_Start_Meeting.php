@@ -159,8 +159,8 @@
 			$maxlicense = $g_join_meeting_max_license;
 			$pincode 	= $g_join_meeting_pincode;
 			
-			$sql 		= "select * from vmrule where id = 1";
-			if ($result 	= mysqli_query($link, $sql))
+			$sql = "select * from vmrule where id = 1";
+			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{

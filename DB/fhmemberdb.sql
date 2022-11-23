@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-15 06:37:23
+-- 產生時間： 2022-11-23 09:43:08
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -310,6 +310,21 @@ CREATE TABLE `vmrinfo` (
   `updatetime` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `vmrule`
+--
+
+CREATE TABLE `vmrule` (
+  `id` int(11) NOT NULL,
+  `kicktime` int(10) DEFAULT NULL,
+  `pincode` int(16) NOT NULL,
+  `maxlicense` int(10) DEFAULT NULL,
+  `gateway` int(10) NOT NULL,
+  `frsipstatus` int(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- 已傾印資料表的索引
 --
@@ -408,6 +423,12 @@ ALTER TABLE `vmrinfo`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 資料表索引 `vmrule`
+--
+ALTER TABLE `vmrule`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 在傾印的資料表使用自動遞增(AUTO_INCREMENT)
 --
 
@@ -499,6 +520,12 @@ ALTER TABLE `sysuser`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `vmrinfo`
 --
 ALTER TABLE `vmrinfo`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `vmrule`
+--
+ALTER TABLE `vmrule`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
