@@ -74,7 +74,10 @@
 				return;
 			}
 			mysqli_query($link,"SET NAMES 'utf8'");
-
+			
+			// 初始化的SSO token(僅綁定行投、遠投號碼)
+			$SSO_token = generate_SSO_token($Insurance_no, $Remote_insurance_no, "");
+				
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);
 			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no);
 			$Person_id  			= mysqli_real_escape_string($link, $Person_id);

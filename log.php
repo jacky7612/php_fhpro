@@ -12,6 +12,19 @@
 			return true;
 	}
 	
+	function wtask_log($log_msg)
+	{
+		global $g_trace_log;
+		if ($g_trace_log["wtask_log"] == false) return;
+		wh_log_core("", "", $log_msg, "");
+	}
+	function wtask_log_Exception($log_msg)
+	{
+		global $g_trace_log;
+		if ($g_trace_log["wtask_log_Exception"] == false) return;
+		wh_log_core("", "", $log_msg, "");
+	}
+	
 	// write log for JTG_API
 	function JTG_wh_log($Insurance_no, $Remote_insurance_no, $log_msg, $Person_id = "")
 	{
@@ -68,7 +81,9 @@
 	{
 		global $glogfile;
 		
-		$glogfile = $dir.'log_'.date('Y_m_d').'_'.$Insurance_no.'_'.$Remote_insurance_no.$Person_id.'.log';
+		if (strlen($Insurance_no) 			> 0) $Insurance_no 			= "_".$Insurance_no;
+		if (strlen($Remote_insurance_no) 	> 0) $Remote_insurance_no 	= "_".$Remote_insurance_no;
+		$glogfile = $dir.'log_'.date('Y_m_d').$Insurance_no.$Remote_insurance_no.$Person_id.'.log';
 	}
 	function print_role_info($retRoleInfo)
 	{

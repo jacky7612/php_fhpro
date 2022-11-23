@@ -28,7 +28,9 @@
 					'JTG_wh_log_Exception'      => true,
 					'wh_log'   					=> true,
 					'wh_log_watch_dog'    		=> true,
-					'wh_log_Exception'    		=> true
+					'wh_log_Exception'    		=> true,
+					'wtask_log'    				=> true,
+					'wtask_log_Exception'    	=> true
 				   ];
 	
 	$g_insurance_sso_api_url 			= "https://localhost/fhpro/"						; // 取得保險公司相關資料 API url
@@ -85,6 +87,7 @@
 	$g_join_meeting_pincode				= "53758995";
 	
 	$g_create_meeting_apiurl			= "http://10.67.70.169/RESTful/index.php/v1/"					; // 會議室 url
+	$g_prod_meeting_apiurl				= "http://10.67.65.174/RESTful/index.php/v1/"					; // 會議室 url
 										  /*
 										  if(_ENV == "PROD")
 												$mainurl = "http://10.67.65.174/RESTful/index.php/v1/";

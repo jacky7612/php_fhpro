@@ -1,7 +1,8 @@
 <?php
 	include "comm.php";
 	include("func.php");
-
+	global $g_root_url;
+	
 	// initial
 	$status_code_succeed 	= "C1"; // 成功狀態代碼
 	$status_code_failure 	= "C0"; // 失敗狀態代碼
@@ -92,7 +93,7 @@
 				{
 					//return;
 					//LDI-003
-					$url = $g_mpost_url. "ldi/agent-case";
+					$url = $g_root_url. "ldi/agent-case";
 					
 					$data_input['appId']= $appId ;					
 					$jsondata 			= json_encode($data_input);

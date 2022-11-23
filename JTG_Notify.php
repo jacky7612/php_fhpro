@@ -77,13 +77,13 @@
 		mysqli_query($link,"SET NAMES 'utf8'");
 		
 		$Insurance_no  			= mysqli_real_escape_string($link,$Insurance_no			);
-		$Remote_insuance_no  	= mysqli_real_escape_string($link,$Remote_insuance_no	);
+		$Remote_insurance_no  	= mysqli_real_escape_string($link,$Remote_insurance_no	);
 		$Person_id  			= mysqli_real_escape_string($link,$Person_id			);
 		$FCM_title  			= mysqli_real_escape_string($link,$FCM_title			);	
 		$FCM_content  			= mysqli_real_escape_string($link,$FCM_content			);
 	
 		$Insurance_no 			= trim(stripslashes($Insurance_no));
-		$Remote_insuance_no 	= trim(stripslashes($Remote_insuance_no));
+		$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
 		$Personid 				= trim(stripslashes($Person_id));
 		$FCMtitle 				= trim(stripslashes($FCM_title));
 		$FCMcontent 			= trim(stripslashes($FCM_content));
@@ -91,7 +91,7 @@
 		
 		$sql = "SELECT * FROM memberinfo where member_trash=0 ";
 		$sql = $sql.merge_sql_string_if_not_empty("insurance_no"		, $Insurance_no			);
-		$sql = $sql.merge_sql_string_if_not_empty("remote_insuance_no"	, $Remote_insuance_no	);
+		$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no"	, $Remote_insurance_no	);
 		
 		// 當為業務員時，要推播給其他相關人員；否則通知業務員要上線進行保單相關流程
 		switch ($Role)

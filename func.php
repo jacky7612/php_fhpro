@@ -139,7 +139,8 @@
 		global $g_OCR_back_type_code, $g_OCR_front_type_code;
 		
 		$data = array();
-		$data = result_message("true", "0x0200", "parse identity Succeed!", $api_ret_json);
+			$object_id = json_decode($api_ret_json);
+		$data = result_message("true", "0x0200", "parse identity Succeed!", $object_id);
 		$msg  = "";
 		$log_str = "";
 		try
@@ -233,6 +234,43 @@
 		return $data;
 	}
 	
+	function generate_SSO_token($Insurance_no, $Remote_insurance_no, $Person_id)
+	{
+		global $key;
+		
+		$SSO_info["insurance_no"] 			= $Insurance_no;
+		$SSO_info["remote_insurance_no"] 	= $Remote_insurance_no;
+		$SSO_info["person_id"] 				= $Person_id;
+		$SSO_info["expire"] 				= date("Y-m-d H:i:s");
+		$SSO_json 							= json_encode($SSO_info);
+		$SSO_token["sso_token"]				= encrypt($key, $SSO_json);
+		return $SSO_token;
+	}
+	// 解析token - 看門狗 public
+	function protect_api_dog($SSO_token, &$Get_insurance_no, &$Get_remote_insurance_no, &$Get_person_id)
+	{
+		global $key;
+		
+		$Role 			= "";
+		$Sales_id 		= "";
+		$Mobile_no 		= "";
+		$Member_name 	= "";
+		
+		$token = decrypt($key, $SSO_token);
+		$dec_SSO_token = json_decode($token);
+		$Get_insurance_no 			= $dec_SSO_token->insurance_no;
+		$Get_remote_insurance_no 	= $dec_SSO_token->remote_insurance_no;
+		$Get_person_id 				= $dec_SSO_token->person_id;
+		$Expire 					= $dec_SSO_token->expire;
+		$ret_code = get_salesid_personinfo_if_not_exists($link, $Get_insurance_no, $Get_remote_insurance_no, $Get_person_id, $exists_Role, $exists_Sales_id, $exists_Mobile_no, $exists_Member_name);
+		if (check_time($Expire) == false)
+		{
+			$Get_insurance_no 		 = "";
+			$Get_remote_insurance_no = "";
+			$Get_person_id 			 = "";
+		}
+		return $ret_code & check_time($Expire);
+	}
 	// 驗證 security token - 看門狗 public
 	function protect_api($func_name, $out_str, $token, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{

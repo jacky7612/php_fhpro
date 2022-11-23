@@ -142,7 +142,7 @@
 							{
 								//echo "人臉比對完成！同一人(confidence=".$confidence.")";
 								$array4json["confidence"] = $confidence;
-								$data = result_message("true", "0x0200", "照片比對相同", json_encode($array4json));
+								$data = result_message("true", "0x0200", "照片比對相同", $array4json);
 								$sql = "Insert into facecomparelog (Person_id,  confidence, updatetime) values ('$Person_id','$confidence', NOW()  )";
 								mysqli_query($link, $sql);
 								$status_code = $status_code_succeed;
@@ -151,7 +151,7 @@
 							{
 								//echo "人臉比對完成！不同一人(confidence=".$confidence.")";
 								$array4json["confidence"] = $confidence;
-								$data = result_message("false", "0x0201", "照片比對不相同", json_encode($array4json));
+								$data = result_message("false", "0x0201", "照片比對不相同", $array4json);
 								$sql = "Insert into facecomparelog (Person_id, confidence, updatetime) values ('$Personid','$confidence', NOW()  )";
 								mysqli_query($link, $sql);
 								$status_code = $status_code_failure;
@@ -160,7 +160,7 @@
 						else
 						{
 							$array4json["confidence"] = "0";
-							$data = result_message("false", "0x0206", "沒有偵測到人臉", json_encode($array4json));
+							$data = result_message("false", "0x0206", "沒有偵測到人臉", $array4json);
 							$status_code 			= $status_code_failure;
 							//$face1 = $pid_pic;
 							//$face2 = addslashes(encrypt($key,base64_encode($data2image)));
@@ -171,14 +171,14 @@
 					else
 					{
 						$array4json["confidence"] = "0";
-						$data = result_message("false", "0x0204", "比對程式來源不存在，請確認是否已安裝!", json_encode($array4json));
+						$data = result_message("false", "0x0204", "比對程式來源不存在，請確認是否已安裝!", $array4json);
 						$status_code = $status_code_failure;
 					}
 				}
 				else
 				{
 					$array4json["confidence"] = "0";
-					$data = result_message("false", "0x0204", "身分證資料不存在", json_encode($array4json));
+					$data = result_message("false", "0x0204", "身分證資料不存在", $array4json);
 					$status_code = $status_code_failure;
 				}
 			}

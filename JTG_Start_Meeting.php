@@ -182,8 +182,9 @@
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
-					//$mid=0;
-					//客戶區域-實際上只有一筆，因有對應身份證id-jacky
+					// $mid=0;
+					// 其他人員-加入會議室-jacky
+					// 客戶區域-實際上只有一筆，因有對應身份證id-jacky
 					while ($row = mysqli_fetch_array($result))
 					{
 						//$mid = $row['mid'];
@@ -314,7 +315,7 @@
 					}
 					
 					// add by jacky 20221109 - start
-					if ($agent_id == '')
+					if ($agent_id == '') // Double check
 					{
 						if ($data["status"] == "true")
 						{
@@ -333,8 +334,8 @@
 						return;
 					}
 					// add by jacky 20221109 - end
-								
-					//業務員區域-jacky
+					
+					// 業務員建立會議室-jacky
 					try
 					{
 						$mainurl 	= $g_create_meeting_apiurl;

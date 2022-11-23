@@ -1,11 +1,16 @@
 <?php
 	include("func.php");
-
+	global $vuser, $vpwd;
+	
 	$data 		= array();
 	$array4json	= array();
+	$SSO_token  = "";
 	
 	$user 	= isset($_POST['user']) ? $_POST['user'] : '';
 	$pwd 	= isset($_POST['pwd'])  ? $_POST['pwd']  : '';
+	$Insurance_no 			= isset($_POST['Insurance_no'])  		? $_POST['Insurance_no']  		: '';
+	$Remote_insurance_no 	= isset($_POST['Remote_insurance_no'])  ? $_POST['Remote_insurance_no'] : '';
+	$Person_id 				= isset($_POST['Person_id'])  			? $_POST['Person_id']  			: '';
 	
 	// 模擬資料
 	if ($g_test_mode)
@@ -23,10 +28,19 @@
 			if (base64_encode($user) == $vuser &&
 				base64_encode($pwd)  == $vpwd)
 			{
-				$time 					 = date("Y-m-d H:i:s");
-				$en 					 = encrypt($key, $time);
-				$array4json["token"]	 = $en;
-				$data = result_message("true", "0x0200", "Succeed!", json_encode($array4json));
+				if ($Insurance_no 			!= '' &&
+					$Remote_insurance_no 	!= '' &&
+					$Person_id 				!= '')
+				{
+					$SSO_token = generate_SSO_token($Insurance_no, $Remote_insurance_no, $Person_id);
+				}
+				else
+				{
+					$time 					 = date("Y-m-d H:i:s");
+					$SSO_token 				 = encrypt($key, $time);
+				}
+				$array4json["token"]	 = $SSO_token;
+				$data = result_message("true", "0x0200", "Succeed!", $array4json);
 				JTG_wh_log("GetToken", $remote_ip4filename, $data["responseMessage"]);	
 			}
 			else

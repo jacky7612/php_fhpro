@@ -199,7 +199,7 @@
 				
 				if ($data["status"]	== "true")
 				{
-					$data = result_message("true", "0x0200", "json資料解析成功", $out);
+					$data = result_message("true", "0x0200", "json資料解析成功", $cxInsurance);
 				}
 				JTG_wh_log("SSO_Login", $remote_ip4filename, $data["code"].$data["responseMessage"]);
 			}

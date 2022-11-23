@@ -46,7 +46,7 @@ ps.每個步驟都要狀態API
 																						成功：[D1]					log:ok; mysql_data:ok
 11.JTG_Verify_ID[
 				-> 08.JTG_Get_IDPIC					取得身份證							成功：[D2]					log:ok; mysql_data:ok
-				-> 09.缺JTG_Parse_OCR				OCR廠商API 							失敗：[D3]					
+				-> 09.缺 JTG_Parse_OCR				OCR廠商API 							失敗：[D3]					
 																						成功：[D4]					
 				-> 10.JTG_Gov_ID					內政部驗證身份證					失敗：[E0]					log:ok; mysql_data:ok
 				]																		成功：[E1]					log:ok; mysql_data:ok
@@ -144,34 +144,34 @@ ps.每個步驟都要狀態API
 	18.第一次.JTG_Start_Meeting		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
 	19.第一次.JTG_Stop_Meeting		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
 	//-------------------------------------------------------------------------------------------------------------
-	20.JTG_Get_Proposal_PDF	  					(V) 2022.11.01  complete :2022.11.07
-	21.JTG_Save_Proposal_PDF					(V) 2022.11.01  complete :2022.11.07 [從JTG_Get_Proposal_PDF複製]
-	22.JTG_Get_Json				  				(V) 2022.11.01  complete :2022.11.07
-	   JTG_Send_OTP_Code		  				(V) 2022.11.01  complete :2022.11.07
-	   JTG_Verify_OTP_Code			  			(V) 2022.11.01  complete :2022.11.07
+	20.JTG_Get_Proposal_PDF	  					(V) 2022.11.08  complete :2022.11.09
+	21.JTG_Save_Proposal_PDF					(V) 2022.11.08  complete :2022.11.09 [從JTG_Get_Proposal_PDF複製]
+	22.JTG_Get_Json				  				(V) 2022.11.08  complete :2022.11.09
+	   JTG_Send_OTP_Code		  				(V) 2022.11.04  complete :2022.11.04
+	   JTG_Verify_OTP_Code			  			(V) 2022.11.04  complete :2022.11.04
 	
-	23.JTG_Get_Attachment						(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
-	24.JTG_Upload_Attachment		  			(V) 2022.11.01  complete :2022.11.07 [未實際測試，需建假資料測試]
+	23.JTG_Get_Attachment						(V) 2022.11.08  complete :2022.11.09 [未實際測試，需建假資料測試]
+	24.JTG_Upload_Attachment		  			(V) 2022.11.08  complete :2022.11.09 [未實際測試，需建假資料測試]
 		
-	第二次JTG_Get_FrsipInfo		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，是否要串接影音系統API]
-	第二次JTG_Get_MeetingInfo		  			(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，是否要串接視訊系統API]
-	第二次JTG_Start_Meeting		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
-	第二次JTG_Stop_Meeting		  				(O2) 2022.11.01  complete :2022.11.07,09 [未實際測試，程式段有call third party API]
+	第二次JTG_Get_FrsipInfo		  				(O2) 2022.11.08  complete :2022.11.09 [未實際測試，是否要串接影音系統API]
+	第二次JTG_Get_MeetingInfo		  			(O2) 2022.11.08  complete :2022.11.09 [未實際測試，是否要串接視訊系統API]
+	第二次JTG_Start_Meeting		  				(O2) 2022.11.08  complete :2022.11.09 [未實際測試，程式段有call third party API]
+	第二次JTG_Stop_Meeting		  				(O2) 2022.11.08  complete :2022.11.09 [未實際測試，程式段有call third party API]
 	
-	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	回傳業務-要保書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	回傳業務-業報書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	業務-要保書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
+	回傳業務-要保書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
+	業務-業報書簽名		JTG_Get_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
+	回傳業務-業報書簽名.JTG_Save_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
 	
-	要保書-押上保單號碼.JTG_Get_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
-	要保書-押上保單號碼.JTG_Save_Proposal_PDF	(V) 2022.11.01  complete :2022.11.07,09 
+	要保書-押上保單號碼.JTG_Get_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
+	要保書-押上保單號碼.JTG_Save_Proposal_PDF	(V) 2022.11.08  complete :2022.11.09 
 	
-	25.JTG_Get_PolicyNo		  					(O2) 2022.11.01  complete :2022.11.09 雲端達人-取得保單號碼，並押上保單號碼
-	26.JTG_Send_Policy			  				(O2) 2022.11.01  complete :2022.11.08,09 
-	27.JTG_Get_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試]
-	28.JTG_Save_Signature		  				(O2) 2022.11.01  complete :2022.11.08,09 [未實際測試]
-	29.JTG_Notify								(O2) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
-	30.JTG_Get_AgentCase						(O2) 2022.11.08  complete :2022.11.08,09 待測試google API後，尚要調整
+	25.JTG_Get_PolicyNo		  					(O2) 2022.11.08  complete :2022.11.10 雲端達人-取得保單號碼，並押上保單號碼
+	26.JTG_Send_Policy			  				(O2) 2022.11.08  complete :2022.11.10 
+	27.JTG_Get_Signature		  				(O2) 2022.11.08  complete :2022.11.11 [未實際測試]
+	28.JTG_Save_Signature		  				(O2) 2022.11.08  complete :2022.11.11 [未實際測試]
+	29.JTG_Notify								(O2) 2022.11.08  complete :2022.11.11 待測試google API後，尚要調整
+	30.JTG_Get_AgentCase						(O2) 2022.11.08  complete :2022.11.11 待測試google API後，尚要調整
 	
 7、postman測試API								(V) 2022.11.10  complete :2022.11.10
 
@@ -179,16 +179,73 @@ ps.每個步驟都要狀態API
 
 9、重整API文件									(V) 2022.11.14	complete :2022.11.14
 
-10、開發機測試									(V) 2022.11.15	complete :2022.11.16
+10、開發機測試									(V) 2022.11.15	complete :2022.11.18 
+	10-1.架設資料庫至開發機，並測試是否寫入正常							2022.11.15
+	10-2.將程式放入linux主機並開放權限									2022.11.15
+	10-3.測試是否能寫入LOG及圖檔，資料夾權限							2022.11.16
+	10-4.排解在開發機測試時所遇到的問題，調整程式碼及設定，使其運作正常 2022.11.15～2022.11.17
+	10-4.邊測試，與android、ios商討，調整後台流程 						2022.11.16～2022.11.18
+11、與frank商討視訊會議第三方廠商提供的API文件，frank約2022.11.22(二)將說明全球案時，連結視訊會議的流程與想法；
+	事先做業2022.11.18整理、核對與全球程式所呼叫的API與廠商提供的API文件是否對應，整理疑問，週二詳細了解並提問。
 
-修正一：要保日>12H或要保日跨日	[V]
-修正二：OCR						[V]
-修正三：推播					(V)
-修正四：視訊					[]
-修正五：內政部					[缺]
-修正六：回傳					[V]
+修正一：要保日>12H或要保日跨日									[V]
+修正二：OCR														[V]
+修正三：推播													[V]
+修正四：視訊會議API 與 錄影伺服機API							[]
+修正五：內政部													[缺]
+修正六：回傳													[V]
+修正七：簡訊導入頁-判斷呼叫端為android或ios，判斷是否已安裝		[]
 
 Q01.Get_FrsipInfo及JTG_Get_MeetingInfo沒有呼叫API
-Q02.JTG_Start_Meeting url:	1. GET Token  					[POST] => 	post/api/token/request
+Q02.JTG_Start_Meeting url:	1. GET Token  					[POST] => post/api/token/request
 							2. 得到目前線上的所有參與者vid 	[GET]  => get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list
-Q03.OCR廠商API，timeout問題							
+								API文件，找不到 skypeforbusinessgatewayparticipant
+								訊會議的api＿DG-100011-Deltapath frSIP Restful API Developer Guide-EN-v5.0.pdf
+Q03.OCR廠商API，timeout問題	
+==================================================================================================================================
+
+
+會議室 工作排程處理項目
+----------------------------------------------------------------------------------------------------------------------------------
+get_accesscode.php		取得會議室授權碼（耗時1~2分鐘），建立排程於每天00:00取得每間各5個access code
+例如：https://jtgpexconf.jotangi.net/webapp/#/?callType=Video&conference=1333390965&name=frank&join=1&media=1&pin=53758995
+	其中的conference=授權碼&name=與會者姓名&join=1（固定值）&media=1（固定值）&pin=會議主持人pin code（只有主持人擁有）
+	系統架構圖中
+	★我們的角色為3，會呼叫智慧影音系統1-1（主）、1-2（備）
+	★2-P1為引流平台；2-C(為conference Node, 一台擁有32平行電腦串流)；2-A1（Admin API提供者，目前未使用，皆由1-1存取API，再進入2-A1）
+	★取得對應遠投號碼的影音，需要會議室id及時間，目前search時間區段為紀錄時間的前7分鐘、後3分鐘，確保不會取得不該出現的人員
+	★vrminfo在一開始時，就需要初始化，一開始就會得知有多少房間
+	★參數Gateway此為固定，一開始就要定義，需問第三方工程師
+
+會議室資源:
+1.為了解決開會議室需等待兩分鐘問題，所以目前採用預先產生會議室的方式(不是由程式動態產生的,是系統預先設定好一定的房間數供使用)
+目前的設定是=>PROD預先產生500間會議室, UAT預先產生47間[get_accesscode.php]
+
+
+取得會議室規則:(開始會議start meeting)
+1.業務員: 依流水號檢查線上會議是否有在進行(可能斷線重連的),若有則取得此相同流水號的會議室,若否則提供新的空會議室,規則為; a. 先檢查會議室資源，若有空房而且已釋放超過10分鐘 and b. 檢查此空房是否有已有其他人員在,若有則選擇另一間(可能是web來的,測試開發期間會有), 重複以上直到有空的房間
+, 若都沒有空的會議室則顯示已達會議室上限請稍後.
+
+2. 客戶:依流水號檢查線上會議是否還在進行,若有則取得此相同流水號的會議室,若否則提示客戶會議室尚未開始
+
+
+會議室釋出規則:
+1. 業務員開啟會議室號碼,但在5分鐘內沒進入(可能網路,訊號等問題),就將此會議室的人員踢掉,並釋放此會議室
+2. 會議室只有業務員而且超過15分鐘了, 就強迫踢掉此業務員並釋放此會議室
+3. 會議室沒有業務員只有客戶而且超過5分鐘, 就將此會議室的人員踢掉,並釋放此會議室
+4. 業務正常離開會議室, 就將此會議室的其他所有人員踢掉,並釋放此會議室(因系統loading問題,目前拿掉2022/11/23)
+
+----------------------------------------------------------------------------------------------------------------------------------
+JOB1 - 取得錄影檔案,儲存至NAS[routinedl.php]
+1. 定時時間-每15分鐘
+2. 根據視訊會議的資料,固定詢問影音主機是否有符合此會議室時間的錄影資料,若有則拉下來儲存至NAS,並更新視訊會議室歷史資料
+
+JOB2 - 檢查每間會議室內的狀況[check_meetingroom.php]
+1. 定時- 每5分鐘
+2. 檢查是否業務員開啟會議室號碼,但在5分鐘內都沒進入,就將此會議室所有人員都踢掉，並釋放此會議室
+3. 檢查會議室只有業務員而且超過15分鐘了, 就強迫踢掉此業務員並釋放此會議室
+4. 更新會議室人數
+
+JOB3 - 取得每間會議室的授權碼[get_accesscode.php]
+1. 定時-每30分鐘
+2. 固定補足每間會議室3組可用的授權碼, 若會議室授權碼不足3組,則補足, 因授權碼會隨會議室釋出而失效,需要補足新的

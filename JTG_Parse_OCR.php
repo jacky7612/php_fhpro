@@ -108,7 +108,7 @@
 			if (strpos($api_ret_json, "\"ErrorNo\"") != false)
 			{
 				$apiret_code = false;
-				$data = result_message("false", "0x0206", "get token error", $api_ret_json);
+				$data = result_message("false", "0x0206", "get token error", $object_token);
 				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$apiret_code, $Person_id);
 			}
 			else
@@ -212,7 +212,8 @@
 	//JTG_wh_log($Insurance_no, $Remote_insurance_no, "will set orderStatus", $Person_id);
 	$data["orderStatus"] = $order_status;
 	//JTG_wh_log($Insurance_no, $Remote_insurance_no, "complete set orderStatus ".$data["status"].", ".$data["code"].", ".$data["orderStatus"].", ".$data["responseMessage"].", ".$data["json"]."\r\n", $Person_id);
-	
+	$ret_json = json_encode($data, JSON_UNESCAPED_UNICODE);
+	$ret_json = check_special_char02($ret_json);
 	header('Content-Type: application/json');
-	echo (json_encode($data, JSON_UNESCAPED_UNICODE));
+	echo ($ret_json);
 ?>

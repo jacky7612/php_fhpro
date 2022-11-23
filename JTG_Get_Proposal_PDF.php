@@ -61,7 +61,7 @@
 		$Remote_insurance_no = "appl2022";
 		$Person_id 			 = "A123456789";
 		$token 				 = "any";
-		//$contain_json 	  = "true";
+		$contain_json 	  = "true";
 	}
 	
 	// 當資料不齊全時，從資料庫取得

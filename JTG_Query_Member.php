@@ -62,7 +62,9 @@
 	}
 	
 	// start
-	if ($Person_id != '')
+	if ($Insurance_no 			!= '' &&
+		$Remote_insurance_no 	!= '' &&
+		$Person_id 				!= '')
 	{
 		try
 		{
@@ -88,6 +90,9 @@
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
+					// 正式取得SSO Token
+					$SSO_token = generate_SSO_token($Insurance_no, $Remote_insurance_no, $Person_id);
+					
 					// login ok
 					// user id 取得
 					$mid = 0;
@@ -96,7 +101,7 @@
 						$mid = $row['mid'];
 						$Role = $row['role'];
 					}
-					$data = result_message("false", "0x0200", "查詢身份證資料成功!", "");
+					$data = result_message("true", "0x0200", "查詢身份證資料成功!", $SSO_token);
 					$status_code = $status_code_succeed;
 				}
 				else
