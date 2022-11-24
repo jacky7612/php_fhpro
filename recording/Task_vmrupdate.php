@@ -72,18 +72,18 @@
 				$vmrid = $vmrarray[1];			
 				
 				$url = $mainurl."put/skypeforbusiness/skypeforbusinessgatewayvmr/".$vmrid;
-				$data = array();
-				$data["id"]=$vmrid;
-				$data["gateway"]=$vmrarray[0];
-				$data["service_type"]="conference";
-				$data["conference_owner"]="1000";
-				$data["name"]=$vid;
-				$data["record_conference"]="on";
-				$data["room_security"]="2";//HOST/GUEST, 0:no limit
-				$data["pin"]=$pin;
-				$data["allow_guests"]="off";//depend on room_security
-				$data["participant_limit"]="5";
-				$data["host_view"]="one_main_seven_pips";
+				$data 						= array();
+				$data["id"]					= $vmrid;
+				$data["gateway"]			= $vmrarray[0];
+				$data["service_type"]		= "conference";
+				$data["conference_owner"]	= "1000";
+				$data["name"]				= $vid;
+				$data["record_conference"]	= "on";
+				$data["room_security"]		= "2";//HOST/GUEST, 0:no limit
+				$data["pin"]				= $pin;
+				$data["allow_guests"]		= "off";//depend on room_security
+				$data["participant_limit"]	= "5";
+				$data["host_view"]			= "one_main_seven_pips";
 				var_dump($data);
 				$out = CallAPI4OptMeeting("POST", $url, $data, $header);
 				echo $out;			
@@ -94,8 +94,8 @@
 		}
 
 		//expired token
-		$url = $mainurl."delete/api/token/expire";
-		$data["username"]="administrator";
+		$url 				= $mainurl."delete/api/token/expire";
+		$data["username"]	= "administrator";
 		$out = CallAPI4OptMeeting("POST", $url, $data, $header);
 	}
 	catch (Exception $e)

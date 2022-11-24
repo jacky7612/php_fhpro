@@ -159,7 +159,7 @@
 									$meeting_id = $row['meetingid'];
 								}
 							}
-							$gateway = "12";
+							$gateway = _MEETING_GATEWAY;
 							$sql =  "select * from vmrule where id = 1";// gateway = '$vmrgateway' where id = 1";
 							if ($result = mysqli_query($link, $sql))
 							{
@@ -228,7 +228,8 @@
 							$sql = "update vmrinfo SET status = '0' where vid = '".$vmr."'";  //釋放
 							$ret = mysqli_query($link, $sql);
 							//刪除視訊會議
-							$sql = "delete  from gomeeting where  insurance_no='".$Insurance_no."'";
+							$sql = "delete  from gomeeting where insurance_no='".$Insurance_no."'";
+							$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no", $Remote_insurance_no);
 							$ret = mysqli_query($link, $sql);
 							*/
 							//save file or not?
@@ -236,6 +237,7 @@
 							if($bSaved == "0")
 							{
 								$sql = "update meetinglog SET bSaved = 0 where insurance_no='".$Insurance_no."'";
+								$sql = $sql.merge_sql_string_if_not_empty("remote_insurance_no", $Remote_insurance_no);
 								$ret = mysqli_query($link, $sql);
 							}
 							*/						

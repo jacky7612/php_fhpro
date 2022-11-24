@@ -1,4 +1,7 @@
 <?php
+	const _ENV = "UAT";
+	const _MEETING_GATEWAY = "12";
+	
 	$g_db_ip							= "127.0.0.1";
 	$g_db_user							= "root";
 	$g_db_pwd							= "JTG@1qaz@WSX";

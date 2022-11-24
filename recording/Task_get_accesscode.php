@@ -77,7 +77,7 @@
 		$header = array('X-frSIP-API-Token:'.$token);
 		/*
 		$url = $mainurl."get/skypeforbusiness/skypeforbusinessgatewayvmr/view/list";
-		$data["gateway"]="12"; //UAT
+		$data["gateway"]=_MEETING_GATEWAY; //UAT
 		$data["service_type"]="conference";
 		$data["start"]="0";
 		$data["limit"]="500";
@@ -158,12 +158,12 @@
 	}
 	
 	// function section
-	function createaccesscode($vid, $mainurl, $header,$link,$vmr)
+	function createaccesscode($vid, $mainurl, $header, $link,$vmr)
 	{
 		try
 		{	
-			$data	= array();
-			$url 	= $mainurl."post/virtualmeeting/virtualmeeting/";
+			$data				= array();
+			$url 				= $mainurl."post/virtualmeeting/virtualmeeting/";
 			$data["username"]	="1000";
 			$data["title"]		="FH Meeting";//name
 			$data["location"]	="";
@@ -171,7 +171,7 @@
 			
 			$data["start_date"]	= date("Y-m-d");
 			$data["start_time"]	= "00:00";
-			$etimestamp 		= strtotime(date("Y-m-d H:i:s"))+(86400+7200);//(3*3600);
+			$etimestamp 		= strtotime(date("Y-m-d H:i:s")) + (86400 + 7200);//(3*3600);
 			$data["stop_date"]	= date("Y-m-d", $etimestamp);	
 			$data["stop_time"]	= date("H:i", $etimestamp);
 			
@@ -186,14 +186,8 @@
 			echo $out;
 			wtask_log($out);
 			$ret = json_decode($out, true);
-			if($ret['success'] == true)
-			{
-				$meeting_id = $ret['meeting_id'];
-			}
-			else
-			{
-				$meeting_id = 0;
-			}
+			$meeting_id = ($ret['success'] == true) ? $ret['meeting_id'] : 0;
+			
 			//3. Get meeting access code
 			$url =  $mainurl."get/virtualmeeting/virtualmeeting/view/list";
 			$url .= '?start=0&limit=99999&type=&sort=[{"property":"starttime","direction":"DESC"}]';
@@ -208,7 +202,7 @@
 					break;
 				}
 			}
-			echo $access_code ;
+			echo $access_code;
 			
 			//Insert into accesscode
 			if ($meeting_id != 0)
@@ -217,13 +211,13 @@
 				$ret = mysqli_query($link, $sql);
 			}
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
 			wtask_log_Exception("Exception error createaccesscode :".$e->getMessage());
 			echo "error createaccesscode";
 		}
 	}
-	function checkvmr($mainurl, $header,$link)
+	function checkvmr($mainurl, $header, $link)
 	{
 		try
 		{
@@ -252,11 +246,11 @@
 				$vid 		= explode(":", $vid1);
 				$msg 		= "vmr:".trim($vid[2])."\r\n".$vid[1];
 				echo $msg."\r\n";
-				$vidkey = trim($vid[2]);//VID
+				$vidkey 	= trim($vid[2]);//VID
 				wtask_log($msg);
 				
-				$vmrname = check_special_char($vmrname);
-				$vidkey = check_special_char($vidkey);
+				$vmrname 	= check_special_char($vmrname);
+				$vidkey 	= check_special_char($vidkey);
 				if (strstr($vid[1], "Transgolbe_MCU"))
 				{
 					echo "ooooo";
@@ -270,20 +264,20 @@
 					{
 						while ($row = mysqli_fetch_array($result))
 						{
-							$vr = $row['vmr'];
-							$vr = check_special_char($vr);
+							$vr 	 = $row['vmr'];
+							$vr 	 = check_special_char($vr);
 							$vidkey  = mysqli_real_escape_string($link,$vidkey);
-							if($vmrname != $vr)
+							if ($vmrname != $vr)
 							{//有變動,須更新
 								$vidkey = check_special_char($vidkey);
-								$sql = "UPDATE vmrinfo SET vmr = '$vmrname'  , checkvmr = 2, updatetime=NOW() where vid='".$vidkey."'";
+								$sql 	= "UPDATE vmrinfo SET vmr = '$vmrname'  , checkvmr = 2, updatetime=NOW() where vid='".$vidkey."'";
 								mysqli_query($link, $sql);
 								break;
 							}
 							else
 							{ //沒變動,但是需標註有檢查過了
 								$vidkey = check_special_char($vidkey);
-								$sql = "UPDATE vmrinfo SET checkvmr = 2, updatetime=NOW() where vid='".$vidkey."'";
+								$sql 	= "UPDATE vmrinfo SET checkvmr = 2, updatetime=NOW() where vid='".$vidkey."'";
 								mysqli_query($link, $sql);
 								break;					
 							}
@@ -304,16 +298,16 @@
 				
 			}
 			$vmrgateway1 = explode("|", $vmrname);
-			$vmrgateway = $vmrgateway1[0];
+			$vmrgateway  = $vmrgateway1[0];
 			echo "vmrgateway:".$vmrgateway;
 			//update $vmrgateway
-			if(strlen($vmrgateway)>1)
+			if (strlen($vmrgateway) > 1)
 			{
-				$sql =  "update vmrrule set gateway = '$vmrgateway' where id = 1";
+				$sql = "update vmrrule set gateway = '$vmrgateway' where id = 1";
 				mysqli_query($link, $sql);
 			}
 			//vmr 已被刪除
-			if(count($vmr)>0)
+			if (count($vmr) > 0)
 			{
 				$sql = "delete from vmrinfo where checkvmr = 1";
 				mysqli_query($link, $sql);
@@ -321,7 +315,7 @@
 			echo "check vmr finish\n";
 			wtask_log("check vmr finish");
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
 			wtask_log_Exception("Exception error checkvmr :".$e->getMessage());
 			echo "error checkvmr";

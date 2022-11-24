@@ -65,12 +65,12 @@
 			//return;
 			if (_ENV == "PROD")
 			{
-				$mainurl = $g_prod_meeting_apiurl;
-				$url = $mainurl."post/api/token/request";
-				$data = array();
-				$data["username"]="administrator";
-				$hash = md5("CheFR63r");
-				$data["data"]=md5($hash."@deltapath");
+				$mainurl 			= $g_prod_meeting_apiurl;
+				$url 				= $mainurl."post/api/token/request";
+				$data 				= array();
+				$data["username"]	= "administrator";
+				$hash 				= md5("CheFR63r");
+				$data["data"]		= md5($hash."@deltapath");
 				$out = CallAPI4OptMeeting("POST", $url, $data);
 				//echo $out;
 				$ret = json_decode($out, true);
@@ -103,21 +103,20 @@
 			echo $msg."\n";
 		}		
 		//return;
-		$sql = "select * from vmrule where 1";
+		$sql 	= "select * from vmrule where 1";
 		$result = mysqli_query($link, $sql);
 		$kicktime = 0;
 		while($row = mysqli_fetch_array($result)){
 			$kicktime = $row['kicktime']; 
 		}
 		$kicktime = check_special_char($kicktime);
-		if($kicktime<=0) $kicktime = 900;
-		
+		if ($kicktime <= 0) $kicktime = 900;
 		
 		//1. 檢查線上online 的vid from gomeeting
 		$sql = "select * from gomeeting where 1";
 		$result = mysqli_query($link, $sql);
 		//echo $sql;
-		if($result <= 0)
+		if ($result <= 0)
 		{}
 		else
 		{
@@ -167,9 +166,9 @@
 					//echo ";";
 					echo $count;
 					echo "\n";
+					
 					//2. 
 					//echo $starttime.";";
-					
 					$now = strtotime(date('Y-m-d H:i:s'));
 					$diff = $now -  strtotime($starttime);
 					echo $diff;
@@ -182,7 +181,7 @@
 						mysqli_query($link, $sql);				
 					}
 					else
-					if($count <= 1 && $diff>$kicktime)
+					if ($count <= 1 && $diff > $kicktime)
 					{
 						echo "KICK\n";
 						//if($part['conference'] == "1002")//for test only
@@ -235,7 +234,7 @@
 	}
 	
 	// function section
-	function syncvmr($mainurl, $header,$link, $partdata)
+	function syncvmr($mainurl, $header, $link, $partdata)
 	{
 		try
 		{
@@ -253,34 +252,21 @@
 					$vid  = mysqli_real_escape_string($link,$vid);
 					
 					$sql = "select * from gomeeting where vmr=$vid";
-					$ret = mysqli_query($link, $sql);	
-					if(1)
+					$ret = mysqli_query($link, $sql);
+					$used = ($ret > 0 && mysqli_num_rows($ret) > 0) ? 1 : 0; // 1:有預約會議室
+					
+					foreach ( $partdata['list'] as $part )
+						if($part['conference'] == $vid)
+							$count++;
+					
+					echo "syncvmr-count:".$count.":".$used;
+					$now = date('Y-m-d H:i:s');
+					if ($count <= 0 && $used == 0)//沒有人預約會議室
 					{
+						//update status vmrinfo
+						$sql = "update vmrinfo SET status=0 , updatetime=NOW() where vid=$vid";
+						$ret = mysqli_query($link, $sql);		
 						
-						if ($ret>0 && mysqli_num_rows($ret) > 0)
-						{
-							$used = 1;//有預約會議室
-
-						}
-						else
-							$used = 0;
-						
-						foreach ( $partdata['list'] as $part ) // 
-						{
-							if($part['conference'] == $vid)
-							{
-								$count++;
-							}
-						}	
-						echo "syncvmr-count:".$count.":".$used;
-						$now = date('Y-m-d H:i:s');
-						if($count<=0 && $used == 0)//沒有人預約會議室
-						{
-							//update status vmrinfo
-							$sql = "update vmrinfo SET status=0 , updatetime=NOW() where vid=$vid";
-							$ret = mysqli_query($link, $sql);		
-							
-						}
 					}
 				}
 			}
@@ -292,7 +278,7 @@
 		}
 	}
 	
-	function Kick($mainurl, $header,$link, $kickid, $meetingid, $vid,$gateway)
+	function Kick($mainurl, $header, $link, $kickid, $meetingid, $vid,$gateway)
 	{
 		//1.開始踢人
 		//2.並刪除此accesscode by meetingid
@@ -311,26 +297,28 @@
 			
 			//1.開始踢人
 			$url = $mainurl."delete/skypeforbusiness/skypeforbusinessgatewayparticipant/disconnect";
-			for($i = 0; $i < count($kickid); $i++)
+			for ($i = 0; $i < count($kickid); $i++)
 			{
-				$data= array();
-				$data['gateway'] = $gateway;
+				$data					= array();
+				$data['gateway'] 		= $gateway;
 				$data['participant_id'] = $kickid[$i];
 				$out = CallAPI4OptMeeting("POST", $url, $data, $header);	
 				echo 'kick people'.$out.'\n';
 			}
 			$meetingid  = mysqli_real_escape_string($link,$meetingid);
-			$vid  = mysqli_real_escape_string($link,$vid);
+			$vid  		= mysqli_real_escape_string($link,$vid);
+			
 			//3. accesscode 更新deletecode 狀態  (deletecode = 1)
 			wtask_log('3. accesscode 更新deletecode 狀態  (deletecode = 1)');
 			$sql = "update accesscode set deletecode = 1 where meetingid='".$meetingid."'";
 			$result = mysqli_query($link, $sql);
+			
 			//4. 更新vminfo status (relese resouce, status = 0)
 			wtask_log('4. 更新vminfo status (relese resouce, status = 0)');
 			$vid  = mysqli_real_escape_string($link,$vid);
-			
 			$sql = "update vmrinfo set status = 0  , updatetime=NOW() where vid = '".$vid."'";
 			$result = mysqli_query($link, $sql);
+			
 			//5. delete gomeeting
 			wtask_log('5. delete gomeeting)');
 			$sql = "delete from gomeeting where meetingid='".$meetingid."'";
