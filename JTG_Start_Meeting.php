@@ -3,6 +3,7 @@
 	
 	global $g_join_meeting_apiurl, $g_join_meeting_max_license, $g_join_meeting_pincode;
 	global $g_create_meeting_apiurl, $g_meeting_uid, $g_meeting_pwd;
+	global $host, $user, $passwd, $database;
 		
 	// initial
 	$status_code_succeed 	= "L1"; // 成功狀態代碼
@@ -180,7 +181,8 @@
 
 			if ($result = mysqli_query($link, $sql))
 			{
-				if (mysqli_num_rows($result) > 0)
+				$rcd_count = mysqli_num_rows($result);
+				if ($rcd_count > 0)
 				{
 					// $mid=0;
 					// 其他人員-加入會議室-jacky
@@ -219,7 +221,8 @@
 						JTG_wh_log($Insurance_no, $Remote_insurance_no, "query prepare", $Person_id);
 						if ($ret = mysqli_query($link, $sql))
 						{
-							if (mysqli_num_rows($ret) > 0)
+							$rcd_count = mysqli_num_rows($ret);
+							if ($rcd_count > 0)
 							{
 								JTG_wh_log($Insurance_no, $Remote_insurance_no, "meeting exists that you can join meeting...", $Person_id);
 								//有此會議室
@@ -248,40 +251,17 @@
 									$sql = $sql.merge_sql_string_if_not_empty("remote_Insurance_no", $Remote_insurance_no);
 									$ret = mysqli_query($link, $sql);
 									JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meeting person count = ".$countp, $Person_id);
-								
+									//echo "update 線上 人數 DB :".$sql."\r\n";
 									
 									//update GPS
 									//if($Role != "0") //業務是新增的
-									{//0:業務員  1:要保人 2:被保人 3: 法定代理人
-										$gps = $Lat.",".$Lon;
-										if ($proposer_id != '')
-										{		
-											if (strlen($proposer_gps_addr) > 0)
-												$sql = "update meetinglog SET proposer_id = '$proposer_id', proposer_gps = '$gps' , proposer_gps_addr = '$proposer_gps_addr' where meetingid='".$meeting_id."'";
-											else
-												$sql = "update meetinglog SET proposer_id = '$proposer_id', proposer_gps = '$gps' where meetingid='".$meeting_id."'";
-											$ret = mysqli_query($link, $sql);
-											JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table proposer info", $Person_id);
-										}
-										if ($insured_id != '')
-										{			
-											if (strlen($insured_gps_addr) > 0)
-												$sql = "update meetinglog SET insured_id = '$insured_id', insured_gps = '$gps', insured_gps_addr = '$insured_gps_addr'  where meetingid='".$meeting_id."'";
-											else
-												$sql = "update meetinglog SET insured_id = '$insured_id', insured_gps = '$gps' where meetingid='".$meeting_id."'";
-											$ret = mysqli_query($link, $sql);
-											JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table insured info", $Person_id);
-										}
-										if ($legalRep_id != '')
-										{			
-											if (strlen($legalRep_gps_addr) > 0)								
-												$sql = "update meetinglog SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps', legalRep_gps_addr = '$legalRep_gps_addr' where meetingid='".$meeting_id."'";
-											else
-												$sql = "update meetinglog SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps' where meetingid='".$meeting_id."'";
-											$ret = mysqli_query($link, $sql);
-											JTG_wh_log($Insurance_no, $Remote_insurance_no, "update meetinglog table legalRep info", $Person_id);
-										}
-									}
+									$gps = $Lat.",".$Lon;
+									$data_meetinglog = modify_meetinglog($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+																		  $meeting_id, $vid, $stime, $etime, $gps,
+																		  $agent_id		, $agent_gps_addr	,
+																		  $proposer_id	, $proposer_gps_addr,
+																		  $insured_id	, $insured_gps_addr	,
+																		  $legalRep_id	, $legalRep_gps_addr, false);
 									$array4json["meetingurl"]		= $meetingurl;	
 									$array4json["meetingid"]		= $meeting_id;
 									$data = result_message("true", "0x0200", "OK", json_encode($array4json));
@@ -411,9 +391,18 @@
 						//JTG_wh_log($log);
 						
 						$vmrenough = 0;
-						//只有vmrinfo releae 超10分鐘以上的才可以拿來用,避免調閱檔案問題,以及重複進入問題
-						$sql = "begin";
-						mysqli_query($link, $sql);
+						// 只有vmrinfo releae 超10分鐘以上的才可以拿來用,避免調閱檔案問題,以及重複進入問題
+						// $sql = "begin";				// 2022-11-26 mark by jacky 這行出現後，sql語法無法正常
+						// mysqli_query($link, $sql);	// 2022-11-26 mark by jacky 這行出現後，sql語法無法正常
+						
+						/* 測試$link什麼時候失效的工具-start */
+						//echo "會議室 GET Token :".$token."\r\n";
+						//			$sql = "update vmrinfo SET status=0, updatetime=NOW() where vid=1020";
+						//			$ret = mysqli_query($link, $sql);
+						//echo "sql :".$sql."\r\n";
+						//echo "ret :".$ret."\r\n";
+						/* 測試$link什麼時候失效的工具-end */
+						
 						$sql = "select * from vmrinfo where status = 0 and TIMESTAMPDIFF(MINUTE, updatetime, NOW())>10 order by RAND()";
 						JTG_wh_log($Insurance_no, $Remote_insurance_no, "vmrinfo sql prepare", $Person_id);
 						
@@ -424,6 +413,8 @@
 						{
 							if (mysqli_num_rows($result) > 0)
 							{
+								JTG_wh_log($Insurance_no, $Remote_insurance_no, "只有vmrinfo releae 超10分鐘 :".$sql, $Person_id);
+								
 								while ($row = mysqli_fetch_array($result))
 								{
 									$vmr = trim(stripslashes($row['vmr']));
@@ -431,6 +422,7 @@
 									//先保護
 									$sql = "update vmrinfo SET status=1, updatetime=NOW() where vid=$vid";
 									$ret = mysqli_query($link, $sql);
+									JTG_wh_log($Insurance_no, $Remote_insurance_no, "先保護 :".$sql, $Person_id);
 									
 									$header = array('X-frSIP-API-Token:'.$token);
 									//check $vid 是否還有人在線上
@@ -574,17 +566,17 @@
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, $data["responseMessage"]." exit 07\r\n", $Person_id);
 							return;//超過會議室的上限了							
 						}
-
-						// 取得三小時的時間並回傳
+						
+						// 取得30 * 60秒的時間並回傳
 						$stimestamp 				= strtotime(date("Y-m-d H:i:s"));
 						$array4json["start_date"]	= date("Y-m-d", $stimestamp);
 						$array4json["start_time"]	= date("H:i:s", $stimestamp);
 						$stime 						= $array4json["start_date"]." ".$array4json["start_time"];
-						$etimestamp 				= strtotime(date("Y-m-d H:i:s"))+1800;//(3*3600);
+						$etimestamp 				= strtotime(date("Y-m-d H:i:s")) + 30 * 60;//(3*3600);
 						$array4json["stop_date"]	= date("Y-m-d", $etimestamp);
 						$array4json["stop_time"]	= date("H:i:s", $etimestamp);
-						$etime 						= date("Y-m-d H:i:s", $etimestamp);						
-					
+						$etime 						= date("Y-m-d H:i:s", $etimestamp);	
+						
 						$gps = "<+".$Lat.",+".$Lon.">";
 						$showName = "";
 						$countp = 0;
@@ -597,55 +589,22 @@
 						$meetingurl = $g_join_meeting_apiurl."/webapp/#/?callType=Video&conference=".$access_code."&".$showName."&join=1&media=1&pin=".$pincode;
 						
 						//Insert Meeting id to gomeeting
-						$sql1 = "INSERT INTO gomeeting (insurance_no, Remote_insurance_no, meetingid, accesscode, vmr, starttime, stoptime, count, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$meeting_id', '$access_code', '$vid', '$stime', '$etime', $countp, NOW())";
-						$ret  = mysqli_query($link, $sql1);
-						JTG_wh_log($Insurance_no, $Remote_insurance_no, "Insert Meeting id to gomeeting", $Person_id);
+						$data_gomeeting = modify_gomeeting($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+															$meeting_id, $access_code, $vid, $stime, $etime, $countp, false);
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "access Meeting id to gomeeting complete!", $Person_id);
+						//var_dump($data_gomeeting);
 						
 						//$log = $sql;
 						//JTG_wh_log($log);
 						//LOG Meeting id for VRMS
-						// 存在與不存在都insert 感覺不正常，或許要修正 - jacky
 						$gps = $Lat.",".$Lon;
-						if (strlen($agent_gps_addr) > 0)
-						{
-							if($agent_id != '')
-							{
-								$sql = "INSERT INTO meetinglog (insurance_no, remote_insurance_no, vid, meetingid, agent_id, agent_gps, agent_gps_addr, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$agent_gps_addr', '$stime', '$etime', NOW())";
-								$ret = mysqli_query($link, $sql);
-							}
-						}
-						else
-						{
-							$sql = "INSERT INTO meetinglog (insurance_no, Remote_insurance_no, vid, meetingid, agent_id, agent_gps, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$stime', '$etime', NOW())";
-							$ret = mysqli_query($link, $sql);
-						}
-						JTG_wh_log($Insurance_no, $Remote_insurance_no, "LOG Meeting id for VRMS", $Person_id);
-						
-						if ($proposer_id != '')
-						{		
-							if(strlen($proposer_gps_addr)>0)
-								$sql = "update meetinglog SET proposer_id = '$proposer_id', proposer_gps = '$gps' , proposer_gps_addr = '$proposer_gps_addr' where meetingid='".$meeting_id."'";
-							else
-								$sql = "update meetinglog SET proposer_id = '$proposer_id', proposer_gps = '$gps' where meetingid='".$meeting_id."'";
-							$ret = mysqli_query($link, $sql);
-						}
-						if ($insured_id != '')
-						{			
-							if(strlen($insured_gps_addr)>0)
-								$sql = "update meetinglog SET insured_id = '$insured_id', insured_gps = '$gps', insured_gps_addr = '$insured_gps_addr'  where meetingid='".$meeting_id."'";
-							else
-								$sql = "update meetinglog SET insured_id = '$insured_id', insured_gps = '$gps' where meetingid='".$meeting_id."'";
-							$ret = mysqli_query($link, $sql);
-						}
-						if ($legalRep_id != '')
-						{			
-							if(strlen($legalRep_gps_addr)>0)								
-								$sql = "update meetinglog SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps', legalRep_gps_addr = '$legalRep_gps_addr' where meetingid='".$meeting_id."'";
-							else
-								$sql = "update meetinglog SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps' where meetingid='".$meeting_id."'";
-							$ret = mysqli_query($link, $sql);
-						}
-						JTG_wh_log($Insurance_no, $Remote_insurance_no, "access meetinglog sql :". $sql, $Person_id);
+						$data_meetinglog = modify_meetinglog($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+							  $meeting_id, $vid, $stime, $etime, $gps,
+							  $agent_id		, $agent_gps_addr	,
+							  $proposer_id	, $proposer_gps_addr,
+							  $insured_id	, $insured_gps_addr	,
+							  $legalRep_id	, $legalRep_gps_addr, false);
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "access meetinglog sql complete!", $Person_id);
 						
 						//$meetingurl="https://meet.deltapath.com/webapp/#/?conference=884378136732@deltapath.com&name=錢總&join=1&media";
 						$array4json["meetingurl"]		= $meetingurl;

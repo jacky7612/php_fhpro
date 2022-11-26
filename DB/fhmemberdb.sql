@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2022-11-23 09:43:08
+-- 產生時間： 2022-11-26 09:34:23
 -- 伺服器版本： 10.4.22-MariaDB
 -- PHP 版本： 7.4.27
 
@@ -32,7 +32,10 @@ CREATE TABLE `accesscode` (
   `vid` varchar(32) NOT NULL,
   `code` varchar(32) NOT NULL,
   `meetingid` varchar(32) NOT NULL,
-  `updatetime` datetime NOT NULL
+  `deletecode` int(11) NOT NULL DEFAULT 0,
+  `updatetime` datetime NOT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -94,7 +97,7 @@ CREATE TABLE `facecomparelog` (
 CREATE TABLE `gomeeting` (
   `id` int(11) NOT NULL,
   `insurance_no` varchar(32) NOT NULL,
-  `remote_Insurance_no` varchar(32) NOT NULL,
+  `remote_insurance_no` varchar(32) NOT NULL,
   `vmr` varchar(10) DEFAULT NULL,
   `meetingid` int(11) NOT NULL,
   `accesscode` varchar(32) NOT NULL,
@@ -149,8 +152,8 @@ CREATE TABLE `meetinglog` (
   `id` int(11) NOT NULL,
   `meetingid` int(11) NOT NULL,
   `insurance_no` varchar(32) NOT NULL,
-  `remote_insurance_no ` varchar(32) NOT NULL,
-  `video_time` int(11) NOT NULL,
+  `remote_insurance_no` varchar(32) NOT NULL,
+  `video_time` int(11) DEFAULT NULL,
   `bSaved` int(11) NOT NULL DEFAULT -1,
   `bDownload` tinyint(4) NOT NULL DEFAULT 0,
   `bookstarttime` datetime NOT NULL,

@@ -1530,4 +1530,170 @@
 		}
 		return $data;
 	}
+	
+	// gomeeting table public
+	function modify_gomeeting(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+							  $meeting_id, $access_code, $vid, $start_time, $end_time, $countp,
+							  $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		global $g_encrypt;
+		global $host, $user, $passwd, $database;
+		
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data 			= array();
+		try
+		{
+			if ($link == null)
+			{
+				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
+				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+			}
+			
+			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);
+			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no);
+			$Person_id  			= mysqli_real_escape_string($link, $Person_id);
+			
+			$Insurance_no 			= trim(stripslashes($Insurance_no));
+			$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
+			$Personid 				= trim(stripslashes($Person_id));
+			
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "$Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+							  $meeting_id, $access_code, $vid, $start_time, $end_time, $countp", $Person_id);
+							  
+			$sql = "INSERT INTO `gomeeting` (insurance_no, remote_insurance_no, meetingid, accesscode, vmr, starttime, stoptime, count, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$meeting_id', '$access_code', '$vid', '$start_time', '$end_time', $countp, NOW())";
+			//echo $sql."\r\n";
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "insert gomeeting table prepare", $Person_id);
+			if ($result = mysqli_query($link, $sql))
+			{
+				$data = result_message("true", "0x0200", "gomeeting succeed!", "");
+			}
+		}
+		catch (Exception $e)
+		{
+			$data = result_message("false", "0x0209", "[insert_gomeeting_table_info] Exception error!", "");
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		finally
+		{
+			try
+			{
+				if ($link != null && $close_mysql)
+				{
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				wh_log($dst_title, $dst_subtitle, "(X) [insert_gomeeting_table_info] - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			}
+		}
+		return $data;
+	}
+	// meetinglog table public
+	function modify_meetinglog(&$link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+							  $meeting_id, $vid, $start_time, $end_time, $gps,
+							  $agent_id		, $agent_gps_addr	,
+							  $proposer_id	, $proposer_gps_addr,
+							  $insured_id	, $insured_gps_addr	,
+							  $legalRep_id	, $legalRep_gps_addr,
+							  $close_mysql = true, $log_title = "", $log_subtitle = "")
+	{
+		global $g_encrypt;
+		global $host, $user, $passwd, $database;
+		
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$data 			= array();
+		$sql 			= "";
+		try
+		{
+			if ($link == null)
+			{
+				$link = mysqli_connect($host, $user, $passwd, $database);	// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+				$data_conn = result_connect_error($link);
+				if ($data_conn["status"] == "false") return $data_conn;
+				mysqli_query($link,"SET NAMES 'utf8'");						// 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+			}
+				
+			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);
+			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no);
+			$Person_id  			= mysqli_real_escape_string($link, $Person_id);
+			
+			$Insurance_no 			= trim(stripslashes($Insurance_no));
+			$Remote_insurance_no 	= trim(stripslashes($Remote_insurance_no));
+			$Personid 				= trim(stripslashes($Person_id));
+			/*
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "$Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id,
+							  $meeting_id, $vid, $start_time, $end_time, $gps,
+							  $agent_id		, $agent_gps_addr	,
+							  $proposer_id	, $proposer_gps_addr,
+							  $insured_id	, $insured_gps_addr	,
+							  $legalRep_id	, $legalRep_gps_addr", $Person_id);
+			*/
+			if (strlen($agent_gps_addr) > 0)
+			{
+				if ($agent_id != '')
+					$sql = "INSERT INTO `meetinglog` (insurance_no, remote_insurance_no, vid, meetingid, agent_id, agent_gps, agent_gps_addr, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$agent_gps_addr', '$start_time', '$end_time', NOW())";
+			}
+			else
+				$sql = "INSERT INTO `meetinglog` (insurance_no, remote_insurance_no, vid, meetingid, agent_id, agent_gps, bookstarttime, bookstoptime, updatetime) VALUES ('$Insurance_no', '$Remote_insurance_no', '$vid', '$meeting_id', '$agent_id', '$gps', '$start_time', '$end_time', NOW())";
+			$ret = mysqli_query($link, $sql);
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "LOG Meetinglog id for VRMS sql :".$sql, $Person_id);
+			
+			if (empty($proposer_id) == false)
+			{
+				$sql = (strlen($proposer_gps_addr) > 0) ?
+					"update `meetinglog` SET proposer_id = '$proposer_id', proposer_gps = '$gps' , proposer_gps_addr = '$proposer_gps_addr' where meetingid='".$meeting_id."'"
+					:
+					"update `meetinglog` SET proposer_id = '$proposer_id', proposer_gps = '$gps' where meetingid='".$meeting_id."'";
+				$ret = mysqli_query($link, $sql);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "LOG Meetinglog id for proposer_id sql :".$sql, $Person_id);
+			}
+			if (empty($insured_id) == false)
+			{
+				$sql = (strlen($insured_gps_addr) > 0) ?
+					"update `meetinglog` SET insured_id = '$insured_id', insured_gps = '$gps', insured_gps_addr = '$insured_gps_addr'  where meetingid='".$meeting_id."'"
+					:
+					"update `meetinglog` SET insured_id = '$insured_id', insured_gps = '$gps' where meetingid='".$meeting_id."'";
+				$ret = mysqli_query($link, $sql);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "LOG Meetinglog id for insured_id sql :".$sql, $Person_id);
+			}
+			if (empty($legalRep_id) == false)
+			{
+				$sql = (strlen($legalRep_gps_addr) > 0) ?
+					"update `meetinglog` SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps', legalRep_gps_addr = '$legalRep_gps_addr' where meetingid='".$meeting_id."'"
+					:
+					"update `meetinglog` SET legalRep_id = '$legalRep_id', legalRep_gps = '$gps' where meetingid='".$meeting_id."'";
+				$ret = mysqli_query($link, $sql);
+				JTG_wh_log($Insurance_no, $Remote_insurance_no, "LOG Meetinglog id for legalRep_id sql :".$sql, $Person_id);
+			}
+			JTG_wh_log($Insurance_no, $Remote_insurance_no, "insert gomeeting table prepare", $Person_id);
+			if ($ret) $data = result_message("true", "0x0200", "meetinglog succeed!", "");
+		}
+		catch (Exception $e)
+		{
+			$data = result_message("false", "0x0209", "[insert_meetinglog_table_info] Exception error!", "");
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, "(X) ".$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+		}
+		finally
+		{
+			try
+			{
+				if ($link != null && $close_mysql)
+				{
+					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
+					$link = null;
+				}
+			}
+			catch(Exception $e)
+			{
+				wh_log($dst_title, $dst_subtitle, "(X) [insert_meetinglog_table_info] - disconnect mysql jsonlog table failure :".$e->getMessage(), $Person_id);
+			}
+		}
+		return $data;
+	}
 ?>

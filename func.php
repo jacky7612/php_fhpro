@@ -245,7 +245,7 @@
 		$SSO_info["expire"] 				= date("Y-m-d H:i:s");
 		$SSO_json 							= json_encode($SSO_info);
 		$SSO_token["sso_token"]				= encrypt($key, $SSO_json);
-		return $SSO_token;
+		return json_encode($SSO_token);
 	}
 	// 解析token - 看門狗 public
 	function protect_api_dog($SSO_token, &$Get_insurance_no, &$Get_remote_insurance_no, &$Get_person_id)

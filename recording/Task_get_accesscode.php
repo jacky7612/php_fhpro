@@ -162,7 +162,7 @@
 		if (file_exists("/tmp/get_accesscode.pid") == true) unlink("/tmp/get_accesscode.pid");
 		echo "complete!\r\n";
 	}
-	catch(Exception $e)
+	catch (Exception $e)
 	{
 		echo "(x)Exception error!".$e->getMessage()."\r\n";
 		wtask_log_Exception("Task_get_accesscode", $remote_ip4filename, "Exception error :".$e->getMessage());

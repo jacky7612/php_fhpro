@@ -15,7 +15,7 @@
 		//$contain_json 		 = "true";
 	}
 	$SSO_token_obj = generate_SSO_token($Insurance_no, $Remote_insurance_no, $Person_id);
-	echo "encode :".$SSO_token_obj."<br>";
+	echo $SSO_token_obj."<br>";
 	$SSO = json_decode($SSO_token_obj);
 	echo $SSO->sso_token."<br>";
 	
@@ -25,6 +25,13 @@
 		echo $get_Remote_insurance_no."<br>";
 		echo $get_Person_id."<br>";
 	}
+	
+	$data_gomeeting = modify_gomeeting($link, "Ins1996", 'appl2022', 'E123456789', "agentOne", "E123456789",
+														"34", '7396504286', '1020', '2022-11-26 15:52:01', '2022-11-26 16:22:01', 1);
+	
+	$data_gomeeting = modify_meetinglog($link, "Ins1996", 'appl2022', 'E123456789', "agentOne", "E123456789",
+										"34", '1020', '2022-11-26 15:23:19', '2022-11-26 15:53:19', "0.0,0.0", "E123456789", "", "", "", "", "", "", "");
+	var_dump($data_gomeeting);
 	return;
 	
 	$SSO_info["insurance_no"] 			= $Insurance_no;
