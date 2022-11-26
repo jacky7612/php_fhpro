@@ -12,13 +12,14 @@
 			return true;
 	}
 	
-	function wtask_log($log_msg)
+	function wtask_log($Task, $remote_ip4filename, $log_msg)
 	{
 		global $g_trace_log;
+		
 		if ($g_trace_log["wtask_log"] == false) return;
-		wh_log_core("", "", $log_msg, "");
+		wh_log_core($Task, $remote_ip4filename, $log_msg, "");
 	}
-	function wtask_log_Exception($log_msg)
+	function wtask_log_Exception($Task, $remote_ip4filename, $log_msg)
 	{
 		global $g_trace_log;
 		if ($g_trace_log["wtask_log_Exception"] == false) return;

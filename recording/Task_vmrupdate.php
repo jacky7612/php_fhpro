@@ -5,32 +5,31 @@
 	
 	try
 	{
-		wtask_log("Task_vmrupdate entry <-");
+		$remote_ip4filename = get_remote_ip_underline();
+		wtask_log("Task_vmrupdate", $remote_ip4filename, "Task_vmrupdate entry <-");
 		$link = mysqli_connect($host, $user, $passwd, $database);
 		$data = result_connect_error ($link);
 		if ($data["status"] == "false")
 		{
-			wtask_log("[Task_vmrupdate] ".get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
+			wtask_log("Task_vmrupdate", $remote_ip4filename, "[Task_vmrupdate] ".get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
 			return;
 		}
 		mysqli_query($link,"SET NAMES 'utf8'");
 		
 		$mainurl = $g_create_meeting_apiurl;
 		$url = $mainurl."post/api/token/request";
-
+		
 		//1. GET Token
-		$data 				= array();
-		//$data["username"]	="administrator";
-		$data["username"]	="administrator";
-		$hash 				= md5("CheFR63r");
-		//$hash = md5("sT7m");
-		$data["data"]		= md5($hash."@deltapath");
-		//echo md5($hash."@deltapath");
-		$out = CallAPI4OptMeeting("POST", $url, $data);
+		$out = get_meeting_token("Task_vmrupdate", $g_create_meeting_apiurl, $remote_ip4filename, $g_meeting_uid, $g_meeting_pwd);
+		if (strpos($out, "\"success\"") == false) return;
+		
 		//echo $out;
 		$ret = json_decode($out, true);
-		if ($ret['success'] == true)
+		if($ret['success'] == true)
+		{
+			echo "get token succeed\r\n";
 			$token = $ret['token'];
+		}
 		else
 		{
 			echo "error";//error;
@@ -40,10 +39,10 @@
 		$header = array('X-frSIP-API-Token:'.$token);
 		/*
 		$url = $mainurl."get/skypeforbusiness/skypeforbusinessgatewayvmr/view/list";
-		$data["gateway"]="12"; //UAT
-		$data["service_type"]="conference";
-		$data["start"]="0";
-		$data["limit"]="500";
+		$data["gateway"]		= _MEETING_GATEWAY; //UAT
+		$data["service_type"]	= "conference";
+		$data["start"]			= "0";
+		$data["limit"]			= "500";
 
 		$out = CallAPI4OptMeeting("GET", $url, $data, $header);
 		echo $out;
@@ -100,12 +99,12 @@
 	}
 	catch (Exception $e)
 	{
-		wtask_log_Exception("Exception error :".$e->getMessage());
+		wtask_log_Exception("Task_vmrupdate", $remote_ip4filename, "Exception error :".$e->getMessage());
 		echo "error";
 	}
 	finally
 	{
-		wtask_log("finally procedure");
+		wtask_log("Task_vmrupdate", $remote_ip4filename, "finally procedure");
 		try
 		{
 			if ($link != null)
@@ -116,8 +115,8 @@
 		}
 		catch (Exception $e)
 		{
-			wtask_log_Exception("Exception error: disconnect! error :".$e->getMessage());
+			wtask_log_Exception("Task_vmrupdate", $remote_ip4filename, "Exception error: disconnect! error :".$e->getMessage());
 		}
-		wtask_log("finally complete"."\r\n".$g_exit_symbol."Task_vmrupdate exit ->"."\r\n");
+		wtask_log("Task_vmrupdate", $remote_ip4filename, "finally complete"."\r\n".$g_exit_symbol."Task_vmrupdate exit ->"."\r\n");
 	}
 ?>

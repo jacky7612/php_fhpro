@@ -35,7 +35,7 @@
 	{
 		$Insurance_no 		 = "Ins1996";
 		$Remote_insurance_no = "appl2022";
-		$Person_id 			 = "A123456789";
+		$Person_id 			 = "E123456789";
 		$DoCreateMember_Flag = "true";
 	}
 	

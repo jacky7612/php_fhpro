@@ -176,8 +176,8 @@
 							
 							//1. GET Token
 							$data_input1 				= array();
-							$data_input1["username"]	= $g_create_meeting_user;
-							$hash 						= md5($g_create_meeting_hash);
+							$data_input1["username"]	= $g_meeting_uid;
+							$hash 						= md5($g_meeting_pwd);
 							$data_input1["data"]		= md5($hash."@deltapath");
 							$out 						= CallAPI4OptMeeting("POST", $url, $data_input1);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "呼叫踢人 API", $Person_id);

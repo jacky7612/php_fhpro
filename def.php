@@ -1,6 +1,9 @@
 <?php
-	const _ENV = "UAT";
-	const _MEETING_GATEWAY = "12";
+	const _ENV 								= "UAT"		;
+	const _MEETING_GATEWAY 					= "1"		;
+	const _MEETING_START_TIME_APPOINTMENT	= 10 * 60	; // 第三方限制預約時段需提前5分鐘，保險時間為10分鐘，排程最好設在23：50
+	const _MEETING_END_TIME_APPOINTMENT		= 60 * 60	; // 24 * 60 * 60 + 2 * 60 * 60; // 預約時段
+	const _MEETING_ACCESSCODE_MAX			= 5			; // 取得5個accessCode
 	
 	$g_db_ip							= "127.0.0.1";
 	$g_db_user							= "root";
@@ -77,7 +80,7 @@
 	$g_notify_apiurl					= "https://fcm.googleapis.com/fcm/send"							; // 推播 url
 	$g_FCM_API_ACCESS_KEY				= "AAAAo_0kJqM:APA91bGINmsgm6Q4eIL4jEP5ujJQlXK3YlA3AetNvDzN9KnKG_Z0Zjl59F7qHCCv5lvNqIeWMwoy8JtOX164vtHvXN-D9LcyocoEKTrFlnkH212xDbgdUgCQvyhKemLrPDfZKKyrca74"; // FCM金鑰
 	
-	$g_join_meeting_apiurl				= "https://ldi.transglobe.com.tw"								; // 會議室 url
+	$g_join_meeting_apiurl				= "https://jtgpexconf.jotangi.net"								; // 會議室 url
 										  // Prod url :"https://dis-cn1.transglobe.com.tw"
 										  /*
 										  $LB = rand(1, 10);
@@ -89,8 +92,14 @@
 	$g_join_meeting_max_license			= 250;
 	$g_join_meeting_pincode				= "53758995";
 	
-	$g_create_meeting_apiurl			= "http://10.67.70.169/RESTful/index.php/v1/"					; // 會議室 url
-	$g_prod_meeting_apiurl				= "http://10.67.65.174/RESTful/index.php/v1/"					; // 會議室 url
+	$g_test_vmr_id						= "1|21"														; // 測試時對應的vmr_id
+	$g_vmr_map_title					= "Pexip"														; // 取得accessCode的辨識碼
+	$g_meeting_uid 						= "administrator"												; // 存取meeting tocken API 帳號
+	$g_meeting_pwd						= "JtG@53758995"												; // "CheFR63r" // 存取meeting tocken API 密碼
+	$g_meeting_ip 						= "203.145.222.190"												; // API url 001 "10.67.70.169"
+	$g_meeting_prod_ip					= "203.145.222.190"												; // API url 002 "10.67.65.174";
+	$g_create_meeting_apiurl			= "http://".$g_meeting_ip."/RESTful/index.php/v1/"				; // 會議室 url
+	$g_prod_meeting_apiurl				= "http://".$g_meeting_prod_ip."/RESTful/index.php/v1/"			; // 會議室 url
 										  /*
 										  if(_ENV == "PROD")
 												$mainurl = "http://10.67.65.174/RESTful/index.php/v1/";
@@ -99,10 +108,7 @@
 											else
 												$mainurl = "http://10.67.70.169/RESTful/index.php/v1/";//內網 //UAT
 										  */
-	$g_create_meeting_user				= "administrator";
-	$g_create_meeting_hash				= "CheFR63r";
-	
-	$g_OCR_apiurl 						= "https://disuat.transglobe.com.tw:1443/jotangi/api/"			; // gov url
+	$g_OCR_apiurl 						= "https://disuat.transglobe.com.tw:1443/jotangi/api/"			; // ocr url
 	$g_OCR_front_type_code				= "5"; // 正面
 	$g_OCR_back_type_code				= "4"; // 背面
 	$g_OCR_get_token_param 				= [

@@ -1,4 +1,21 @@
 <?php
+	// 取得視訊會議token public
+	function get_meeting_token4api($Insurance_no, $Remote_insurance_no, $Person_id, $api_url, $uid, $pwd)
+	{
+		$out = "";
+		$url = $api_url."post/api/token/request";
+		wh_log($Insurance_no, $Remote_insurance_no, "1. GET Token", $Person_id);
+		wh_log($Insurance_no, $Remote_insurance_no, $url, $Person_id);
+		$data_input				= array();
+		$data_input["username"]	= $uid;
+		$hash 					= md5($pwd);
+		$data_input["data"]		= md5($hash."@deltapath");
+		//echo md5($hash."@deltapath");
+		wh_log($Insurance_no, $Remote_insurance_no, "username :".$data_input["username"]."; hash :".$hash."; data :".$data_input["data"], $Person_id);
+		$out = CallAPI4OptMeeting("POST", $url, $data_input);
+		wh_log($Insurance_no, $Remote_insurance_no, $out, $Person_id);
+		return $out;
+	}
 	// 訊息中心 public
 	function result_message($status, $code, $responseMessage, $json)
 	{

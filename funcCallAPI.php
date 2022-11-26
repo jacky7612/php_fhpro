@@ -31,7 +31,9 @@
 			case "POST":
 				curl_setopt($curl, CURLOPT_POST, 1);
 
-				if ($data)
+				if (is_array($data))
+					curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+				else
 					curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 				
 				//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));

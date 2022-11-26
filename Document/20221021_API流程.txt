@@ -196,6 +196,25 @@ ps.每個步驟都要狀態API
 修正六：回傳													[V]
 修正七：簡訊導入頁-判斷呼叫端為android或ios，判斷是否已安裝		[]
 
+視訊會議API 與 錄影伺服機API-視訊排程程式
+----------------------------------------------------------------------------------------------------------------------------------
+一、原30項API代碼參數輸入型式增加SSO_Token，以利後續轉換							(V) 2022.11.21	complete :2022.11.22
+二、Task_check_frsip		精簡程式碼並模組化，加入log以利追蹤						(V) 2022.11.23	complete :2022.11.24
+三、Task_check_meetingroom	精簡程式碼並模組化，加入log以利追蹤						(V) 2022.11.23	complete :2022.11.24
+四、Task_get_accesscode		精簡程式碼並模組化，加入log以利追蹤						(V) 2022.11.23	complete :2022.11.24
+五、Task_routinedl			精簡程式碼並模組化，加入log以利追蹤						(V) 2022.11.23	complete :2022.11.24
+六、Task_vmrupdate			精簡程式碼並模組化，加入log以利追蹤						(V) 2022.11.23	complete :2022.11.24
+七、Frank於11/24 17：00透過醫療視訊伺服，開放一個會議室供測試項目二至項目六之功能	( ) 2022.11.25	complete :
+	  i.Task_check_frsip		(O) 2022.11.25	complete :2022.11.25  	frank提及此項可以先不試，這個比較不重要
+	 ii.Task_check_meetingroom	(O) 2022.11.25	complete :2022.11.25
+	iii.Task_get_accesscode		(V) 2022.11.25	complete :2022.11.25
+	 iv.Task_routinedl			(O) 2022.11.25	complete :2022.11.25
+	  v.Task_vmrupdate			(O) 2022.11.25	complete :2022.11.25
+	  
+	測試工具：Task_delete_meetingid		參數：Meeting_id
+	
+	2022/11/26測試結果：只能取一個accesscode，第二個到第四個不能取同樣時間，錯誤訊息為{"success":false,"errors":{"start_date":"Unavailable time"},"fields":true}
+	
 Q01.Get_FrsipInfo及JTG_Get_MeetingInfo沒有呼叫API
 Q02.JTG_Start_Meeting url:	1. GET Token  					[POST] => post/api/token/request
 							2. 得到目前線上的所有參與者vid 	[GET]  => get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list

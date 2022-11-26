@@ -3,19 +3,21 @@
 	
 	global $g_create_meeting_apiurl, $g_prod_meeting_apiurl;
 	
-	wtask_log("Task_check_meetingroom entry <-");
+	$mainurl = $g_create_meeting_apiurl;
 	try
 	{
+		$remote_ip4filename = get_remote_ip_underline();
+		wtask_log("Task_check_meetingroom", $remote_ip4filename, "Task_check_meetingroom entry <-");
 		$link = mysqli_connect($host, $user, $passwd, $database);
 		$data = result_connect_error ($link);
 		if ($data["status"] == "false")
 		{
-			wtask_log("[Task_check_meetingroom] ".get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
+			wtask_log("Task_check_meetingroom", $remote_ip4filename, "[Task_check_meetingroom] ".get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
 			return;
 		}
 		mysqli_query($link,"SET NAMES 'utf8'");
 		
-		$gateway = "12";
+		$gateway = _MEETING_GATEWAY;
 		$sql 	 =  "select * from vmrule where id = 1";// gateway = '$vmrgateway' where id = 1";
 		$result  = mysqli_query($link, $sql);
 		if (mysqli_num_rows($result) > 0){	
@@ -36,46 +38,39 @@
 			{
 				$msg = strtotime(date("Y-m-d H:i:s"))." - ".filemtime("/tmp/check_meetingroom.pid");
 				echo $msg."\r\n";
-				wtask_log($msg."\r\n".$g_exit_symbol."Task_check_meetingroom exit ->"."\r\n");
+				wtask_log("Task_check_meetingroom", $remote_ip4filename, $msg."\r\n".$g_exit_symbol."Task_check_meetingroom exit ->"."\r\n");
 				return;
 			}
+			touch("/tmp/check_meetingroom.pid");
 		}
-		touch("/tmp/check_meetingroom.pid");
 		
-		$mainurl 	= $g_create_meeting_apiurl;
-		$url 		= $mainurl."post/api/token/request";
-
 		//1. GET Token
-		$data 				= array();
-		//$data["username"]	="administrator";
-		$data["username"]	= "administrator";
-		$hash 				= md5("CheFR63r");
-		//$hash 			= md5("sT7m");
-		$data["data"]		= md5($hash."@deltapath");
-		//echo md5($hash."@deltapath");
-		$out = CallAPI4OptMeeting("POST", $url, $data);
-		//echo $out;
+		$out = get_meeting_token("Task_check_meetingroom", $g_create_meeting_apiurl, $remote_ip4filename, $g_meeting_uid, $g_meeting_pwd);
+		if (strpos($out, "\"success\"") == false) return;
+		
 		$ret = json_decode($out, true);
 		if($ret['success'] == true)
+		{
+			echo "get token succeed\r\n";
 			$token = $ret['token'];
+		}
 		else
 		{
-			unlink("/tmp/check_meetingroom.pid");
+			if (file_exists("/tmp/check_meetingroom.pid") == true) unlink("/tmp/check_meetingroom.pid");
 			echo "error";//error;
 			//return;
 			if (_ENV == "PROD")
 			{
-				$mainurl 			= $g_prod_meeting_apiurl;
-				$url 				= $mainurl."post/api/token/request";
-				$data 				= array();
-				$data["username"]	= "administrator";
-				$hash 				= md5("CheFR63r");
-				$data["data"]		= md5($hash."@deltapath");
-				$out = CallAPI4OptMeeting("POST", $url, $data);
-				//echo $out;
+				$mainurl = $g_prod_meeting_apiurl;
+				$out = get_meeting_token("Task_check_meetingroom", $g_prod_meeting_apiurl, $remote_ip4filename, $g_meeting_uid, $g_meeting_pwd);
+				if (strpos($out, "\"success\"") == false) return;
+				
 				$ret = json_decode($out, true);
 				if($ret['success'] == true)
+				{
+					echo "get prod token succeed\r\n";
 					$token = $ret['token'];
+				}
 				else
 					return;//both crash
 			}
@@ -84,7 +79,6 @@
 		}
 
 		$header = array('X-frSIP-API-Token:'.$token);
-
 		//0. 先得到目前線上的所有參與者
 		$url 					= $mainurl."get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list";
 		$data					= array();
@@ -93,6 +87,7 @@
 		$data['start'] 			= '0';
 		$data['limit'] 			= '9999';
 		$out = CallAPI4OptMeeting("GET", $url, $data, $header);
+		echo "query 目前線上的所有參與者 api result :".$out."\r\n";
 		//echo $out;
 		//return;
 		$partdata = json_decode($out, true);
@@ -100,7 +95,7 @@
 		foreach ($partdata['list'] as $part)
 		{
 			$msg = $part['conference'].":".$part["display_name"];
-			echo $msg."\n";
+			echo $msg."\r\n";
 		}		
 		//return;
 		$sql 	= "select * from vmrule where 1";
@@ -115,12 +110,14 @@
 		//1. 檢查線上online 的vid from gomeeting
 		$sql = "select * from gomeeting where 1";
 		$result = mysqli_query($link, $sql);
-		//echo $sql;
-		if ($result <= 0)
-		{}
-		else
+		echo "sql 檢查線上online 的vid from gomeeting :".$sql."\r\n";
+		if (is_null($ret) == false && empty($ret) == false)
 		{
-			if (mysqli_num_rows($result) > 0)
+			$rcd_count = mysqli_num_rows($result);
+			//echo $sql;
+			if ($rcd_count <= 0)
+			{}
+			else if ($rcd_count > 0)
 			{
 				while ($row = mysqli_fetch_array($result))
 				{
@@ -146,46 +143,42 @@
 					{
 						if($part['conference'] == $vid)
 						{
-							if(strstr($part["display_name"], "業務"))
+							if( strstr($part["display_name"], "業務"))
 							{
-								$sale =1;
+								$sale = 1;
 							}
-							if(strstr($part["display_name"], "10.67"))
+							if (strstr($part["display_name"], "10.67"))
 							{
 								//機器人不算數
 							}
 							else
 							{
-								$kickid[$count]=$part["id"];
+								$kickid[$count] = $part["id"];
 								//$kickmeeting[$count] = $meetingid;
 								$count++;
 							}
 						}
-					}			
-					//echo $part['conference'];
-					//echo ";";
-					echo $count;
-					echo "\n";
+					}
+					echo $part['conference']."; ".$count."\r\n";
 					
 					//2. 
 					//echo $starttime.";";
 					$now = strtotime(date('Y-m-d H:i:s'));
 					$diff = $now -  strtotime($starttime);
 					echo $diff;
-					//echo "kicktime".$kicktime;
-					if($sale == 0 && $diff>300 )//業務在5分鐘內沒進來就砍掉
+					echo "starttime :".$starttime."; "."kicktime :".$kicktime;
+					if ($sale == 0 && $diff > 300)//業務在5分鐘內沒進來就砍掉
 					{
-						Kick($mainurl, $header,$link, $kickid, $meetingid, $vid, $gateway);
+						Kick_task($remote_ip4filename, $mainurl, $header,$link, $kickid, $meetingid, $vid, $gateway);
 						//upate meetinglog status for stop meeting, 1:norma stop, 2:kick
 						$sql = "update meetinglog set bStop = 3,bookstoptime=NOW() where meetingid='".$meetingid."'";
 						mysqli_query($link, $sql);				
 					}
-					else
-					if ($count <= 1 && $diff > $kicktime)
+					else if ($count <= 1 && $diff > $kicktime)
 					{
-						echo "KICK\n";
+						echo "KICK\r\n";
 						//if($part['conference'] == "1002")//for test only
-							Kick($mainurl, $header,$link, $kickid, $meetingid, $vid, $gateway);
+							Kick_task($remote_ip4filename, $mainurl, $header, $link, $kickid, $meetingid, $vid, $gateway);
 						//else
 							//echo "Kick simulate\n";
 							//upate meetinglog status for stop meeting, 1:norma stop, 2:kick
@@ -200,24 +193,26 @@
 					}
 				}
 			}
+			
+			//維持vmrinfo 與frsip 的一致
+			//syncvmr($remote_ip4filename, $mainurl, $header,$link, $partdata);
 		}
-		//維持vmrinfo 與frsip 的一致
-		//syncvmr($mainurl, $header,$link, $partdata);
+		if (file_exists("/tmp/check_meetingroom.pid") == true) unlink("/tmp/check_meetingroom.pid");
 		
-		unlink("/tmp/check_meetingroom.pid");
 		//4. expired token 
 		$url = $mainurl."delete/api/token/expire";
 		$data["username"]="administrator";
-		$out = CallAPI4OptMeeting("POST", $url, $data, $header);	
+		$out = CallAPI4OptMeeting("POST", $url, $data, $header);
+		echo "complete!\r\n";	
 	}
 	catch (Exception $e)
 	{
-		wtask_log_Exception("Exception error :".$e->getMessage());
-		echo "error";
+		wtask_log_Exception("Task_check_meetingroom", $remote_ip4filename, "Exception error :".$e->getMessage());
+		echo "Exception error".$e->getMessage();
 	}
 	finally
 	{
-		wtask_log("finally procedure");
+		wtask_log("Task_check_meetingroom", $remote_ip4filename, "finally procedure");
 		try
 		{
 			if ($link != null)
@@ -228,13 +223,13 @@
 		}
 		catch (Exception $e)
 		{
-			wtask_log_Exception("Exception error: disconnect! error :".$e->getMessage());
+			wtask_log_Exception("Task_check_meetingroom", $remote_ip4filename, "Exception error: disconnect! error :".$e->getMessage());
 		}
-		wtask_log("finally complete"."\r\n".$g_exit_symbol."Task_check_meetingroom exit ->."\r\n"");
+		wtask_log("Task_check_meetingroom", $remote_ip4filename, "finally complete"."\r\n".$g_exit_symbol."Task_check_meetingroom exit ->"."\r\n");
 	}
 	
 	// function section
-	function syncvmr($mainurl, $header, $link, $partdata)
+	function syncvmr($remote_ip4filename, $mainurl, $header, $link, $partdata)
 	{
 		try
 		{
@@ -273,12 +268,12 @@
 		}
 		catch(Exception $e)
 		{
-			wtask_log_Exception("Exception error syncvmr:".$e->getMessage());
+			wtask_log_Exception("Task_check_meetingroom", $remote_ip4filename, "Exception error syncvmr:".$e->getMessage());
 			echo "error syncvmr";
 		}
 	}
 	
-	function Kick($mainurl, $header, $link, $kickid, $meetingid, $vid,$gateway)
+	function Kick_task($remote_ip4filename, $mainurl, $header, $link, $kickid, $meetingid, $vid, $gateway)
 	{
 		//1.開始踢人
 		//2.並刪除此accesscode by meetingid
@@ -290,10 +285,10 @@
 			//2. delete virtualmeeting, 並刪除此accesscode by meetingid
 			$data		= array();
 			$data['id']	= $meetingid;
-			$url 		=  $mainurl."delete/virtualmeeting/virtualmeeting/".$meetingid ;
+			$url 		= $mainurl."delete/virtualmeeting/virtualmeeting/".$meetingid ;
 			$out = CallAPI4OptMeeting("POST", $url, $data, $header);
 			echo 'delete accesscode'.$out.'\n';
-			wtask_log('delete accesscode 1.開始踢人'.$out);
+			wtask_log("Task_check_meetingroom", $remote_ip4filename, 'delete accesscode 1.開始踢人'.$out);
 			
 			//1.開始踢人
 			$url = $mainurl."delete/skypeforbusiness/skypeforbusinessgatewayparticipant/disconnect";
@@ -309,24 +304,24 @@
 			$vid  		= mysqli_real_escape_string($link,$vid);
 			
 			//3. accesscode 更新deletecode 狀態  (deletecode = 1)
-			wtask_log('3. accesscode 更新deletecode 狀態  (deletecode = 1)');
+			wtask_log("Task_check_meetingroom", $remote_ip4filename, '3. accesscode 更新deletecode 狀態  (deletecode = 1)');
 			$sql = "update accesscode set deletecode = 1 where meetingid='".$meetingid."'";
 			$result = mysqli_query($link, $sql);
 			
 			//4. 更新vminfo status (relese resouce, status = 0)
-			wtask_log('4. 更新vminfo status (relese resouce, status = 0)');
+			wtask_log("Task_check_meetingroom", $remote_ip4filename, '4. 更新vminfo status (relese resouce, status = 0)');
 			$vid  = mysqli_real_escape_string($link,$vid);
 			$sql = "update vmrinfo set status = 0  , updatetime=NOW() where vid = '".$vid."'";
 			$result = mysqli_query($link, $sql);
 			
 			//5. delete gomeeting
-			wtask_log('5. delete gomeeting)');
+			wtask_log("Task_check_meetingroom", $remote_ip4filename, '5. delete gomeeting)');
 			$sql = "delete from gomeeting where meetingid='".$meetingid."'";
 			$result = mysqli_query($link, $sql);
 		}
 		catch(Exception $e)
 		{
-			wtask_log_Exception("Exception error kick:".$e->getMessage());
+			wtask_log_Exception("Task_check_meetingroom", $remote_ip4filename, "Exception error kick:".$e->getMessage());
 			echo "error kick";
 		}
 	}

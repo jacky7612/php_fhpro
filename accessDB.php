@@ -1437,7 +1437,7 @@
 
 		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
 		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
-		$data 		= array();
+		$data 			= array();
 		try
 		{
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no);

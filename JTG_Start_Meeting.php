@@ -2,7 +2,7 @@
 	include "func.php";
 	
 	global $g_join_meeting_apiurl, $g_join_meeting_max_license, $g_join_meeting_pincode;
-	global $g_create_meeting_apiurl, $g_create_meeting_user, $g_create_meeting_hash;
+	global $g_create_meeting_apiurl, $g_meeting_uid, $g_meeting_pwd;
 		
 	// initial
 	$status_code_succeed 	= "L1"; // 成功狀態代碼
@@ -338,19 +338,19 @@
 					// 業務員建立會議室-jacky
 					try
 					{
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "準備建立會議室\r\n", $Person_id);
 						$mainurl 	= $g_create_meeting_apiurl;
 						$url 		= $mainurl."post/api/token/request";
 
 						//1. GET Token
-						$data_input1				= array();
-						$data_input1["username"]	= $g_create_meeting_user;
-						$hash 						= md5($g_create_meeting_hash);
-						$data_input1["data"]		= md5($hash."@deltapath");
-						$out 						= CallAPI4OptMeeting("POST", $url, $data_input1);
-						$ret 						= json_decode($out, true);
+						$out = get_meeting_token4api($Insurance_no, $Remote_insurance_no, $Person_id, $g_create_meeting_apiurl, $g_meeting_uid, $g_meeting_pwd);
 						
-						if (strlen($out) > 0 && $ret['success'] == true)
+						$ret = json_decode($out, true);
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "準備建立會議室", $Person_id);
+						
+						if (strpos($out, "\"success\"") && strlen($out) > 0 && $ret['success'] == true)
 						{
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, " get meeting token succeed", $Person_id);
 							$token = $ret['token'];
 							$status_code = $status_code_succeed;
 						}
@@ -376,7 +376,7 @@
 							
 							header('Content-Type: application/json');
 							echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-							JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["responseMessage"]." exit step 02.2\r\n", $Person_id);	
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["responseMessage"]." exit step 02.2\r\n", $Person_id);
 							return;
 						}
 						
@@ -386,8 +386,14 @@
 						$max = 0;
 						$sql = "select SUM(count) as max from gomeeting where 1";
 						$result = mysqli_query($link, $sql);
-						while ($row = mysqli_fetch_array($result))
-							$max = $row['max'];
+						if (is_null($result) == false && empty($result) == false)
+						{
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, $sql." succeed, max = ".$max, $Person_id);
+							while ($row = mysqli_fetch_array($result))
+								$max = $row['max'];
+						}
+						if (empty($max)) $max = 0; // add code by jacky 20221125
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "是否超過maxlicense最大人數限制 max = ".$max, $Person_id);
 						
 						if (intval($max) > intval($maxlicense))
 						{
@@ -411,6 +417,8 @@
 						$sql = "select * from vmrinfo where status = 0 and TIMESTAMPDIFF(MINUTE, updatetime, NOW())>10 order by RAND()";
 						JTG_wh_log($Insurance_no, $Remote_insurance_no, "vmrinfo sql prepare", $Person_id);
 						
+						if (empty($g_test_vmr_id) == false) $sql = "select * from vmrinfo where status = 0 and vmr='".$g_test_vmr_id."'";
+						
 						// 檢查會議室是否 > 10分鐘
 						if ($result = mysqli_query($link, $sql))
 						{
@@ -424,11 +432,12 @@
 									$sql = "update vmrinfo SET status=1, updatetime=NOW() where vid=$vid";
 									$ret = mysqli_query($link, $sql);
 									
+									$header = array('X-frSIP-API-Token:'.$token);
 									//check $vid 是否還有人在線上
 									// 先得到目前線上的所有參與者
 									$url 							= $mainurl."get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list";
 									$data_input2					= array();
-									$data_input2['gateway'] 		= '12';
+									$data_input2['gateway'] 		= _MEETING_GATEWAY;
 									$data_input2['service_type'] 	= 'conference';	
 									$data_input2['start'] 			= '0';
 									$data_input2['limit'] 			= '9999';
@@ -438,17 +447,20 @@
 									
 									$partdata = json_decode($out, true);
 									$bnext = 0;
-									foreach ($partdata['list'] as $part)
+									if (is_array($partdata))
 									{
-										JTG_wh_log($Insurance_no, $Remote_insurance_no, $part['conference'].":".$part["display_name"], $Person_id);
-										echo $part['conference'].":".$part["display_name"]."\r\n"; // 再檢視是否必要jacky
-										if ($part['conference'] == $vid)
+										foreach ($partdata['list'] as $part)
 										{
-											//此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api
-											//重新取用新的
-											$bnext = 1;
-											JTG_wh_log($Insurance_no, $Remote_insurance_no, "此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api", $Person_id);
-											break;
+											JTG_wh_log($Insurance_no, $Remote_insurance_no, $part['conference'].":".$part["display_name"], $Person_id);
+											echo $part['conference'].":".$part["display_name"]."\r\n"; // 再檢視是否必要jacky
+											if ($part['conference'] == $vid)
+											{
+												//此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api
+												//重新取用新的
+												$bnext = 1;
+												JTG_wh_log($Insurance_no, $Remote_insurance_no, "此會議室有人占用,所以狀態有誤, 可能是用網路連結,非透過api", $Person_id);
+												break;
+											}
 										}
 									}
 									
@@ -530,17 +542,23 @@
 						//從accesscode取得access_code
 						$access_code  = 0;
 						$sql = "select * from accesscode where deletecode = 0 and vid=$vid ORDER BY updatetime ASC;";
-						JTG_wh_log($Insurance_no, $Remote_insurance_no, "query accesscode table prepare", $Person_id);
+						JTG_wh_log($Insurance_no, $Remote_insurance_no, "從accesscode取得access_code prepare sql string :".$sql, $Person_id);
 						$result = mysqli_query($link, $sql);
-						if (mysqli_num_rows($result) > 0)
+						if (is_null($result) == false && empty($result) == false)
 						{
-							while ($row = mysqli_fetch_array($result))
+							$rcd_count = mysqli_num_rows($result);
+							JTG_wh_log($Insurance_no, $Remote_insurance_no, "find record count :".$sql, $Person_id);
+							if ($rcd_count > 0)
 							{
-								$access_code = $row['code'];
-								$meeting_id = $row['meetingid'];
-								break;
+								while ($row = mysqli_fetch_array($result))
+								{
+									$access_code = $row['code'];
+									$meeting_id = $row['meetingid'];
+									break;
+								}
 							}
-						}							
+						}
+						
 						if ($access_code == 0)
 						{
 							//restore status vmrinfo
@@ -632,7 +650,7 @@
 						//$meetingurl="https://meet.deltapath.com/webapp/#/?conference=884378136732@deltapath.com&name=錢總&join=1&media";
 						$array4json["meetingurl"]		= $meetingurl;
 						$array4json["meetingid"]		= $meeting_id;
-						$data = result_message("true", "0x0200", "OK", json_encode($array4json));
+						$data = result_message("true", "0x0200", "OK", $array4json);
 						$status_code = $status_code_succeed;
 					}
 					catch (Exception $e)

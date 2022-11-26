@@ -10,6 +10,7 @@
 	include("security_tools.php");
 	include("db_tools.php");
 	include("funcCore.php");
+	include("funcTask.php");
 	include("accessDB.php");
 	
 	/*
