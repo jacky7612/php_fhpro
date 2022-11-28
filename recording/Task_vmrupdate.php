@@ -3,7 +3,7 @@
 	
 	global $g_create_meeting_apiurl, $g_join_meeting_pincode;
 	
-	$link 		= null;
+	// $link 		= null;
 	$data_conn 	= array();
 	try
 	{

@@ -4,7 +4,7 @@
 	global $g_create_meeting_apiurl, $g_prod_meeting_apiurl;
 	
 	$mainurl 	= $g_create_meeting_apiurl;
-	$link 		= null;
+	// $link 		= null;
 	$data_conn 	= array();
 	try
 	{

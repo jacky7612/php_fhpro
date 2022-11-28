@@ -7,7 +7,7 @@
 	
 	$mainurl = $g_create_meeting_apiurl;
 	set_time_limit(0);
-	$link 		= null;
+	// $link 		= null;
 	$data_conn 	= array();
 	try
 	{

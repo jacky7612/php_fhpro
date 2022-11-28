@@ -6,7 +6,7 @@
 	
 	set_time_limit(0);
 
-	$link 		= null;
+	// $link 		= null;
 	$data_conn 	= array();
 	if (file_exists("/tmp/routinedl.pid") == true)//還在跑
 	{
@@ -30,7 +30,7 @@
 		wtask_log("Task_routinedl", $remote_ip4filename, "Task_routinedl entry <-");
 		
 		// connect mysql
-		$data_conn = task_create_connect($link, "Task_routinedl", $remote_ip4filename, $Person_id);
+		$data_conn = task_create_connect($link, "Task_routinedl", $remote_ip4filename);
 		if ($data_conn["status"] == "false") return;
 
 		//1. GET Token
@@ -242,7 +242,7 @@
 									//get date
 									$date 		= strftime("%Y%m%d", strtotime($stime));
 									$foldername = "/dis_vdm/".$date; 
-									if (createFolder($foldername) == false)
+									if (create_folder($foldername) == false)
 									{
 										$sql = "update meetinglog SET log = 'can not create folder' where vid = '".$vid."' and insurance_no='".$insurance_no."' and remote_insurance_no='".$remote_insurance_no."' and bookstarttime = '".$bstarttime."'";
 										$ret = mysqli_query($link, $sql);											
