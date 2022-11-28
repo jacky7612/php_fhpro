@@ -8,7 +8,7 @@
 	$data 					= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -99,7 +99,7 @@
 					try
 					{
 						$sql2 = "update `attachment` set `attach_graph`='{$image}', `updatetime`=NOW() where id=$mid;";
-						mysqli_query($link,$sql2) or die(mysqli_error($link));
+						mysqli_query($link, $sql2) or die(mysqli_error($link));
 						
 						$data = result_message("true", "0x0200", "附件檔上傳成功", "");
 					}
@@ -113,7 +113,7 @@
 				{
 					$sql2 = "INSERT INTO `attachment` (`insurance_no`,`remote_insurance_no`,`person_id`, `attach_title`, `attach_graph`, `createtime`, `updatetime`) VALUES ('$Insurance_no','$Remote_insurance_no','$Personid','{$attachment_Titile}','{$image}', NOW(), NOW())";
 					
-					mysqli_query($link,$sql2) or die(mysqli_error($link));
+					mysqli_query($link, $sql2) or die(mysqli_error($link));
 					$data = result_message("true", "0x0200", "附件檔上傳成功", "");
 				}
 			}

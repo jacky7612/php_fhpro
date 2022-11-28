@@ -9,7 +9,7 @@
 	$data_status			= array();
 	$applicationData		= array();
 	$uploadData				= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -183,7 +183,7 @@
 						{
 							// 更新 orderinfo table
 							$sql2 = "update `orderinfo` set `policy_number`='$Policy_no' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and order_trash=0";
-							mysqli_query($link,$sql2) or die(mysqli_error($link));
+							mysqli_query($link, $sql2) or die(mysqli_error($link));
 							$data = result_message("true", "0x0200", "回傳保單資訊至雲端達人成功!", "");
 							$status_code = $status_code_succeed;
 						}

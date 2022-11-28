@@ -9,7 +9,7 @@
 	$status_code_failure = "A1"; // 失敗狀態代碼
 	$data 				 = array();
 	$data_status		 = array();
-	$link				 = null;
+	// $link				 = null;
 	$Insurance_no		 = "";
 	$Remote_insurance_no = "";
 	$Person_id			 = "";

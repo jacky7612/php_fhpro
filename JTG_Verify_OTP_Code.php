@@ -6,7 +6,7 @@
 	$status_code_failure 	= "H2"; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -115,9 +115,9 @@
 					
 					if ($VerificationCode == $code) {
 						$data = result_message("true", "0x0200", "驗證碼正確!", "");
-						$sql2 = "update `orderinfo` set `verification_code`='' where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insuance_no' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and order_trash=0";
+						$sql2 = "update `orderinfo` set `verification_code`='' where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insurance_no' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno' and order_trash=0";
 						//and member_type=$Member_type 
-						mysqli_query($link,$sql2) or die(mysqli_error($link));
+						mysqli_query($link, $sql2) or die(mysqli_error($link));
 						$status_code = $status_code_succeed;
 					}
 					else

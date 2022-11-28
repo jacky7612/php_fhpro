@@ -10,7 +10,7 @@
 	$fields2   				= array();
 	$userList  				= array();
 	$numbering 				= "";
-	$link					= null;
+	//$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *

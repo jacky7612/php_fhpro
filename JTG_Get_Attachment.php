@@ -64,7 +64,7 @@
 		try
 		{
 			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
-			if ($data["status"] == "false") return;
+			//if ($data["status"] == "false") return;
 
 			$Insurance_no  		= mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no = mysqli_real_escape_string($link, $Remote_insurance_no	);

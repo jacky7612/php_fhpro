@@ -20,18 +20,19 @@
 			if ($data["status"] == "false")
 			{
 				wtask_log($Task_name, $remote_ip4filename, "[".$Task_name."] ".get_error_symbol($data["code"])." connect mysql result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol.$Task_name." exit ->"."\r\n");
-				return data;
+				return $data;
 			}
 			mysqli_query($link, "SET NAMES 'utf8'");
 		}
 		else
 			$data = result_message("true", "0x0200", "資料庫已連線", "");
-		return data;
+		return $data;
 	}
 	
 	// 通用 API - 基本參數 public
 	function create_connect(&$link, $Insurance_no, $Remote_insurance_no, $Person_id)
 	{
+		global $g_exit_symbol;
 		global $host, $user, $passwd, $database;
 		
 		$data = array();

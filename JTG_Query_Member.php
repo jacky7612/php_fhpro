@@ -8,7 +8,7 @@
 	$data_create			= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *

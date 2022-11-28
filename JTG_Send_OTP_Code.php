@@ -7,7 +7,7 @@
 	$status_code_failure 	= "H0"; // 失敗狀態代碼
 	$data 					= array();
 	$data_status			= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -177,7 +177,7 @@
 						{
 							// 更新 orderinfo table
 							$sql2 = "update `orderinfo` set `verification_code`='$user_code' ,`updatedttime`=NOW() where insurance_no='$Insuranceno' and remote_insurance_no='$Remoteinsuanceno' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno'  and order_trash=0";
-							mysqli_query($link,$sql2) or die(mysqli_error($link));
+							mysqli_query($link, $sql2) or die(mysqli_error($link));
 							$data = result_message("true", "0x0200", "簡訊發送完成!", "");
 							$status_code = $status_code_succeed;
 						}

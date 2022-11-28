@@ -9,7 +9,7 @@
 	$data 					= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	// $link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -175,8 +175,8 @@
 			}
 			else
 			{
-				$data = result_message("false", "0x0208", "SQL fail", "");
-				$status_code = $status_code_failure;				
+				//$data = result_message("false", "0x0208", "SQL fail", "");
+				//$status_code = $status_code_failure;				
 			}
 		}
 		catch (Exception $e)

@@ -7,7 +7,7 @@
 	$data 					= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	//$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -67,11 +67,11 @@
 			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
 			if ($data["status"] == "false") return;
 
-			$Insurance_no  		= mysqli_real_escape_string($link, $Insurance_no		);
+			$Insurance_no  		 = mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no = mysqli_real_escape_string($link, $Remote_insurance_no	);
-			$Person_id  		= mysqli_real_escape_string($link, $Person_id			);
-			$Mobile_no  		= mysqli_real_escape_string($link, $Mobile_no			);
-			$Role  				= mysqli_real_escape_string($link, $Role				);
+			$Person_id  		 = mysqli_real_escape_string($link, $Person_id			);
+			$Mobile_no  		 = mysqli_real_escape_string($link, $Mobile_no			);
+			$Role  				 = mysqli_real_escape_string($link, $Role				);
 
 			$Insuranceno 		= trim(stripslashes($Insurance_no)		);
 			$Remoteinsuanceno 	= trim(stripslashes($Remote_insurance_no));

@@ -10,7 +10,7 @@
 	$data 					= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	//$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -76,13 +76,12 @@
 		$img = get_image_content($Insurance_no, $Remote_insurance_no, $Person_id, $base64image, $target_file, $target_file1);
 		$base64_f2 = base64_encode($img);
 		
-		$link = null;
 		try
 		{
 			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
 			if ($data["status"] == "false") return;
-
-			$Person_id  = mysqli_real_escape_string($link,$Person_id);
+			
+			$Person_id  = mysqli_real_escape_string($link, $Person_id);
 			$Personid 	= trim(stripslashes($Person_id));
 		
 			$sql = "SELECT * FROM memberinfo where member_trash=0 ";

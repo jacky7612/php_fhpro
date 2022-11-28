@@ -9,7 +9,7 @@
 	$data 					= array();
 	$data_status			= array();
 	$array4json				= array();
-	$link					= null;
+	//$link					= null;
 	$Insurance_no 			= ""; // *
 	$Remote_insurance_no 	= ""; // *
 	$Person_id 				= ""; // *
@@ -102,7 +102,7 @@
 			}
 			else
 			{
-				$data = result_message("false", "0x0204", "沒有此會員!", "");
+				//$data = result_message("false", "0x0204", "沒有此會員!", "");
 			}
 		}
 		catch (Exception $e)
