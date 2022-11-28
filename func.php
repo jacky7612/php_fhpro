@@ -123,7 +123,7 @@
 				{
 					$apiret_code = false;
 					$data = result_message("false", "0x0206", "get token failure!".$msg, $api_ret_json);
-					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				}
 			}
 		}
@@ -131,7 +131,7 @@
 		{
 			$apiret_code = false;
 			$data = result_message("false", "0x0209", "token - Exception error!", "");
-			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
 		return $data;
 	}
@@ -151,7 +151,7 @@
 			{
 				$apiret_code = false;
 				$data = result_message("false", "0x0206", "parse identity error", $api_ret_json);
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+				wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				return $data;
 			}
 			$api_start_str = substr($api_ret_json, 0, 30);
@@ -172,7 +172,7 @@
 					}
 					$apiret_code = false;
 					$data = result_message("false", "0x0206", "uploadAndWait - parse identity failure! [".$log_str."]".$msg, $api_ret_json);
-					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				}
 			}
 		}
@@ -180,7 +180,7 @@
 		{
 			$apiret_code = false;
 			$data = result_message("false", "0x0209", "Exception error!", $api_ret_json);
-			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
 		return $data;
 	}
@@ -196,7 +196,7 @@
 			{
 				$apiret_code = false;
 				$data = result_message("false", "0x0206", "parse head image error", $api_ret_json);
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+				wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				return $data;
 			}
 			
@@ -207,7 +207,7 @@
 					$apiret_code = false;
 					$msg = ocr_error_code($object_head->result);
 					$data = result_message("false", "0x0206", "get head image failure!"." ".$msg, $api_ret_json);
-					JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				}
 				else
 				{
@@ -216,7 +216,7 @@
 						$apiret_code = false;
 						$msg = ocr_error_code($object_head->result);
 						$data = result_message("false", "0x0206", "head image is empty!"." ".$msg, $api_ret_json);
-						JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+						wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 					}
 					else
 					{
@@ -230,8 +230,48 @@
 		{
 			$apiret_code = false;
 			$data = result_message("false", "0x0209", "requestHeadImage - Exception error!", $api_ret_json);
-			JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
+			wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
 		}
+		return $data;
+	}
+	
+	// close connection at finally
+	function close_connection_finally(&$link, &$order_status,
+									  $Insurance_no, $Remote_insurance_no, $Person_id,
+									  $Role, $Sales_id, $Mobile_no, $status_code,
+									  $log_title = "", $log_subtitle = "")
+	{
+		$data 			= array();
+		$data_status 	= array();
+		
+		$dst_title 		= ($log_title 	 == "") ? $Insurance_no 		: $log_title	;
+		$dst_subtitle 	= ($log_subtitle == "") ? $Remote_insurance_no 	: $log_subtitle	;
+		$dst_Person_id 	= ($log_title 	 == "") ? $Person_id 			: "";
+		$data = result_message("true", "0x0200", "close connection Succeed!", "");
+		wh_log($dst_title, $dst_subtitle, "finally procedure", $dst_Person_id);
+		try
+		{
+			if ($status_code != "")
+			{
+				$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false, $log_title, $log_subtitle);
+				
+				if (count($data_status) > 0 && $data_status["status"] == "false")
+					$data = $data_status;
+			}
+			$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false, $log_title, $log_subtitle);
+			
+			if ($link != null)
+			{
+				mysqli_close($link);
+				$link = null;
+			}
+		}
+		catch (Exception $e)
+		{
+			$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
+			wh_log_Exception($dst_title, $dst_subtitle, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $dst_Person_id);
+		}
+		wh_log($dst_title, $dst_subtitle, "finally complete - status:".$status_code, $dst_Person_id);
 		return $data;
 	}
 	

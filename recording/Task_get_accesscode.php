@@ -4,7 +4,9 @@
 	global $g_create_meeting_apiurl, $g_prod_meeting_apiurl, $g_test_vmr_id, $g_test_mode, $g_exit_symbol;
 	
 	set_time_limit(0);
-	$mainurl = $g_create_meeting_apiurl;
+	$mainurl 	= $g_create_meeting_apiurl;
+	$link 		= null;
+	$data_conn 	= array();
 	try
 	{
 		$remote_ip4filename = get_remote_ip_underline();
@@ -26,14 +28,8 @@
 		}
 		
 		// connect mysql
-		$link = mysqli_connect($host, $user, $passwd, $database);
-		$data = result_connect_error ($link);
-		if ($data["status"] == "false")
-		{
-			wtask_log("Task_get_accesscode", $remote_ip4filename, "[Task_get_accesscode] ".get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
-			return;
-		}
-		mysqli_query($link, "SET NAMES 'utf8'");
+		$data_conn = task_create_connect($link, "Task_get_accesscode", $remote_ip4filename);
+		if ($data_conn["status"] == "false") return;
 
 		//1. GET Token
 		$out = get_meeting_token("Task_check_frsip", $g_create_meeting_apiurl, $remote_ip4filename, $g_meeting_uid, $g_meeting_pwd);

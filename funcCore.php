@@ -30,9 +30,16 @@
 	function result_connect_error($link)
 	{
 		$data = array();
-		if (!$link)
+		if (!$link || is_null($link))
 		{
-			$data = result_message("false", "0x0206", "連接錯誤：".mysqli_connect_error(), "");
+			try
+			{
+				$data = result_message("false", "0x0206", "連接錯誤：".mysqli_connect_error(), "");
+			}
+			catch (Exception $e)
+			{
+				$data = result_message("false", "0x0206", "連接錯誤 Exception error :".$e->getMessage(), "");
+			}
 		}
 		else
 		{

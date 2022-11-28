@@ -6,9 +6,11 @@
 	
 	set_time_limit(0);
 
+	$link 		= null;
+	$data_conn 	= array();
 	if (file_exists("/tmp/routinedl.pid") == true)//還在跑
 	{
-		if (strtotime(date("Y-m-d H:i:s")) - filemtime("/tmp/routinedl.pid") > 3*60*60)//超過3小時
+		if (strtotime(date("Y-m-d H:i:s")) - filemtime("/tmp/routinedl.pid") > 3 * 60 * 60)//超過3小時
 		{
 			// 可能不正常離開
 		}
@@ -26,15 +28,10 @@
 		$mainurl = $g_create_meeting_apiurl;
 		$remote_ip4filename = get_remote_ip_underline();
 		wtask_log("Task_routinedl", $remote_ip4filename, "Task_routinedl entry <-");
-		//0. Connect to DB
-		$link = mysqli_connect($host, $user, $passwd, $database);
-		$data_conn = result_connect_error ($link);
-		if ($data_conn["status"] == "false")
-		{
-			wtask_log("Task_routinedl", $remote_ip4filename, "[Task_routinedl] ".get_error_symbol($data_conn["code"])." query result :".$data_conn["code"]." ".$data_conn["responseMessage"]."\r\n".$g_exit_symbol."send otp exit ->"."\r\n");
-			return;
-		}
-		mysqli_query($link,"SET NAMES 'utf8'");
+		
+		// connect mysql
+		$data_conn = task_create_connect($link, "Task_routinedl", $remote_ip4filename, $Person_id);
+		if ($data_conn["status"] == "false") return;
 
 		//1. GET Token
 		$out = get_meeting_token("Task_routinedl", $g_create_meeting_apiurl, $remote_ip4filename, $g_meeting_uid, $g_meeting_pwd);

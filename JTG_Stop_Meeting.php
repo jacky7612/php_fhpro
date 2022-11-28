@@ -1,7 +1,6 @@
 <?php
 	include("func.php");
 	
-	const _ENV = "PROD"; 
 	//const _ENV = "UAT"; 
 	$key = "cLEzfgz5c5hxQwLWauCOdAilwgfn97yj";
 	//echo $key.date("Ymd");
@@ -25,6 +24,7 @@
 	$Role 					= "";
 	$imageFileType 			= "jpg";
 	$order_status 			= "";
+	$vmr					= "";
 	
 	// Api ------------------------------------------------------------------------------------------------------------------------
 	api_get_post_param($token, $Insurance_no, $Remote_insurance_no, $Person_id);
@@ -93,16 +93,8 @@
 		$link = null;
 		try
 		{
-			$link = mysqli_connect($host, $user, $passwd, $database);
-			$data = result_connect_error ($link);
-			if ($data["status"] == "false")
-			{
-				JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."stop meeting exit ->"."\r\n", $Person_id);
-				header('Content-Type: application/json');
-				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-				return;
-			}
-			mysqli_query($link,"SET NAMES 'utf8'");
+			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
+			if ($data["status"] == "false") return;
 
 			$Insurance_no  		 = mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no = mysqli_real_escape_string($link, $Remote_insurance_no);
@@ -156,7 +148,7 @@
 								while ($row = mysqli_fetch_array($result))
 								{
 									$vmr = $row['vmr'];
-									$meeting_id = $row['meetingid'];
+									$Meeting_id = $row['meetingid'];
 								}
 							}
 							$gateway = _MEETING_GATEWAY;
@@ -182,7 +174,7 @@
 							$out 						= CallAPI4OptMeeting("POST", $url, $data_input1);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "呼叫踢人 API", $Person_id);
 							$ret = json_decode($out, true);
-							if (strlen($ret) > 0 && $ret['success'] == true)
+							if (strlen($out) > 0 && $ret['success'] == true)
 								$token = $ret['token'];
 							else
 							{
@@ -198,23 +190,23 @@
 							
 							$kickid 	= 0;
 							$data_input2		= array();
-							$data_input2['id']	= $meeting_id;
-							$url 				= $mainurl."delete/virtualmeeting/virtualmeeting/".$meeting_id;
+							$data_input2['id']	= $Meeting_id;
+							$url 				= $mainurl."delete/virtualmeeting/virtualmeeting/".$Meeting_id;
 							$out 				= CallAPI4OptMeeting("POST", $url, $data_input2, $header);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "呼叫關閉會議室 API", $Person_id);
 							
 							//3. accesscode 更新deletecode 狀態  (deletecode = 1)
-							$sql = "update accesscode set deletecode = 1 where meetingid='".$meeting_id."'";
+							$sql = "update accesscode set deletecode = 1 where meetingid='".$Meeting_id."'";
 							$result = mysqli_query($link, $sql);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "accesscode 更新deletecode 狀態", $Person_id);	
 
 							//5. delete gomeeting
-							$sql = "delete from gomeeting where meetingid='".$meeting_id."'";
+							$sql = "delete from gomeeting where meetingid='".$Meeting_id."'";
 							$result = mysqli_query($link, $sql);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "delete gomeeting", $Person_id);
 							
 							//upate meetinglog status for stop meeting, 1:norma stop, 2:kick
-							$sql = "update meetinglog set bStop = 1, bookstoptime=NOW()  where meetingid='".$meeting_id."'";
+							$sql = "update meetinglog set bStop = 1, bookstoptime=NOW()  where meetingid='".$Meeting_id."'";
 							$result = mysqli_query($link, $sql);
 							JTG_wh_log($Insurance_no, $Remote_insurance_no, "upate meetinglog status for stop meeting, 1:norma stop, 2:kick", $Person_id);					
 
@@ -268,29 +260,8 @@
         }
 		finally
 		{
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "active finally function", $Person_id);
-			try
-			{
-				if ($status_code != "")
-				{
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-					if (count($data_status) > 0 && $data_status["status"] == "false")
-						$data = $data_status;
-				}
-				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-				
-				if ($link != null)
-				{
-					mysqli_close($link);
-					$link = null;
-				}
-			}
-			catch (Exception $e)
-			{
-				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
-			}
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			$data_close_conn = close_connection_finally($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code);
+			if ($data_close_conn["status"] == "false") $data = $data_close_conn;
 		}
 	}
 	else

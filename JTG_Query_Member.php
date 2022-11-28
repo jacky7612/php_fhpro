@@ -68,17 +68,9 @@
 	{
 		try
 		{
-			$link = mysqli_connect($host, $user, $passwd, $database);
-			$data = result_connect_error ($link);
-			if ($data["status"] == "false")
-			{
-				JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["code"]." ".$data["responseMessage"]."\r\n".$g_exit_symbol."query member exit ->"."\r\n", $Person_id);
-				header('Content-Type: application/json');
-				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-				return;
-			}
-			mysqli_query($link,"SET NAMES 'utf8'");
-
+			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
+			if ($data["status"] == "false") return;
+			
 			$Person_id  = mysqli_real_escape_string($link, $Person_id);
 			$Person_id = trim(stripslashes($Person_id));
 
@@ -160,29 +152,8 @@
         }
 		finally
 		{
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
-			try
-			{
-				if ($status_code != "")
-				{
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-					if (count($data_status) > 0 && $data_status["status"] == "false")
-						$data = $data_status;
-				}
-				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-				
-				if ($link != null)
-				{
-					mysqli_close($link); // 因呼叫者已開啟sql，避免重覆開啟連線數-jacky
-					$link = null;
-				}
-			}
-			catch (Exception $e)
-			{
-				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
-			}
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			$data_close_conn = close_connection_finally($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code);
+			if ($data_close_conn["status"] == "false") $data = $data_close_conn;
 		}
 	}
 	else

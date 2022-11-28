@@ -82,16 +82,8 @@
 
 		try
 		{
-			$link = mysqli_connect($host, $user, $passwd, $database);
-			$data = result_connect_error ($link);
-			if ($data["status"] == "false")
-			{
-				JTG_wh_log($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"])." query result :".$data["responseMessage"]."\r\n".$g_exit_symbol."verify otp exit ->"."\r\n", $Person_id);
-				header('Content-Type: application/json');
-				echo (json_encode($data, JSON_UNESCAPED_UNICODE));
-				return;
-			}
-			mysqli_query($link,"SET NAMES 'utf8'");
+			$data = create_connect($link, $Insurance_no, $Remote_insurance_no, $Person_id);
+			if ($data["status"] == "false") return;
 			
 			$Insurance_no  			= mysqli_real_escape_string($link, $Insurance_no		);
 			$Remote_insurance_no  	= mysqli_real_escape_string($link, $Remote_insurance_no	);
@@ -107,17 +99,16 @@
 			$Personid 			 = trim(stripslashes($Person_id)			);
 			$Mobileno 			 = trim(stripslashes($Mobile_no)			);
 			$VerificationCode 	 = trim(stripslashes($Verification_Code)	);
-
-			$sql = "SELECT * FROM orderinfo where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insurance_no' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno'  and order_trash=0";
 			
+			$sql = "SELECT * FROM orderinfo where insurance_no='$Insuranceno' and remote_insurance_no='$Remote_insurance_no' and sales_id='$Salesid' and person_id='$Personid' and mobile_no='$Mobileno'  and order_trash=0";
 			if ($result = mysqli_query($link, $sql))
 			{
 				if (mysqli_num_rows($result) > 0)
 				{
-					$mid=0;
-					while($row = mysqli_fetch_array($result))
+					$mid = 0;
+					while ($row = mysqli_fetch_array($result))
 					{
-						$rid = $row['rid'];
+						$rid  = $row['rid'];
 						$code = $row['verification_code'];
 					}	
 					$code = str_replace(",", "", $code);	
@@ -128,7 +119,6 @@
 						//and member_type=$Member_type 
 						mysqli_query($link,$sql2) or die(mysqli_error($link));
 						$status_code = $status_code_succeed;
-						
 					}
 					else
 					{
@@ -155,30 +145,8 @@
         }
 		finally
 		{
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally procedure", $Person_id);
-			try
-			{
-				if ($status_code != "")
-				{
-					$data_status = modify_order_state($link, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code, false);
-					
-					if (count($data_status) > 0 && $data_status["status"] == "false")
-						$data = $data_status;
-				}
-				$get_data = get_order_state($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, false);
-				
-				if ($link != null)
-				{
-					mysqli_close($link);
-					$link = null;
-				}
-			}
-			catch (Exception $e)
-			{
-				$data = result_message("false", "0x0207", "Exception error: disconnect!", "");
-				JTG_wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." error :".$e->getMessage(), $Person_id);
-			}
-			JTG_wh_log($Insurance_no, $Remote_insurance_no, "finally complete - status:".$status_code, $Person_id);
+			$data_close_conn = close_connection_finally($link, $order_status, $Insurance_no, $Remote_insurance_no, $Person_id, $Role, $Sales_id, $Mobile_no, $status_code);
+			if ($data_close_conn["status"] == "false") $data = $data_close_conn;
 		}
 	}
 	else
