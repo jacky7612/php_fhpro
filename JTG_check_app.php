@@ -46,7 +46,7 @@
 			
 			function entry(phone_type, timeout_url, cloud_token)
 			{
-				if (phone_type == "other") iOSOpenApp(timeout_url, cloud_token);
+				if (phone_type == "ios") iOSOpenApp(timeout_url, cloud_token);
 			}
 		</script>
 	</head>
