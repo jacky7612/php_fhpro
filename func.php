@@ -52,6 +52,22 @@
 		}
 		return false;
 	}
+	
+	// 取得裝置型態 public
+	function get_device_type()
+	{
+		$agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+		$type = 'other';
+		if (strpos($agent, 'iphone') || strpos($agent, 'ipad'))
+		{
+			$type = 'ios';
+		}
+		else if (strpos($agent, 'android'))
+		{
+			$type = 'android';
+		}
+		return $type;
+	}
 	// 通用 API - 基本參數 public
 	function api_get_post_param(&$token, &$Insurance_no, &$Remote_insurance_no, &$Person_id)
 	{

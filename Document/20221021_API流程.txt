@@ -188,15 +188,6 @@ ps.每個步驟都要狀態API
 11、與frank商討視訊會議第三方廠商提供的API文件，frank約2022.11.22(二)將說明全球案時，連結視訊會議的流程與想法；
 	事先做業2022.11.18整理、核對與全球程式所呼叫的API與廠商提供的API文件是否對應，整理疑問，週二詳細了解並提問。
 
-修正一：要保日>12H或要保日跨日									[V]
-修正二：OCR														[V]
-修正三：推播													[V]
-修正四：視訊會議API 與 錄影伺服機API							[V]
-修正五：內政部													[缺]
-修正六：回傳													[V]
-修正七：簡訊導入頁-判斷呼叫端為android或ios，判斷是否已安裝		[]
-修正八：11/28測試所有功能										[]
-
 視訊會議API 與 錄影伺服機API-視訊排程程式
 ----------------------------------------------------------------------------------------------------------------------------------
 一、原30項API代碼參數輸入型式增加SSO_Token，以利後續轉換							(V) 2022.11.21	complete :2022.11.22
@@ -216,6 +207,15 @@ ps.每個步驟都要狀態API
 	
 	2022/11/26測試結果：只能取一個accesscode，第二個到第四個不能取同樣時間，錯誤訊息為{"success":false,"errors":{"start_date":"Unavailable time"},"fields":true}
 	
+修正一：要保日>12H或要保日跨日									[V]
+修正二：OCR														[V]
+修正三：推播													[V]
+修正四：視訊會議API 與 錄影伺服機API							[V]
+修正五：內政部													[缺]
+修正六：回傳													[V] 2022.11.30
+修正七：簡訊導入頁-判斷呼叫端為android或ios，判斷是否已安裝		[V]
+修正八：11/28測試所有功能										[V]
+
 Q01.Get_FrsipInfo及JTG_Get_MeetingInfo沒有呼叫API
 Q02.JTG_Start_Meeting url:	1. GET Token  					[POST] => post/api/token/request
 							2. 得到目前線上的所有參與者vid 	[GET]  => get/skypeforbusiness/skypeforbusinessgatewayparticipant/view/list

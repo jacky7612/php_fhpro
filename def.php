@@ -44,7 +44,8 @@
 	
 	// 路徑
 	// -----------------------------------------------------------------------------------------------------------------
-	$g_root_url			 				= $g_insurance_sso_api_url							;
+	$g_root_url			 				= "https://localhost/test_fhpro/"					;
+	$g_download_ios_url			 		= "https://localhost/test_fhpro/lds-install-ios.php"; // 一般營業員使用ipad，通常為ios系統
 	$g_root_dir			 				= $_SERVER["DOCUMENT_ROOT"]."/fhpro/api/"			; // 網站根目錄	"/var/www/html/fhpro/"
 	$g_log_path		  	 				= $g_root_dir."log/"								; // log directory
 	$g_json_path	  	 				= $g_root_dir."json/"								; // json directory
