@@ -5,15 +5,10 @@
 	
 	$CloudToken = isset($_POST['token']) ? $_POST['token'] : '';
 	
-	$title 	   = mb_convert_encoding("第一金人壽遠距投保", "UTF-8", "BIG5"); //原始編碼為BIG5轉UTF-8
-	$content01 = mb_convert_encoding("您好，歡迎使用第一金人壽遠距投保，請點選", "UTF-8", "BIG5");
-	$content02 = mb_convert_encoding("隱私權政策", "UTF-8", "BIG5");
-	$content03 = mb_convert_encoding("瀏覽聲明內容。", "UTF-8", "BIG5");
-	$content04 = mb_convert_encoding("點選以下連結安裝", "UTF-8", "BIG5");
-	$content05 = mb_convert_encoding("遠距投保APP", "UTF-8", "BIG5");
-	$content06 = mb_convert_encoding("安裝 APP", "UTF-8", "BIG5");
-	$dev_type = get_device_type();
-	if ($dev_type == "other") $url = $g_download_ios_url;
+	$title 	   	= mb_convert_encoding("第一金人壽遠距投保", "UTF-8", "BIG5"); //原始編碼為BIG5轉UTF-8
+	$dev_type 	= get_device_type();
+	$url 		= "";
+	if ($dev_type == "ios") $url = $g_download_ios_url;
 ?>
 <!DOCTYPE html>
 <html>
