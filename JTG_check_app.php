@@ -19,9 +19,9 @@
 			function AndroidOpenApp(timeout_url, cloud_token)
 			{
 				var before = new Date().valueOf();
-				setTimeout(function(){
+				setTimeout(function() {
 				  var after = new Date().valueOf();
-				  if (after - before > 200){ return; }
+				  if (after - before > 200) { return; }
 				  window.location = (timeout_url);
 				}, 50);  
 				window.location = ("twitter://post?message=hello%20world%23thisisyourhashtag.");
@@ -32,7 +32,7 @@
 				var before = new Date().valueOf();
 				setTimeout(function () {
 				  var after = new Date().valueOf();
-				  if (after - before > 2000){ return; }
+				  if (after - before > 2000) { return; }
 				  window.location = (timeout_url);
 				}, 1000);
 				window.location = ('twitter://post?message=hello%20world');

@@ -170,13 +170,22 @@
 				wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
 				return $data;
 			}
+			if (strpos($api_ret_json, "\"errorString\"") != false)
+			{
+				if (strlen($object_id->errorString) == 0)
+				{
+					$apiret_code = false;
+					$data = result_message("false", "0x0206", "parse identity error", $api_ret_json);
+					wh_log_Exception($Insurance_no, $Remote_insurance_no, get_error_symbol($data["code"]).$data["code"]." ".$data["responseMessage"]." json :".$api_ret_json, $Person_id);
+					return $data;
+				}
+			}
 			$api_start_str = substr($api_ret_json, 0, 30);
 			if (strpos($api_start_str, "\"result\"") != false)
 			{
 				if ($object_id->result < 0)
 					$msg = ocr_error_code($object_id->result);
 			}
-			
 			if (strpos($api_start_str, "\"ticket\"") != false)
 			{
 				if (strlen($object_id->ticket) == 0)
